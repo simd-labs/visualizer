@@ -1,0 +1,9 @@
+body { font: 14px/1.4 system-ui, sans-serif; margin: 1rem auto; padding: 0 1rem; max-width: 1200px; }
+#drop { display: block; border: 2px dashed #64748b; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; }
+#drop:focus-within, #drop:hover { border-color: #1d4ed8; }
+.legend span { margin-right: 1.5rem; }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: .3em; vertical-align: middle; }
+#error { background: #fee2e2; color: #991b1b; padding: .5rem 1rem; border-radius: 4px; }
+#timeline, #heatmap, #timeline-table, #heatmap-table { overflow-x: auto; }
+#timeline svg, #heatmap svg { display: block; overflow: visible; }
+h2 { font-size: 1rem; margin-top: 2rem; }

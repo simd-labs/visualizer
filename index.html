@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>simd-labs visualizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>llvm-mca timeline visualizer</h1>
+    <p>Drop an llvm-mca <code>-timeline -json</code> output file, or pick one:</p>
+  </header>
+  <label id="drop">
+    Drop JSON here or <input type="file" id="file" accept=".json,application/json">
+  </label>
+  <p id="error" role="alert" hidden></p>
+  <main id="out" hidden>
+    <h2>Timeline</h2>
+    <p id="notice" hidden></p>
+    <p id="legend" class="legend"></p>
+    <div id="timeline"></div>
+    <details open><summary>Timeline as a table</summary><div id="timeline-table"></div></details>
+    <h2>Resource pressure per iteration</h2>
+    <div id="heatmap"></div>
+    <details open><summary>Heatmap as a table</summary><div id="heatmap-table"></div></details>
+  </main>
+  <script type="module" src="src/render.js"></script>
+</body>
+</html>

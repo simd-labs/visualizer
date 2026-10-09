@@ -1,0 +1,81 @@
+Iterations:        3
+Instructions:      12
+Total Cycles:      16
+Total uOps:        12
+
+Dispatch Width:    6
+uOps Per Cycle:    0.75
+IPC:               0.75
+Block RThroughput: 0.7
+
+
+Instruction Info:
+[1]: #uOps
+[2]: Latency
+[3]: RThroughput
+[4]: MayLoad
+[5]: MayStore
+[6]: HasSideEffects (U)
+
+[1]    [2]    [3]    [4]    [5]    [6]    Instructions:
+ 1      7     0.50    *                   vmovups	(%rsi,%rax,4), %ymm0
+ 1      4     0.50                        vfmadd231ps	%ymm1, %ymm2, %ymm0
+ 1      1     0.25                        addq	$8, %rax
+ 1      1     0.50                        jne	loop
+
+
+Resources:
+[0]   - SKLDivider
+[1]   - SKLFPDivider
+[2]   - SKLPort0
+[3]   - SKLPort1
+[4]   - SKLPort2
+[5]   - SKLPort3
+[6]   - SKLPort4
+[7]   - SKLPort5
+[8]   - SKLPort6
+[9]   - SKLPort7
+
+
+Resource pressure per iteration:
+[0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    [9]    
+ -      -     1.00   1.00   0.33   0.67    -     0.33   0.67    -     
+
+Resource pressure by instruction:
+[0]    [1]    [2]    [3]    [4]    [5]    [6]    [7]    [8]    [9]    Instructions:
+ -      -      -      -     0.33   0.67    -      -      -      -     vmovups	(%rsi,%rax,4), %ymm0
+ -      -     0.33   0.67    -      -      -      -      -      -     vfmadd231ps	%ymm1, %ymm2, %ymm0
+ -      -      -     0.33    -      -      -     0.33   0.33    -     addq	$8, %rax
+ -      -     0.67    -      -      -      -      -     0.33    -     jne	loop
+
+
+Timeline view:
+                    012345
+Index     0123456789      
+
+[0,0]     DeeeeeeeER.    .   vmovups	(%rsi,%rax,4), %ymm0
+[0,1]     D=======eeeeER .   vfmadd231ps	%ymm1, %ymm2, %ymm0
+[0,2]     DeE----------R .   addq	$8, %rax
+[0,3]     D=eE---------R .   jne	loop
+[1,0]     D=eeeeeeeE---R .   vmovups	(%rsi,%rax,4), %ymm0
+[1,1]     D========eeeeER.   vfmadd231ps	%ymm1, %ymm2, %ymm0
+[1,2]     .DeE----------R.   addq	$8, %rax
+[1,3]     .D=eE---------R.   jne	loop
+[2,0]     .D=eeeeeeeE---R.   vmovups	(%rsi,%rax,4), %ymm0
+[2,1]     .D========eeeeER   vfmadd231ps	%ymm1, %ymm2, %ymm0
+[2,2]     .D=eE----------R   addq	$8, %rax
+[2,3]     .D==eE---------R   jne	loop
+
+
+Average Wait times (based on the timeline view):
+[0]: Executions
+[1]: Average time spent waiting in a scheduler's queue
+[2]: Average time spent waiting in a scheduler's queue while ready
+[3]: Average time elapsed from WB until retire stage
+
+      [0]    [1]    [2]    [3]
+0.     3     1.7    0.3    2.0       vmovups	(%rsi,%rax,4), %ymm0
+1.     3     8.7    0.0    0.0       vfmadd231ps	%ymm1, %ymm2, %ymm0
+2.     3     1.3    0.3    10.0      addq	$8, %rax
+3.     3     2.3    0.0    9.0       jne	loop
+       12    3.5    0.2    5.3       <total>
