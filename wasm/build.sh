@@ -29,6 +29,18 @@ if [ ! -d llvm-project ]; then
 fi
 cd llvm-project && git fetch --depth 1 origin tag $LLVM_TAG 2>/dev/null || true
 git checkout -q $LLVM_TAG
+for p in "$ROOT"/wasm/patches/*.patch; do
+  [ -e "$p" ] || continue
+  if git apply --check "$p" 2>/dev/null; then
+    git apply "$p"
+    echo "applied $(basename "$p")"
+  elif git apply --check -R "$p" 2>/dev/null; then
+    echo "already applied: $(basename "$p")"
+  else
+    echo "FATAL: $p does not apply cleanly to $LLVM_TAG" >&2
+    exit 1
+  fi
+done
 cd "$WORK"
 
 if [ ! -d emsdk ]; then
@@ -39,7 +51,9 @@ if ! ./emsdk/emsdk list 2>/dev/null | grep -q "$EMSDK_VER \*INSTALLED\*\|$EMSDK_
 fi
 ./emsdk/emsdk activate $EMSDK_VER
 . ./emsdk/emsdk_env.sh > /dev/null
-emcc --version | head -1
+# A failed activation falls back to the system emcc in /usr/share (6.0.5), so refuse anything but the pin.
+emcc --version | head -1 | grep -q " $EMSDK_VER (" ||
+  { echo "FATAL: emcc is not $EMSDK_VER: $(emcc --version | head -1)" >&2; exit 1; }
 
 mkdir -p build
 cd build

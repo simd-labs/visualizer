@@ -46,6 +46,10 @@ python3 -m http.server
 
 Run `bash wasm/build.sh` to build llvm-mca 23.1.3 (X86, AArch64, RISCV) with Emscripten
 6.0.12 into `wasm/dist/` (llvm-mca.js, llvm-mca.wasm, LLVM's LICENSE.TXT).
+It applies every `wasm/patches/*.patch` to the pinned checkout before
+configuring (skips patches already in the tree, fails when one no longer
+applies); `wasm/patches/issue-view.patch` adds llvm-mca's JSON-only
+`-issue-events` flag.
 Source and build trees default to `~/.cache/visualizer-wasm`; set `WORK` to
 put them elsewhere, and `NATIVE_TOOL_DIR` if llvm-tblgen is not in
 `/usr/lib/llvm-23/bin`. `wasm/test.mjs` diffs the module's JSON against the

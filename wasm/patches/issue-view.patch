@@ -1,0 +1,196 @@
+diff --git a/llvm/tools/llvm-mca/CMakeLists.txt b/llvm/tools/llvm-mca/CMakeLists.txt
+index 4ef8b9afa..9da2b04fb 100644
+--- a/llvm/tools/llvm-mca/CMakeLists.txt
++++ b/llvm/tools/llvm-mca/CMakeLists.txt
+@@ -20,6 +20,7 @@ add_llvm_tool(llvm-mca
+   Views/DispatchStatistics.cpp
+   Views/InstructionInfoView.cpp
+   Views/InstructionView.cpp
++  Views/IssueEventView.cpp
+   Views/RegisterFileStatistics.cpp
+   Views/ResourcePressureView.cpp
+   Views/RetireControlUnitStatistics.cpp
+diff --git a/llvm/tools/llvm-mca/Views/IssueEventView.cpp b/llvm/tools/llvm-mca/Views/IssueEventView.cpp
+new file mode 100644
+index 000000000..aca33feff
+--- /dev/null
++++ b/llvm/tools/llvm-mca/Views/IssueEventView.cpp
+@@ -0,0 +1,67 @@
++//===--------------------- IssueEventView.cpp -------------------*- C++ -*-===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++
++#include "Views/IssueEventView.h"
++
++namespace llvm {
++namespace mca {
++
++IssueEventView::IssueEventView(const MCSubtargetInfo &STI, unsigned SourceSize)
++    : SourceSize(SourceSize) {
++  const MCSchedModel &SM = STI.getSchedModel();
++  for (unsigned I = 0, E = SM.getNumProcResourceKinds(); I < E; ++I) {
++    const MCProcResourceDesc &PR = *SM.getProcResource(I);
++    // Skip groups and invalid resources with zero units.
++    if (PR.SubUnitsIdxBegin || !PR.NumUnits)
++      continue;
++    Resource2VecIndex.try_emplace(I, UnitNames.size());
++    for (unsigned J = 0; J < PR.NumUnits; ++J) {
++      std::string Name = PR.Name;
++      if (PR.NumUnits > 1)
++        Name += "." + std::to_string(J);
++      UnitNames.push_back(std::move(Name));
++    }
++  }
++}
++
++void IssueEventView::onEvent(const HWInstructionEvent &Event) {
++  if (Event.Type != HWInstructionEvent::Issued)
++    return;
++  const auto &IE = static_cast<const HWInstructionIssuedEvent &>(Event);
++  const unsigned SourceIdx = Event.IR.getSourceIndex();
++  IssueRecord Rec{SourceIdx % SourceSize, SourceIdx / SourceSize, CurrentCycle,
++                  {}};
++  for (const ResourceUse &RU : IE.UsedResources) {
++    auto It = Resource2VecIndex.find(RU.first.first);
++    assert(It != Resource2VecIndex.end() && "issue on a group resource?");
++    Rec.Units.push_back(
++        {It->second + (unsigned)llvm::countr_zero(RU.first.second),
++         RU.second.getNumerator(), RU.second.getDenominator()});
++  }
++  Issues.push_back(std::move(Rec));
++}
++
++json::Value IssueEventView::toJSON() const {
++  json::Array Events;
++  for (const IssueRecord &Rec : Issues) {
++    json::Array Units;
++    for (const UnitUse &U : Rec.Units)
++      Units.push_back(json::Object({{"unit", U.UnitIndex},
++                                    {"name", UnitNames[U.UnitIndex]},
++                                    {"cycles_num", U.CyclesNum},
++                                    {"cycles_den", U.CyclesDen}}));
++    Events.push_back(json::Object({{"instruction", Rec.SourceIndex},
++                                   {"iteration", Rec.Iteration},
++                                   {"cycle", Rec.Cycle},
++                                   {"units", std::move(Units)}}));
++  }
++  return json::Object({{"IssueEvents", std::move(Events)}});
++}
++
++} // namespace mca
++} // namespace llvm
+diff --git a/llvm/tools/llvm-mca/Views/IssueEventView.h b/llvm/tools/llvm-mca/Views/IssueEventView.h
+new file mode 100644
+index 000000000..4b66e71c9
+--- /dev/null
++++ b/llvm/tools/llvm-mca/Views/IssueEventView.h
+@@ -0,0 +1,69 @@
++//===--------------------- IssueEventView.h ---------------------*- C++ -*-===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++/// \file
++///
++/// This file defines class IssueEventView.
++/// IssueEventView records every HWInstructionIssuedEvent (source index,
++/// iteration, cycle, and the exact processor resource units used) and
++/// serializes them to JSON. Resource units are indexed with the same flat
++/// per-unit indexing used by ResourcePressureView and the TargetInfo
++/// "Resources" array: groups and zero-unit resources are skipped, and a
++/// resource with N>1 units contributes N consecutive indices named
++/// "<ResourceName>.<J>".
++///
++//===----------------------------------------------------------------------===//
++
++#ifndef LLVM_TOOLS_LLVM_MCA_ISSUEEVENTVIEW_H
++#define LLVM_TOOLS_LLVM_MCA_ISSUEEVENTVIEW_H
++
++#include "llvm/ADT/DenseMap.h"
++#include "llvm/MC/MCSubtargetInfo.h"
++#include "llvm/MCA/HWEventListener.h"
++#include "llvm/MCA/View.h"
++#include "llvm/Support/JSON.h"
++
++namespace llvm {
++namespace mca {
++
++class IssueEventView : public View {
++  unsigned SourceSize;
++  unsigned CurrentCycle = 0;
++
++  // Maps a processor resource ID to the flat index of its first unit,
++  // identical to ResourcePressureView::Resource2VecIndex.
++  DenseMap<unsigned, unsigned> Resource2VecIndex;
++  // Flat per-unit names, identical to the TargetInfo "Resources" array.
++  std::vector<std::string> UnitNames;
++
++  struct UnitUse {
++    unsigned UnitIndex;
++    unsigned CyclesNum;
++    unsigned CyclesDen;
++  };
++  struct IssueRecord {
++    unsigned SourceIndex;
++    unsigned Iteration;
++    unsigned Cycle;
++    std::vector<UnitUse> Units;
++  };
++  std::vector<IssueRecord> Issues;
++
++public:
++  IssueEventView(const MCSubtargetInfo &STI, unsigned SourceSize);
++
++  void onCycleEnd() override { ++CurrentCycle; }
++  void onEvent(const HWInstructionEvent &Event) override;
++  void printView(raw_ostream &OS) const override {}
++  StringRef getNameAsString() const override { return "IssueEventView"; }
++  json::Value toJSON() const override;
++};
++
++} // namespace mca
++} // namespace llvm
++
++#endif
+diff --git a/llvm/tools/llvm-mca/llvm-mca.cpp b/llvm/tools/llvm-mca/llvm-mca.cpp
+index 292099295..d26f435a3 100644
+--- a/llvm/tools/llvm-mca/llvm-mca.cpp
++++ b/llvm/tools/llvm-mca/llvm-mca.cpp
+@@ -26,6 +26,7 @@
+ #include "Views/BottleneckAnalysis.h"
+ #include "Views/DispatchStatistics.h"
+ #include "Views/InstructionInfoView.h"
++#include "Views/IssueEventView.h"
+ #include "Views/RegisterFileStatistics.h"
+ #include "Views/ResourcePressureView.h"
+ #include "Views/RetireControlUnitStatistics.h"
+@@ -202,6 +203,12 @@ static cl::opt<bool> PrintTimelineView("timeline",
+                                        cl::desc("Print the timeline view"),
+                                        cl::cat(ViewOptions), cl::init(false));
+ 
++static cl::opt<bool>
++    PrintIssueEvents("issue-events",
++                     cl::desc("Record per-instruction issue events with the "
++                              "resource units used (JSON only)"),
++                     cl::cat(ViewOptions), cl::init(false));
++
+ static cl::opt<unsigned> TimelineMaxIterations(
+     "timeline-max-iterations",
+     cl::desc("Maximum number of iterations to print in timeline view"),
+@@ -823,6 +830,10 @@ int main(int argc, char **argv) {
+       Printer.addView(
+           std::make_unique<mca::ResourcePressureView>(*STI, *IP, Insts));
+ 
++    if (PrintIssueEvents)
++      Printer.addView(
++          std::make_unique<mca::IssueEventView>(*STI, Insts.size()));
++
+     if (PrintTimelineView) {
+       unsigned TimelineIterations =
+           TimelineMaxIterations ? TimelineMaxIterations : 10;
