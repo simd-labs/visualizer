@@ -42,6 +42,16 @@ Serve the directory with any static server and open index.html:
 python3 -m http.server
 ```
 
+## Building the WASM
+
+Run `bash wasm/build.sh` to build llvm-mca 23.1.3 (X86, AArch64, RISCV) with Emscripten
+6.0.12 into `wasm/dist/` (llvm-mca.js, llvm-mca.wasm, LLVM's LICENSE.TXT).
+Source and build trees default to `~/.cache/visualizer-wasm`; set `WORK` to
+put them elsewhere, and `NATIVE_TOOL_DIR` if llvm-tblgen is not in
+`/usr/lib/llvm-23/bin`. `wasm/test.mjs` diffs the module's JSON against the
+fixtures; `wasm/cpus.mjs` regenerates `cpus.json`, the list of CPUs with a
+real scheduling model.
+
 ## Tests
 
 ```

@@ -1,0 +1,18 @@
+[
+  {
+    "input": "loop.s",
+    "fixture": "znver4.json",
+    "args": ["-timeline", "-iterations=3", "-json", "-mtriple=x86_64-pc-linux-gnu", "-mcpu=znver4"],
+    "swap": { "from": "-mcpu=znver4", "to": "-mcpu=skylake" }
+  },
+  {
+    "input": "loop.s",
+    "fixture": "skylake.json",
+    "args": ["-timeline", "-iterations=3", "-json", "-mtriple=x86_64-pc-linux-gnu", "-mcpu=skylake"]
+  },
+  {
+    "input": "loop_a64.s",
+    "fixture": "neoverse-v2.json",
+    "args": ["-timeline", "-iterations=3", "-json", "-mtriple=aarch64-unknown-linux-gnu", "-mcpu=neoverse-v2"]
+  }
+]
