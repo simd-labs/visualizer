@@ -4,6 +4,14 @@ body { font: 14px/1.4 system-ui, sans-serif; margin: 1rem auto; padding: 0 1rem;
 .legend span { margin-right: 1.5rem; }
 .legend i { display: inline-block; width: 10px; height: 10px; margin-right: .3em; vertical-align: middle; }
 #error { background: #fee2e2; color: #991b1b; padding: .5rem 1rem; border-radius: 4px; }
+#out h2:first-child { margin-top: 1rem; }
+#run-form { display: grid; grid-template-columns: auto 1fr; gap: .5rem 1rem; align-items: center; margin: 1rem 0; max-width: 40rem; }
+#run-form textarea { grid-column: 1 / -1; font-family: ui-monospace, monospace; }
+#run-form label { text-align: right; }
+#cpu { max-width: 20rem; }
+#iterations { width: 6rem; }
+#run { justify-self: start; }
+footer { margin-top: 2rem; color: #475569; font-size: .85rem; }
 #timeline, #heatmap, #timeline-table, #heatmap-table { overflow-x: auto; }
 #timeline svg, #heatmap svg { display: block; overflow: visible; }
 h2 { font-size: 1rem; margin-top: 2rem; }

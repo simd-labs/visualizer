@@ -9,11 +9,20 @@
 <body>
   <header>
     <h1>llvm-mca timeline visualizer</h1>
-    <p>Drop an llvm-mca <code>-timeline -json</code> output file, or pick one:</p>
+    <p>Paste an assembly loop, or drop a <code>.s</code> file, and analyze it in the browser. You can also drop an llvm-mca <code>-timeline -json</code> output file, or pick one:</p>
   </header>
   <label id="drop">
-    Drop JSON here or <input type="file" id="file" accept=".json,application/json">
+    Drop a .s or .json file here or <input type="file" id="file" accept=".json,.s,.S,.asm,application/json">
   </label>
+  <fieldset id="run-form">
+    <label for="asm">Assembly</label>
+    <textarea id="asm" rows="10" spellcheck="false" placeholder="loop:&#10;  vmovups (%rsi,%rax,4), %ymm0&#10;  vfmadd231ps %ymm1, %ymm2, %ymm0&#10;  addq $8, %rax&#10;  jne loop"></textarea>
+    <label for="cpu">CPU</label>
+    <select id="cpu"></select>
+    <label for="iterations">Iterations</label>
+    <input type="number" id="iterations" value="100" min="1" max="10000">
+    <button id="run" disabled>Loading llvm-mca...</button>
+  </fieldset>
   <p id="error" role="alert" hidden></p>
   <main id="out" hidden>
     <h2>Timeline</h2>
@@ -25,6 +34,10 @@
     <div id="heatmap"></div>
     <details open><summary>Heatmap as a table</summary><div id="heatmap-table"></div></details>
   </main>
+  <footer>
+    llvm-mca is part of the LLVM project, licensed under
+    <a href="wasm/dist/LICENSE.TXT">Apache-2.0 WITH LLVM-exception</a>.
+  </footer>
   <script type="module" src="src/render.js"></script>
 </body>
 </html>

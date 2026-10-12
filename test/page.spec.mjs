@@ -353,3 +353,127 @@ test('first Tab lands on the file input', async ({ page }) => {
   await page.keyboard.press('Tab');
   await expect(page.locator('#file')).toBeFocused();
 });
+
+// ---------------------------------------------------------------------------
+// Item 7: paste box, .s drop/pick, CPU dropdown, lazy WASM llvm-mca.
+// The fixture loop is the 4-instruction loop.s; iterations=3 matches the
+// committed fixtures. The inputs are the ones shared with wasm/fixture-cases.json.
+const ASM_CASES = [
+  { file: 'loop.s', json: 'znver4.json', cpu: 'znver4' },
+  { file: 'loop.s', json: 'skylake.json', cpu: 'skylake' },
+  { file: 'loop_a64.s', json: 'neoverse-v2.json', cpu: 'neoverse-v2' },
+];
+const readFixture = (name) => readFileSync(`test/fixtures/${name}`, 'utf8');
+
+async function dropFile(page, name, text) {
+  const dt = await page.evaluateHandle(
+    ({ name, bytes }) => {
+      const d = new DataTransfer();
+      d.items.add(new File([Uint8Array.from(bytes)], name));
+      return d;
+    },
+    { name, bytes: [...Buffer.from(text)] }
+  );
+  await page.locator('#drop').dispatchEvent('drop', { dataTransfer: dt });
+}
+
+// Compare the whole rendered model: every timeline rect and every heatmap cell.
+async function expectModelMatchesFixture(page, jsonName) {
+  const j = fixture(jsonName.replace(/\.json$/, ''));
+  const rows = expectedRows(j);
+  expect(await page.locator('#timeline svg text.row').allTextContents())
+    .toEqual(rows.map((r) => `[${r.iter},${r.instr}]`));
+  const rects = await page.locator('#timeline svg rect').evaluateAll((els) =>
+    els.map((r) => ({ x: r.getAttribute('x'), y: r.getAttribute('y'), width: r.getAttribute('width') }))
+  );
+  expect(rects).toEqual(expectedRects(j).map(({ x, y, width }) => ({ x, y, width })));
+  const cells = await page.locator('#heatmap svg rect[data-cy]').evaluateAll((els) =>
+    els.map((r) => ({ cy: r.getAttribute('data-cy'), title: r.querySelector('title').textContent }))
+  );
+  const want = [];
+  const asmList = j.CodeRegions[0].Instructions;
+  expectedMatrix(j).forEach((row, i) => row.forEach((v, k) => {
+    if (v !== 0) want.push({ cy: `${i},${k}`, title: `${rowName(asmList, i)}, ${label(j.TargetInfo.Resources[k])}: ${nd(v)}` });
+  }));
+  expect(cells).toEqual(want);
+}
+
+test('before the WASM resolves, typing and CPU picking work and Run shows progress', async ({ page }) => {
+  let release;
+  const hold = new Promise((r) => (release = r));
+  await page.route('**/wasm/dist/llvm-mca.wasm', async (route) => {
+    await hold;
+    const res = await route.fetch();
+    route.fulfill({ response: res });
+  });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await expect(page.locator('#run')).toBeDisabled();
+  await expect(page.locator('#run')).toHaveText(/Loading llvm-mca/);
+  await page.locator('#asm').fill('loop:\n  nop\n  jne loop');
+  await expect(page.locator('#asm')).toHaveValue('loop:\n  nop\n  jne loop');
+  const cpus = page.locator('#cpu option');
+  await expect(cpus).toHaveCount(221);
+  await expect(page.locator('#cpu optgroup')).toHaveCount(3);
+  await page.locator('#cpu').selectOption('skylake');
+  await expect(page.locator('#cpu')).toHaveValue('skylake');
+  release();
+  await expect(page.locator('#run')).toHaveText('Run');
+  await expect(page.locator('#run')).toBeEnabled();
+  expect(errors).toEqual([]);
+});
+
+for (const c of ASM_CASES) {
+  test(`run pasted ${c.cpu} loop renders the same model as dropping ${c.json}`, async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/');
+    await page.locator('#asm').fill(readFixture(c.file));
+    await page.locator('#cpu').selectOption(c.cpu);
+    await page.locator('#iterations').fill('3');
+    await page.locator('#run').click();
+    await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+    await expect(page.locator('#error')).toBeHidden();
+    await expectModelMatchesFixture(page, c.json);
+    expect(errors).toEqual([]);
+  });
+
+  test(`dropping ${c.file} fills the paste box, runs, and matches ${c.json}`, async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+    await page.locator('#cpu').selectOption(c.cpu);
+    await page.locator('#iterations').fill('3');
+    await dropFile(page, c.file, readFixture(c.file));
+    await expect(page.locator('#asm')).toHaveValue(readFixture(c.file));
+    await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+    await expectModelMatchesFixture(page, c.json);
+  });
+}
+
+test('picking a .s file fills the paste box and runs', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+  await page.locator('#cpu').selectOption('skylake');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#file').setInputFiles('test/fixtures/loop.s');
+  await expect(page.locator('#asm')).toHaveValue(readFixture('loop.s'));
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await expectModelMatchesFixture(page, 'skylake.json');
+});
+
+test('invalid asm shows llvm-mca\u2019s error, and a later valid run clears it', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+  await page.locator('#iterations').fill('3');
+  await page.locator('#asm').fill('notaninstruction %eax\n');
+  await page.locator('#run').click();
+  await expect(page.locator('#error')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#error')).toContainText("error: invalid instruction mnemonic 'notaninstruction'");
+  await expect(page.locator('#out')).toBeHidden();
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#error')).toBeHidden();
+  await expectModelMatchesFixture(page, 'znver4.json');
+});
