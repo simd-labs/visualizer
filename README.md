@@ -65,6 +65,10 @@ put them elsewhere, and `NATIVE_TOOL_DIR` if llvm-tblgen is not in
 fixtures; `wasm/cpus.mjs` regenerates `cpus.json`, the list of CPUs with a
 real scheduling model.
 
+The Pages CI (`.github/workflows/pages.yml`) builds the WASM from a cached
+`WORK` on every push, runs all the tests against it, and deploys the page
+with `wasm/dist/` to GitHub Pages.
+
 ## Tests
 
 ```

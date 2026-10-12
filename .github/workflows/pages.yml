@@ -17,6 +17,8 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-24.04
+    env:
+      WORK: ${{ github.workspace }}/.wasm-work
     steps:
       - uses: actions/checkout@v7
 
@@ -24,18 +26,32 @@ jobs:
         with:
           node-version: "26"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright's Chromium
-        run: npx playwright install --with-deps chromium
+      - uses: actions/cache@v5.0.5
+        # Caches the LLVM source clone, the emsdk install and the CMake build
+        # tree; the WASM rebuild after a patch or build.sh change is a ninja
+        # incremental.
+        with:
+          path: .wasm-work
+          key: wasm-${{ hashFiles('wasm/build.sh', 'wasm/patches/**') }}
 
       - name: Install llvm-mca 23
+        # apt.llvm.org llvm.sh again as in simdref's ci.yml: llvm-tblgen for
+        # the WASM build (LLVM_NATIVE_TOOL_DIR default) and native
+        # llvm-mca-23 for the fixture diff.
         run: |
           wget -q https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 23
           rm llvm.sh
+
+      - name: Build llvm-mca WASM
+        run: bash wasm/build.sh
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright's Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Fixtures reproduce
         run: sh test/gen-fixtures.sh && git diff --exit-code test/fixtures
@@ -43,8 +59,26 @@ jobs:
       - name: node tests
         run: node --test test/model.test.mjs
 
+      - name: WASM llvm-mca tests
+        run: node wasm/test.mjs
+
       - name: playwright tests
         run: npx playwright test
+
+      - name: Stage Pages site
+        # The page needs only the static files plus the WASM; node_modules,
+        # test/ and the build trees stay out of the artifact.
+        run: |
+          mkdir -p _site/wasm
+          cp -r index.html src style.css cpus.json LICENSE _site/
+          cp -r wasm/dist _site/wasm/
+          test -f _site/wasm/dist/llvm-mca.wasm
+          test ! -e _site/node_modules && test ! -e _site/test
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
 
   deploy:
     if: github.ref == 'refs/heads/main'
@@ -54,9 +88,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: .
       - id: deployment
         uses: actions/deploy-pages@v5
