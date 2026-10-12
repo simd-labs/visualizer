@@ -33,6 +33,18 @@
     <h2>Resource pressure per iteration</h2>
     <div id="heatmap"></div>
     <details open><summary>Heatmap as a table</summary><div id="heatmap-table"></div></details>
+    <h2>CPU flow</h2>
+    <p id="flow-notice" hidden></p>
+    <p>
+      <button id="flow-play" type="button">Play</button>
+      <button id="flow-step" type="button">Step</button>
+      <label for="flow-cycle">Cycle</label>
+      <input type="range" id="flow-cycle" min="0" max="0" value="0" step="1">
+    </p>
+    <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
+    <div id="flow"></div>
+    <details open><summary>Flow as a list</summary><div id="flow-list"></div></details>
+    <p id="flow-status" role="status" aria-live="polite"></p>
   </main>
   <footer>
     llvm-mca is part of the LLVM project, licensed under

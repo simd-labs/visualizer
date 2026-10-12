@@ -1,0 +1,487 @@
+{
+  "CodeRegions": [
+    {
+      "InstructionInfoView": {
+        "InstructionList": [
+          {
+            "Instruction": 0,
+            "Latency": 4,
+            "NumMicroOpcodes": 1,
+            "RThroughput": 1,
+            "hasUnmodeledSideEffects": false,
+            "mayLoad": true,
+            "mayStore": false
+          },
+          {
+            "Instruction": 1,
+            "Latency": 4,
+            "NumMicroOpcodes": 1,
+            "RThroughput": 0.5,
+            "hasUnmodeledSideEffects": false,
+            "mayLoad": false,
+            "mayStore": false
+          },
+          {
+            "Instruction": 2,
+            "Latency": 4,
+            "NumMicroOpcodes": 1,
+            "RThroughput": 0.5,
+            "hasUnmodeledSideEffects": false,
+            "mayLoad": false,
+            "mayStore": false
+          },
+          {
+            "Instruction": 3,
+            "Latency": 3,
+            "NumMicroOpcodes": 1,
+            "RThroughput": 0.5,
+            "hasUnmodeledSideEffects": false,
+            "mayLoad": false,
+            "mayStore": false
+          },
+          {
+            "Instruction": 4,
+            "Latency": 1,
+            "NumMicroOpcodes": 1,
+            "RThroughput": 1,
+            "hasUnmodeledSideEffects": false,
+            "mayLoad": false,
+            "mayStore": false
+          }
+        ]
+      },
+      "Instructions": [
+        "ldr\td0, [x1, x0, lsl #3]",
+        "fmadd\td0, d0, d1, d2",
+        "fadd\td2, d2, d0",
+        "add\tx0, x0, #1",
+        "cbnz\tx0, loop"
+      ],
+      "IssueEventView": {
+        "IssueEvents": [
+          {
+            "cycle": 0,
+            "instruction": 0,
+            "iteration": 0,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitLd",
+                "unit": 9
+              }
+            ]
+          },
+          {
+            "cycle": 4,
+            "instruction": 1,
+            "iteration": 0,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitFPMAC.1",
+                "unit": 8
+              }
+            ]
+          },
+          {
+            "cycle": 8,
+            "instruction": 2,
+            "iteration": 0,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitFPALU.1",
+                "unit": 5
+              }
+            ]
+          },
+          {
+            "cycle": 9,
+            "instruction": 3,
+            "iteration": 0,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitALU.1",
+                "unit": 1
+              }
+            ]
+          },
+          {
+            "cycle": 12,
+            "instruction": 4,
+            "iteration": 0,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitB",
+                "unit": 2
+              }
+            ]
+          },
+          {
+            "cycle": 12,
+            "instruction": 0,
+            "iteration": 1,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitLd",
+                "unit": 9
+              }
+            ]
+          },
+          {
+            "cycle": 16,
+            "instruction": 1,
+            "iteration": 1,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitFPMAC.0",
+                "unit": 7
+              }
+            ]
+          },
+          {
+            "cycle": 20,
+            "instruction": 2,
+            "iteration": 1,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitFPALU.0",
+                "unit": 4
+              }
+            ]
+          },
+          {
+            "cycle": 21,
+            "instruction": 3,
+            "iteration": 1,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitALU.0",
+                "unit": 0
+              }
+            ]
+          },
+          {
+            "cycle": 24,
+            "instruction": 4,
+            "iteration": 1,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitB",
+                "unit": 2
+              }
+            ]
+          },
+          {
+            "cycle": 24,
+            "instruction": 0,
+            "iteration": 2,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitLd",
+                "unit": 9
+              }
+            ]
+          },
+          {
+            "cycle": 28,
+            "instruction": 1,
+            "iteration": 2,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitFPMAC.1",
+                "unit": 8
+              }
+            ]
+          },
+          {
+            "cycle": 32,
+            "instruction": 2,
+            "iteration": 2,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitFPALU.1",
+                "unit": 5
+              }
+            ]
+          },
+          {
+            "cycle": 33,
+            "instruction": 3,
+            "iteration": 2,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitALU.1",
+                "unit": 1
+              }
+            ]
+          },
+          {
+            "cycle": 36,
+            "instruction": 4,
+            "iteration": 2,
+            "units": [
+              {
+                "cycles_den": 1,
+                "cycles_num": 1,
+                "name": "CortexA55UnitB",
+                "unit": 2
+              }
+            ]
+          }
+        ]
+      },
+      "Name": "",
+      "ResourcePressureView": {
+        "ResourcePressureInfo": [
+          {
+            "InstructionIndex": 0,
+            "ResourceIndex": 9,
+            "ResourceUsage": 1
+          },
+          {
+            "InstructionIndex": 1,
+            "ResourceIndex": 7,
+            "ResourceUsage": 0.33333333333333331
+          },
+          {
+            "InstructionIndex": 1,
+            "ResourceIndex": 8,
+            "ResourceUsage": 0.66666666666666663
+          },
+          {
+            "InstructionIndex": 2,
+            "ResourceIndex": 4,
+            "ResourceUsage": 0.33333333333333331
+          },
+          {
+            "InstructionIndex": 2,
+            "ResourceIndex": 5,
+            "ResourceUsage": 0.66666666666666663
+          },
+          {
+            "InstructionIndex": 3,
+            "ResourceIndex": 0,
+            "ResourceUsage": 0.33333333333333331
+          },
+          {
+            "InstructionIndex": 3,
+            "ResourceIndex": 1,
+            "ResourceUsage": 0.66666666666666663
+          },
+          {
+            "InstructionIndex": 4,
+            "ResourceIndex": 2,
+            "ResourceUsage": 1
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 0,
+            "ResourceUsage": 0.33333333333333331
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 1,
+            "ResourceUsage": 0.66666666666666663
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 2,
+            "ResourceUsage": 1
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 4,
+            "ResourceUsage": 0.33333333333333331
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 5,
+            "ResourceUsage": 0.66666666666666663
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 7,
+            "ResourceUsage": 0.33333333333333331
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 8,
+            "ResourceUsage": 0.66666666666666663
+          },
+          {
+            "InstructionIndex": 5,
+            "ResourceIndex": 9,
+            "ResourceUsage": 1
+          }
+        ]
+      },
+      "SummaryView": {
+        "BlockRThroughput": 2.5,
+        "DispatchWidth": 2,
+        "IPC": 0.39473684210526316,
+        "Instructions": 15,
+        "Iterations": 3,
+        "TotalCycles": 38,
+        "TotaluOps": 15,
+        "uOpsPerCycle": 0.39473684210526316
+      },
+      "TimelineView": {
+        "TimelineInfo": [
+          {
+            "CycleDispatched": 0,
+            "CycleExecuted": 4,
+            "CycleIssued": 0,
+            "CycleReady": 0,
+            "CycleRetired": 4
+          },
+          {
+            "CycleDispatched": 4,
+            "CycleExecuted": 8,
+            "CycleIssued": 4,
+            "CycleReady": 4,
+            "CycleRetired": 8
+          },
+          {
+            "CycleDispatched": 8,
+            "CycleExecuted": 12,
+            "CycleIssued": 8,
+            "CycleReady": 8,
+            "CycleRetired": 12
+          },
+          {
+            "CycleDispatched": 9,
+            "CycleExecuted": 12,
+            "CycleIssued": 9,
+            "CycleReady": 9,
+            "CycleRetired": 12
+          },
+          {
+            "CycleDispatched": 12,
+            "CycleExecuted": 13,
+            "CycleIssued": 12,
+            "CycleReady": 12,
+            "CycleRetired": 13
+          },
+          {
+            "CycleDispatched": 12,
+            "CycleExecuted": 16,
+            "CycleIssued": 12,
+            "CycleReady": 12,
+            "CycleRetired": 16
+          },
+          {
+            "CycleDispatched": 16,
+            "CycleExecuted": 20,
+            "CycleIssued": 16,
+            "CycleReady": 16,
+            "CycleRetired": 20
+          },
+          {
+            "CycleDispatched": 20,
+            "CycleExecuted": 24,
+            "CycleIssued": 20,
+            "CycleReady": 20,
+            "CycleRetired": 24
+          },
+          {
+            "CycleDispatched": 21,
+            "CycleExecuted": 24,
+            "CycleIssued": 21,
+            "CycleReady": 21,
+            "CycleRetired": 24
+          },
+          {
+            "CycleDispatched": 24,
+            "CycleExecuted": 25,
+            "CycleIssued": 24,
+            "CycleReady": 24,
+            "CycleRetired": 25
+          },
+          {
+            "CycleDispatched": 24,
+            "CycleExecuted": 28,
+            "CycleIssued": 24,
+            "CycleReady": 24,
+            "CycleRetired": 28
+          },
+          {
+            "CycleDispatched": 28,
+            "CycleExecuted": 32,
+            "CycleIssued": 28,
+            "CycleReady": 28,
+            "CycleRetired": 32
+          },
+          {
+            "CycleDispatched": 32,
+            "CycleExecuted": 36,
+            "CycleIssued": 32,
+            "CycleReady": 32,
+            "CycleRetired": 36
+          },
+          {
+            "CycleDispatched": 33,
+            "CycleExecuted": 36,
+            "CycleIssued": 33,
+            "CycleReady": 33,
+            "CycleRetired": 36
+          },
+          {
+            "CycleDispatched": 36,
+            "CycleExecuted": 37,
+            "CycleIssued": 36,
+            "CycleReady": 36,
+            "CycleRetired": 37
+          }
+        ]
+      }
+    }
+  ],
+  "SimulationParameters": {
+    "-march": "aarch64",
+    "-mcpu": "cortex-a55",
+    "-mtriple": "aarch64-unknown-linux-gnu"
+  },
+  "TargetInfo": {
+    "CPUName": "cortex-a55",
+    "Resources": [
+      "CortexA55UnitALU.\u0000",
+      "CortexA55UnitALU.\u0001",
+      "CortexA55UnitB",
+      "CortexA55UnitDiv",
+      "CortexA55UnitFPALU.\u0000",
+      "CortexA55UnitFPALU.\u0001",
+      "CortexA55UnitFPDIV",
+      "CortexA55UnitFPMAC.\u0000",
+      "CortexA55UnitFPMAC.\u0001",
+      "CortexA55UnitLd",
+      "CortexA55UnitMAC",
+      "CortexA55UnitSt"
+    ]
+  }
+}

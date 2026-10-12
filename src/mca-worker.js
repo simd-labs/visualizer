@@ -45,7 +45,10 @@ onmessage = async (e) => {
   try {
     const mod = {
       instantiateWasm: (imports, success) => {
-        WebAssembly.instantiate(compiled, imports).then((instance) => success(instance));
+        // Emscripten's createWasm Promise never rejects, so a failed
+        // instantiate must throw on a macrotask: it becomes an onerror on the
+        // worker, which the page relays to the pending run
+        WebAssembly.instantiate(compiled, imports).then(success, (err) => setTimeout(() => { throw err; }));
         return {};
       },
       noInitialRun: true,

@@ -471,9 +471,486 @@ test('invalid asm shows llvm-mca\u2019s error, and a later valid run clears it',
   await expect(page.locator('#error')).toBeVisible({ timeout: 60000 });
   await expect(page.locator('#error')).toContainText("error: invalid instruction mnemonic 'notaninstruction'");
   await expect(page.locator('#out')).toBeHidden();
+  // pre-wrap keeps llvm-mca's source line and caret on their own lines
+  await expect(page.locator('#error')).toHaveCSS('white-space', 'pre-wrap');
   await page.locator('#asm').fill(readFixture('loop.s'));
   await page.locator('#run').click();
   await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
   await expect(page.locator('#error')).toBeHidden();
   await expectModelMatchesFixture(page, 'znver4.json');
+});
+
+// ---------------------------------------------------------------------------
+// Item 9: CPU flow diagram driven by -issue-events.
+// Hand-computed token positions for znver4 at cycle 2, from
+// znver4.issue.json's timeline rows and issue events (every unit is held for
+// exactly one cycle on this fixture). Expected shape: [instr, iter, stage,
+// busy units].
+const Z4_CYCLE2 = [
+  [0, 0, 'execute', []], [1, 0, 'waiting', []], [2, 0, 'retire', []], [3, 0, 'execute', [7]],
+  [0, 1, 'execute', [12, 16, 19]], [1, 1, 'waiting', []], [2, 1, 'execute', [5]], [3, 1, 'waiting', []],
+  [0, 2, 'waiting', []], [1, 2, 'waiting', []], [2, 2, 'waiting', []], [3, 2, 'waiting', []],
+];
+
+test('flow diagram: tokens land on their events units at cycle 2, slider moves the timeline highlight', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('znver4');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+
+  // blocks: dispatch, two scheduler queues, one box per execution unit, retire
+  const blocks = await page.locator('#flow svg .flow-block').evaluateAll((els) => els.map((g) => g.dataset.block));
+  expect(blocks).toEqual(['dispatch', 'waiting', 'ready', 'execute', 'retire']);
+  const nUnits = fixture('znver4').TargetInfo.Resources.length;
+  await expect(page.locator('#flow svg .flow-unit')).toHaveCount(nUnits);
+  // unit names must be legible (7px was not) and fit inside their box
+  const unitText = await page.locator('#flow svg .flow-unit').evaluateAll((gs) =>
+    gs.map((g) => {
+      const t = g.querySelector('text');
+      return { size: +t.getAttribute('font-size'), w: t.getComputedTextLength(), box: g.querySelector('rect').getBBox().width };
+    })
+  );
+  for (const u of unitText) {
+    expect(u.size).toBeGreaterThanOrEqual(9);
+    expect(u.w).toBeLessThan(u.box - 3);
+  }
+
+  await page.locator('#flow-cycle').fill('2');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const tokens = await page.locator('#flow svg .flow-token').evaluateAll((els) =>
+    els.map((g) => ({
+      instr: +g.dataset.instr,
+      iter: +g.dataset.iter,
+      block: g.dataset.block,
+      units: g.dataset.units === '' ? [] : g.dataset.units.split(' ').map(Number),
+    }))
+  );
+  const want = Z4_CYCLE2.map(([instr, iter, stage, units]) => ({
+    instr,
+    iter,
+    block: stage,
+    units,
+  }));
+  const key = (t) => `${t.instr},${t.iter}`;
+  expect(tokens.map(key).sort()).toEqual(want.map(key).sort());
+  for (const w of want) {
+    const g = tokens.find((t) => t.instr === w.instr && t.iter === w.iter);
+    expect(g.block, `${key(w)} block`).toBe(w.block);
+    expect(g.units, `${key(w)} units`).toEqual(w.units);
+  }
+  // executing token sits on its first busy unit's box
+  const t31 = tokens.find((t) => t.instr === 3 && t.iter === 0);
+  expect(t31.units).toEqual([7]);
+  const tokRect = await page.locator('#flow svg .flow-token', { hasText: '0:3' }).locator('rect');
+  const unitRect = await page.locator('#flow svg .flow-unit[data-unit="7"] rect').boundingBox();
+  const tokBox = await tokRect.boundingBox();
+  expect(Math.abs(tokBox.x + tokBox.width / 2 - (unitRect.x + unitRect.width / 2))).toBeLessThan(2);
+
+  // timeline highlight follows the slider, drawn over a white halo so it stays visible on the bars
+  const hl = page.locator('#timeline line.flow-cur');
+  await expect(hl).toHaveCount(1);
+  await expect(page.locator('#timeline line.flow-halo')).toHaveCount(1);
+  const x2 = await hl.getAttribute('x1');
+  expect(+x2).toBeCloseTo(LEFT + 2 * CELL - CELL / 2);
+  await page.locator('#flow-cycle').fill('9');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const x9 = await page.locator('#timeline line.flow-cur').getAttribute('x1');
+  expect(+x9).toBeCloseTo(LEFT + 9 * CELL - CELL / 2);
+  expect(+x9).not.toBe(+x2);
+
+  // aria-live line states the cycle and units
+  await expect(page.locator('#flow-status')).toContainText('Cycle 9.');
+  await expect(page.locator('#flow-status')).toContainText('executing on Zn4FP1');
+  expect(errors).toEqual([]);
+});
+
+// After its unit hold ends and before its executed cycle, the load token is
+// still executing: instr 0 issued cycle 1, held 1 cycle, executed cycle 9.
+test('flow diagram: a token past its hold draws in execution with the latency style', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('znver4');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+
+  await page.locator('#flow-cycle').fill('2');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const tok = page.locator('#flow svg .flow-token[data-instr="0"][data-iter="0"]');
+  await expect(tok).toHaveAttribute('data-block', 'execute');
+  await expect(tok).toHaveAttribute('data-units', '');
+  await expect(tok).toHaveAttribute('data-latency', '1');
+  const rect = tok.locator('rect');
+  await expect(rect).toHaveAttribute('stroke-dasharray', '2 2');
+  await expect(rect).toHaveAttribute('opacity', '0.6');
+  // hollow, so the shape differs from a solid active token, not just its brightness
+  await expect(rect).toHaveAttribute('fill', '#fff');
+  // stacked on the event's last unit
+  const unitBox = await page.locator('#flow svg .flow-unit[data-unit="20"]').boundingBox();
+  const tokBox = await tok.boundingBox();
+  expect(Math.abs(tokBox.x + tokBox.width / 2 - (unitBox.x + unitBox.width / 2))).toBeLessThan(2);
+  expect(Math.abs(tokBox.y + tokBox.height / 2 - (unitBox.y + unitBox.height / 2))).toBeLessThan(2);
+  await expect(tok.locator('title')).toContainText('executing (latency), last on Zn4Load.2');
+  await expect(page.locator('#flow-status')).toContainText('Executing (latency), last on Zn4Load.2.');
+  expect(errors).toEqual([]);
+});
+
+test('flow diagram from a dropped JSON without issue events shows the notice', async ({ page }) => {
+  const errors = await open(page, 'picker', 'znver4.json'); // native fixture: no IssueEventView
+  await expect(page.locator('#out')).toBeVisible();
+  await expect(page.locator('#flow-notice')).toBeVisible();
+  await expect(page.locator('#flow-notice')).toContainText('no issue events');
+  await expect(page.locator('#flow svg')).toHaveCount(0);
+  await expect(page.locator('#flow-cycle')).toBeDisabled();
+  // the timeline and heatmap still rendered
+  await expect(page.locator('#timeline svg text.row')).toHaveCount(12);
+  expect(errors).toEqual([]);
+});
+
+// Each run used to add another slider listener that drew the previous model;
+// a second run then threw getAttribute on null unit boxes.
+test('flow slider keeps working across runs with different CPUs', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  for (const [asm, cpu] of [['loop.s', 'znver4'], ['loop.s', 'skylake'], ['loop_a64.s', 'neoverse-v2']]) {
+    await page.locator('#asm').fill(readFixture(asm));
+    await page.locator('#cpu').selectOption(cpu);
+    await page.locator('#iterations').fill('3');
+    await page.locator('#run').click();
+    await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+    await page.locator('#flow-cycle').fill('5');
+    await page.locator('#flow-cycle').dispatchEvent('input');
+    await expect(page.locator('#flow-status')).toContainText('Cycle 5.');
+  }
+  expect(errors).toEqual([]);
+});
+
+// Two tokens on one unit at the same cycle must not share a spot. skylake at
+// cycle 3 puts 0:0 (latency) and 2:0 on SKLPort0 together.
+test('flow diagram: tokens sharing a unit at one cycle are drawn at separate spots', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('skylake');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await page.locator('#flow-cycle').fill('3');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const spots = await page.locator('#flow svg .flow-token rect').evaluateAll((rs) =>
+    rs.map((r) => `${r.getAttribute('x')},${r.getAttribute('y')}`)
+  );
+  expect(spots.length).toBeGreaterThan(0);
+  expect(new Set(spots).size).toBe(spots.length);
+});
+
+// ---------------------------------------------------------------------------
+// Fix4: readiness, failure, supersede, containment and text-equivalent coverage.
+
+async function holdWasm(page) {
+  let release;
+  const hold = new Promise((r) => (release = r));
+  await page.route('**/wasm/dist/llvm-mca.wasm', async (route) => {
+    await hold;
+    route.fulfill({ response: await route.fetch() });
+  });
+  await page.goto('/');
+  return release;
+}
+
+test('a .s file dropped while the WASM loads runs automatically once ready', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const release = await holdWasm(page);
+  await expect(page.locator('#run')).toBeDisabled();
+  await dropFile(page, 'loop.s', readFixture('loop.s'));
+  await expect(page.locator('#asm')).toHaveValue(readFixture('loop.s'));
+  release();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  // default CPU znver4, 100 iterations: the timeline shows the iteration cap's 40 rows
+  await expect(page.locator('#timeline svg text.row')).toHaveCount(40);
+  expect(errors).toEqual([]);
+});
+
+test('a newer drop supersedes a .s dropped while the WASM loads', async ({ page }) => {
+  const release = await holdWasm(page);
+  await dropFile(page, 'loop.s', readFixture('loop.s'));
+  await dropFile(page, 'znver4.json', readFixture('znver4.json'));
+  release();
+  // the JSON drop wins: out shows the fixture's 12 timeline rows, no run happens
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#timeline svg text.row')).toHaveCount(12);
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+});
+
+test('a worker that fails to load shows the error and keeps the page usable', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.route('**/wasm/dist/llvm-mca.wasm', (route) => route.fulfill({ status: 404, body: 'gone' }));
+  await page.goto('/');
+  await expect(page.locator('#error')).toBeVisible();
+  await expect(page.locator('#error')).toContainText(/404|failed/i);
+  await expect(page.locator('#run')).toBeDisabled();
+  await expect(page.locator('#run')).toHaveText('llvm-mca failed to load');
+  // the page still works for JSON loads
+  await dropFile(page, 'znver4.json', readFixture('znver4.json'));
+  await expect(page.locator('#out')).toBeVisible();
+  await expect(page.locator('#timeline svg text.row')).toHaveCount(12);
+  expect(errors).toEqual([]);
+});
+
+test('pasting assembly while the WASM loads leaves Run disabled and does not throw', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await holdWasm(page); // never released: the module stays 'loading'
+  await expect(page.locator('#run')).toBeDisabled();
+  await page.locator('#asm').fill('loop:\n  nop\n  jne loop');
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  await expect(page.locator('#out')).toBeHidden();
+  await expect(page.locator('#error')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('Step after loading a no-events JSON neither throws nor draws', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('znver4');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#flow svg')).toHaveCount(1);
+  // now load the no-events JSON: the diagram and its handlers must go away
+  await dropFile(page, 'znver4.json', readFixture('znver4.json'));
+  await expect(page.locator('#flow svg')).toHaveCount(0);
+  await expect(page.locator('#flow-step')).toBeDisabled();
+  await expect(page.locator('#flow-play')).toBeDisabled();
+  await expect(page.locator('#flow-cycle')).toBeDisabled();
+  // a programmatic .click() bypasses the disabled attribute; the handler must be gone or a no-op
+  await page.evaluate(() => document.getElementById('flow-step').click());
+  await page.evaluate(() => document.getElementById('flow-cycle').dispatchEvent(new Event('input')));
+  await page.waitForTimeout(50);
+  await expect(page.locator('#flow-status')).toHaveText('No issue events.');
+  expect(errors).toEqual([]);
+});
+
+test('iterations outside min/max is rejected with a local validation error', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  for (const bad of ['0', '10001']) {
+    await page.locator('#iterations').fill(bad);
+    await page.locator('#run').click();
+    await expect(page.locator('#error')).toBeVisible();
+    await expect(page.locator('#error')).toContainText('Iterations must be an integer between 1 and 10000');
+    await expect(page.locator('#out')).toBeHidden();
+  }
+});
+
+test('JSON with leading whitespace and a BOM renders as JSON', async ({ page }) => {
+  await page.goto('/');
+  const padded = '\ufeff   \n  ' + readFixture('znver4.json');
+  await dropFile(page, 'znver4-padded.json', padded);
+  await expect(page.locator('#out')).toBeVisible();
+  await expect(page.locator('#timeline svg text.row')).toHaveCount(12);
+  await expect(page.locator('#asm')).toHaveValue('');
+});
+
+test('flow tokens stay inside their blocks for a 100-iteration run', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('znver4');
+  await page.locator('#iterations').fill('100');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#flow svg')).toHaveCount(1);
+  // sample cycles across the drawn run (the timeline cap keeps 40 rows, so
+  // the flow spans cycles 0..23): every token rect must sit inside its block
+  for (const cycle of ['0', '1', '5', '11', '17', '23']) {
+    await page.locator('#flow-cycle').fill(cycle);
+    await page.locator('#flow-cycle').dispatchEvent('input');
+    const bad = await page.evaluate(() => {
+      const blocks = {};
+      for (const g of document.querySelectorAll('#flow svg .flow-block')) {
+        const r = g.querySelector('rect').getBoundingClientRect();
+        blocks[g.dataset.block] = r;
+      }
+      const out = [];
+      for (const g of document.querySelectorAll('#flow svg .flow-token')) {
+        const t = g.querySelector('rect').getBoundingClientRect();
+        const b = blocks[g.dataset.block];
+        if (t.left < b.left - 1 || t.right > b.right + 1 || t.top < b.top - 1 || t.bottom > b.bottom + 1) {
+          out.push(g.dataset.instr + ':' + g.dataset.iter);
+        }
+      }
+      return out;
+    });
+    expect(bad, `cycle ${cycle} tokens outside their block`).toEqual([]);
+  }
+  expect(errors).toEqual([]);
+
+  // a crowded unit grows its own rows: skylake cycle 3 puts two tokens on
+  // SKLPort0; tokens with a busy unit must sit inside that unit's rect
+  await page.locator('#cpu').selectOption('skylake');
+  await page.locator('#run').click();
+  await expect(page.locator('#flow')).not.toHaveText('', { timeout: 60000 });
+  await page.locator('#flow-cycle').fill('3');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const offUnit = await page.evaluate(() => {
+    const bad = [];
+    for (const g of document.querySelectorAll('#flow svg .flow-token')) {
+      if (g.dataset.units === '') continue;
+      const parked = +g.dataset.units.split(' ')[0];
+      const unit = document.querySelector(`#flow svg .flow-unit[data-unit="${parked}"] rect`).getBoundingClientRect();
+      const r = g.querySelector('rect').getBoundingClientRect();
+      if (r.top < unit.top - 1 || r.bottom > unit.bottom + 1) bad.push(g.dataset.instr + ':' + g.dataset.iter);
+    }
+    return bad;
+  });
+  expect(offUnit).toEqual([]);
+  // the two tokens sharing a unit at this cycle must have distinct rows in it:
+  // the unit row hides its overflow only when the extra rows exist
+  const shared = await page.evaluate(() => {
+    const spots = {};
+    for (const g of document.querySelectorAll('#flow svg .flow-token')) {
+      if (g.dataset.units === '') continue;
+      const u = g.dataset.units.split(' ')[0];
+      const r = g.querySelector('rect');
+      (spots[u] = spots[u] || []).push(r.getAttribute('y'));
+    }
+    return Object.entries(spots).filter(([, ys]) => new Set(ys).size !== ys.length).map(([u]) => u);
+  });
+  expect(shared, 'a unit drew two tokens on the same row').toEqual([]);
+});
+
+test('the flow text list matches the tokens of the current cycle', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('znver4');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await page.locator('#flow-cycle').fill('2');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const tokens = await page.locator('#flow svg .flow-token').evaluateAll((els) =>
+    els.map((g) => `${g.dataset.block}:${g.dataset.instr}:${g.dataset.iter}`)
+  );
+  const lines = await page.locator('#flow-list li').allTextContents();
+  expect(lines.length).toBe(tokens.length);
+  expect(lines.length).toBe(12); // every in-flight instruction at cycle 2
+  for (const t of tokens) {
+    const [block, instr, iter] = t.split(':');
+    const li = lines.find((l) => l.startsWith(`${block}: `) && l.includes(` ${iter}:${instr} `));
+    expect(li, `list line for ${t}`).toBeTruthy();
+  }
+  // the multi-resource instruction at cycle 1 lists all three of its units
+  await page.locator('#flow-cycle').fill('1');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const line00 = (await page.locator('#flow-list li').allTextContents()).find((l) => l.includes(' 0:0 '));
+  expect(line00).toContain('Zn4FP45');
+  expect(line00).toContain('Zn4LSU');
+  expect(line00).toContain('Zn4Load');
+});
+
+// The znver4 load holds three units at cycle 1; its solid token parks on the
+// first (Zn4FP45 = 13), so the other two (17, 20) must carry its marker
+// instead of looking empty.
+// M5: a fault inside the worker must not hang the pending run. Both tests
+// wait on the module load first (#run stays disabled until it is ready), so
+// the timeout is the only browser work they ever do. Per-test timeout: on the
+// unfixed code the run promise never settles and the 5s assertion window
+// passes, so the test must die on its own timer, not the suite's.
+const runAndFail = async (page) => {
+  await page.goto('/');
+  // an empty source rejects before the worker runs; give it real input
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+  await page.locator('#run').click();
+  await expect(page.locator('#error')).toBeVisible({ timeout: 5000 });
+  await expect(page.locator('#error')).toContainText(/\S/, { timeout: 5000 });
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 5000 });
+  await expect(page.locator('#run')).toHaveText('Run');
+};
+
+test('a wasm instantiation failure rejects the run and shows the error', { timeout: 15000 }, async ({ page }) => {
+  // V8 validates the whole module at compile so corrupt bytes can never get
+  // as far as instantiate in 2026; force the failure where it matters, in the
+  // worker's instantiateWasm callback, by replacing WebAssembly.instantiate
+  // for Module instances once (the worker's own compile needs the original).
+  await page.route('**/wasm/dist/llvm-mca.js', async (route) => {
+    const res = await route.fetch();
+    const js = await res.text();
+    const sabotage =
+      'const __inst = WebAssembly.instantiate.bind(WebAssembly);' +
+      'WebAssembly.instantiate = (m, i) => (m instanceof WebAssembly.Module ' +
+      '  ? Promise.reject(new WebAssembly.LinkError("injected link failure")) ' +
+      '  : __inst(m, i));';
+    route.fulfill({ response: res, body: sabotage + js });
+  });
+  await runAndFail(page);
+});
+
+test('a runtime abort inside the worker rejects the run and shows the error', { timeout: 15000 }, async ({ page }) => {
+  // Force an uncaught runtime throw in the worker while a run is pending:
+  // wrap the worker script so its result post is replaced by a thrown
+  // WebAssembly.RuntimeError on a macrotask, the way an async wasm trap or a
+  // late llvm-mca abort reaches the page. A corrupt code section crashes the
+  // whole tab instead, so it cannot serve here.
+  await page.route('**/src/mca-worker.js', async (route) => {
+    const res = await route.fetch();
+    const body = (await res.text())
+      + '\nconst __post = postMessage.bind(globalThis);'
+      + 'globalThis.postMessage = (m) => {'
+      + '  if (m.type === "result") { setTimeout(() => { throw new WebAssembly.RuntimeError("injected runtime trap"); }); return; }'
+      + '  __post(m);'
+      + '};';
+    route.fulfill({ response: res, body });
+  });
+  await runAndFail(page);
+});
+
+test('flow diagram: every unit a multi-resource instruction holds carries its marker', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#asm').fill(readFixture('loop.s'));
+  await page.locator('#cpu').selectOption('znver4');
+  await page.locator('#iterations').fill('3');
+  await page.locator('#run').click();
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await page.locator('#flow-cycle').fill('1');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+
+  // the solid token for instance 0:0 lists every unit it holds
+  const tok = page.locator('#flow svg .flow-token[data-instr="0"][data-iter="0"]');
+  await expect(tok).toHaveAttribute('data-units', '13 17 20');
+  const markers = page.locator('#flow svg .flow-marker[data-instr="0"][data-iter="0"]');
+  await expect(markers).toHaveCount(2);
+  // each marked group sits inside a unit box, and between token and markers
+  // every held unit box carries one
+  const groups = await page.evaluate(() => {
+    const byUnit = (u) => {
+      const r = document.querySelector(`#flow svg .flow-unit[data-unit="${u}"] rect`).getBoundingClientRect();
+      const hit = [];
+      for (const g of document.querySelectorAll('#flow svg .flow-tokens > g')) {
+        const b = g.getBoundingClientRect();
+        if (b.x >= r.x - 1 && b.x + b.width <= r.right + 1 && b.y >= r.y - 1 && b.y + b.height <= r.bottom + 1) hit.push(g.getAttribute('class'));
+      }
+      return hit;
+    };
+    return { 13: byUnit('13'), 17: byUnit('17'), 20: byUnit('20') };
+  });
+  expect(groups['13']).toEqual(['flow-token']);
+  expect(groups['17']).toEqual(['flow-marker']);
+  expect(groups['20']).toEqual(['flow-marker']);
+  expect(errors).toEqual([]);
 });

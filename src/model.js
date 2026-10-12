@@ -57,6 +57,47 @@ export function buildModel(json) {
     if (InstructionIndex <= n) matrix[InstructionIndex][ResourceIndex] = ResourceUsage;
   }
 
+  const events = parseIssueEvents(region);
+  // Cycle-indexed token lookup, built once per model so tokenPositionsAt
+  // does not rescan every event of a long run per slider tick. Each bucket
+  // lists the row indexes entering a stage at that cycle, so the work per
+  // cycle stays proportional to the machine's width, not the event count.
+  const maxCycle = rows.length ? Math.max(...rows.map((r) => Math.max(r.retired, r.issued + 1))) : 0;
+  const enter = Array.from({ length: maxCycle + 1 }, () => []);
+  const rowEvents = new Array(rows.length).fill(null);
+  if (events) {
+    for (const ev of events) rowEvents[ev.instr + ev.iter * n] = ev;
+  }
+  rows.forEach((r, i) => {
+    const ev = rowEvents[i];
+    const span = (a, b, stage, opts) => {
+      if (b <= a || b > maxCycle + 1 || a > maxCycle) return;
+      enter[a].push([i, stage, opts ?? null, b]);
+    };
+    span(r.dispatched + 1, r.ready, 'waiting');
+    // "Ready" is not drawable while dispatched: an instruction that becomes
+    // ready before its dispatch cycle (cortex-a55 issues in the order it
+    // dispatches, so dispatched < issued) waits on width or an in-order
+    // scoreboard entry, not on operands.
+    span(Math.max(r.ready, r.dispatched + 1), r.issued, 'ready');
+    span(r.dispatched, r.dispatched + 1, 'dispatch');
+    if (ev) {
+      let holdEnd = ev.cycle;
+      // the latency token parks on the unit whose hold ends last, as before
+      let lastUnits = [];
+      for (const u of ev.units) {
+        holdEnd = Math.max(holdEnd, ev.cycle + u.hold);
+        if (ev.cycle + u.hold >= holdEnd) lastUnits = [u.unit];
+      }
+      holdEnd = Math.max(holdEnd, ev.cycle + 1);
+      span(ev.cycle, Math.min(holdEnd, r.executed), 'execute', { units: ev.units.map((u) => [u.unit, ev.cycle, ev.cycle + u.hold]) });
+      span(Math.max(holdEnd, ev.cycle), r.executed, 'execute', { latency: true, lastUnits, allUnits: ev.units.map((u) => u.unit) });
+    } else {
+      span(r.issued, r.executed, 'execute', { latency: true });
+    }
+    span(r.executed, r.retired, 'retire');
+  });
+
   return {
     resources: json.TargetInfo.Resources,
     instructions,
@@ -67,5 +108,70 @@ export function buildModel(json) {
     cycleCut: entries.length === 0 || entries.length % n !== 0,
     rows,
     matrix,
+    // null unless run with our patched llvm-mca's -issue-events flag
+    events,
+    cycleIndex: { enter, maxCycle },
   };
+}
+
+function parseIssueEvents(region) {
+  const list = region.IssueEventView?.IssueEvents;
+  if (!Array.isArray(list)) return null;
+  return list.map((ev) => ({
+    cycle: ev.cycle,
+    instr: ev.instruction,
+    iter: ev.iteration,
+    units: ev.units.map((u) => ({ unit: u.unit, hold: u.cycles_num / u.cycles_den })),
+  }));
+}
+
+// Where is each instruction instance at `cycle`, as [row index, stage,
+// opts] per the model's cycle index? An instruction occupies the stage it
+// entered at the latest cycle <= `cycle`; ties at one cycle resolve in
+// enter-bucket order, retire last so it wins.
+export function stageEntriesAt(model, cycle) {
+  const { enter, maxCycle } = model.cycleIndex;
+  if (cycle > maxCycle) return [];
+  const at = new Map();
+  for (let c = 0; c <= cycle; c++) {
+    for (const [i, stage, opts, end] of enter[c]) {
+      if (stage === 'retire') {
+        if (cycle >= end) continue; // the span that started at c already ended
+        at.set(i, [i, 'retire', null]);
+        continue;
+      }
+      if (cycle >= end) continue; // the span that started at c already ended
+      at.set(i, [i, stage, opts]);
+    }
+  }
+  const list = [...at.values()];
+  const order = { dispatch: 0, waiting: 1, ready: 2, execute: 3, retire: 4 };
+  list.sort((a, b) => model.rows[a[0]].instr - model.rows[b[0]].instr || model.rows[a[0]].iter - model.rows[b[0]].iter || order[a[1]] - order[b[1]]);
+  return list;
+}
+
+// Where is each instruction instance at `cycle`? A token enters the dispatch
+// block on its dispatch cycle, then the scheduler queue until ready, the
+// ready queue until issue, the execution block until executed (on its
+// event's units while a hold covers the cycle, dimmed on the units it last
+// held while only latency remains), and the retire block until retired.
+// Spans are half-open [x, y), and -1/0 are real cycles too: in-order CPUs
+// (cortex-a55) dispatch and issue the first instruction at cycle 0.
+export function tokenPositionsAt(model, cycle) {
+  const tokens = [];
+  for (const [i, stage, opts] of stageEntriesAt(model, cycle)) {
+    const r = model.rows[i];
+    const units = [];
+    let lastUnits = [];
+    if (stage === 'execute' && opts) {
+      if (opts.units) {
+        for (const [unit, start, end] of opts.units) {
+          if (cycle >= start && cycle < end) units.push(unit);
+        }
+      }
+      if (opts.lastUnits) lastUnits = opts.lastUnits;
+    }
+    tokens.push({ instr: r.instr, iter: r.iter, stage, units, lastUnits });
+  }
+  return tokens;
 }

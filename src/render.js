@@ -1,4 +1,4 @@
-import { buildModel } from './model.js';
+import { buildModel, tokenPositionsAt } from './model.js';
 import { initMca, runMca } from './mca.js';
 
 const drop = document.getElementById('drop');
@@ -11,26 +11,49 @@ const cpu = document.getElementById('cpu');
 const iterations = document.getElementById('iterations');
 const runBtn = document.getElementById('run');
 
+// Every load/run claims the generation counter synchronously, before its
+// first await; every result, error and finally does nothing when stale.
 let loadGen = 0;
+let runBusy = false;
 let mcaReady = false;
+let mcaFailed = false;
+let cpusReady = false;
+let pendingAsmRun = false;
 
-// Route a file by content: llvm-mca -json output starts with '{',
-// everything else is assembly.
-async function isJson(f) {
-  return (await f.slice(0, 64).text()).trimStart().startsWith('{');
+function showError(e) {
+  err.textContent = String(e);
+  err.hidden = false;
+  out.hidden = true;
 }
 
-async function load(f) {
+// Run stays disabled until the WASM module, the CPU list and a selection
+// all exist, and while a run is in flight.
+function refreshRunBtn() {
+  runBtn.disabled = runBusy || !mcaReady || !cpusReady || !cpu.selectedOptions[0] || mcaFailed;
+  if (mcaFailed) runBtn.textContent = 'llvm-mca failed to load';
+  else if (runBusy) runBtn.textContent = 'Running...';
+  else if (!mcaReady) runBtn.textContent = runBtn.textContent; // progress text
+  else runBtn.textContent = 'Run';
+}
+
+// A .s file arrived (drop, pick, or Run click): fill the box and run it,
+// queueing the run while the WASM module is still loading. A newer file or
+// edit replaces the queued run.
+function requestAsm() {
+  if (mcaReady) runAsm();
+  else if (!mcaFailed) pendingAsmRun = true;
+}
+
+async function loadText(text) {
   const gen = ++loadGen;
+  pendingAsmRun = false;
   try {
-    const model = buildModel(JSON.parse(await f.text()));
-    if (gen !== loadGen) return; // a newer load is in flight; discard this one
+    const model = buildModel(JSON.parse(text));
+    if (gen !== loadGen) return;
     show(model);
   } catch (e) {
     if (gen !== loadGen) return;
-    err.textContent = String(e);
-    err.hidden = false;
-    out.hidden = true;
+    showError(e);
   }
 }
 
@@ -46,51 +69,62 @@ function show(model) {
   out.hidden = false;
   renderTimeline(model, document.getElementById('timeline'));
   renderHeatmap(model, document.getElementById('heatmap'));
+  renderFlow(model);
   renderTables(model);
 }
 
 async function runAsm() {
   const gen = ++loadGen;
-  if (asm.value.trim() === '') {
-    err.textContent = 'Paste assembly or drop a .s file first';
-    err.hidden = false;
-    out.hidden = true;
-    return;
-  }
-  const sel = cpu.selectedOptions[0];
-  const args = [
-    '-mtriple=' + sel.dataset.triple,
-    '-mcpu=' + sel.value,
-    '-iterations=' + iterations.value,
-    '-timeline',
-    '-json',
-  ];
-  out.hidden = true;
-  runBtn.disabled = true;
-  runBtn.textContent = 'Running...';
+  runBusy = true;
+  refreshRunBtn();
   try {
+    if (asm.value.trim() === '') throw new Error('Paste assembly or drop a .s file first');
+    const sel = cpu.selectedOptions[0];
+    if (!sel) throw new Error('Pick a CPU first');
+    const iters = Math.round(Number(iterations.value));
+    const min = +iterations.min;
+    const max = +iterations.max;
+    if (!Number.isInteger(iters) || iters < min || iters > max) {
+      throw new Error(`Iterations must be an integer between ${min} and ${max}`);
+    }
+    const args = [
+      '-mtriple=' + sel.dataset.triple,
+      '-mcpu=' + sel.value,
+      '-iterations=' + iters,
+      '-timeline',
+      '-json',
+      '-issue-events',
+    ];
+    out.hidden = true;
     const r = await runMca(asm.value, args);
     if (gen !== loadGen) return;
     if (r.exit !== 0 || r.stdout === '') throw new Error(r.stderr.trim() || `llvm-mca exited with ${r.exit}`);
     show(buildModel(JSON.parse(r.stdout)));
   } catch (e) {
     if (gen !== loadGen) return;
-    err.textContent = String(e);
-    err.hidden = false;
-    out.hidden = true;
+    showError(e);
   } finally {
-    runBtn.disabled = !mcaReady;
-    if (mcaReady) runBtn.textContent = 'Run';
+    // only the run still owning the busy state may clear it
+    if (gen === loadGen) {
+      runBusy = false;
+      refreshRunBtn();
+    }
   }
 }
 
+// Route a file by its full text: a trimmed document starting with '{' is
+// llvm-mca -json output (leading whitespace or a BOM is fine), everything
+// else is assembly.
 async function loadSource(f) {
-  if (!(await isJson(f))) {
-    asm.value = await f.text();
-    if (mcaReady) runAsm();
+  const gen = ++loadGen;
+  const text = await f.text();
+  if (gen !== loadGen) return; // a newer input claimed the generation while we read
+  if (text.replace(/^\ufeff/, '').trimStart().startsWith('{')) {
+    loadText(text);
     return;
   }
-  load(f);
+  asm.value = text;
+  requestAsm();
 }
 
 file.addEventListener('change', () => file.files[0] && loadSource(file.files[0]));
@@ -99,12 +133,19 @@ drop.addEventListener('drop', (e) => {
   e.preventDefault();
   e.dataTransfer.files[0] && loadSource(e.dataTransfer.files[0]);
 });
-runBtn.addEventListener('click', runAsm);
+runBtn.addEventListener('click', () => requestAsm());
+asm.addEventListener('input', () => {
+  // an edit replaces any queued run of a file dropped while loading
+  pendingAsmRun = false;
+});
 
 // The CPU list is static: cpus.json is regenerated by wasm/cpus.mjs from
 // llvm-mca's scheduling models.
 fetch('cpus.json')
-  .then((r) => r.json())
+  .then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} fetching cpus.json`);
+    return r.json();
+  })
   .then((cpus) => {
     for (const [triple, names] of Object.entries(cpus)) {
       const group = document.createElement('optgroup');
@@ -120,26 +161,34 @@ fetch('cpus.json')
     }
     cpu.value = 'znver4';
   })
-  .catch((e) => { err.textContent = String(e); err.hidden = false; });
+  .catch((e) => showError(e))
+  .finally(() => {
+    cpusReady = true;
+    refreshRunBtn();
+  });
 
-// The 12 MB wasm fetch starts on page load. The Run button shows download
-// progress until the module is compiled and ready.
 initMca({
   onProgress(got, total) {
     const mb = (n) => (n / (1 << 20)).toFixed(1) + ' MB';
-    runBtn.textContent = total
-      ? `Loading llvm-mca... ${mb(got)} of ${mb(total)}`
-      : `Loading llvm-mca... ${mb(got)}`;
+    if (!runBusy && !mcaReady) {
+      runBtn.textContent = total
+        ? `Loading llvm-mca... ${mb(got)} of ${mb(total)}`
+        : `Loading llvm-mca... ${mb(got)}`;
+    }
   },
   onReady() {
     mcaReady = true;
-    runBtn.disabled = false;
-    runBtn.textContent = 'Run';
+    refreshRunBtn();
+    if (pendingAsmRun) {
+      pendingAsmRun = false;
+      runAsm();
+    }
   },
   onLoadError(message) {
-    runBtn.textContent = 'llvm-mca failed to load';
-    err.textContent = message;
-    err.hidden = false;
+    mcaFailed = true;
+    pendingAsmRun = false;
+    refreshRunBtn();
+    showError(message);
   },
 });
 
@@ -248,6 +297,283 @@ function renderHeatmap(model, host) {
     root.appendChild(c);
   });
   host.appendChild(root);
+}
+
+// Flow diagram: four pipeline blocks, the execution block holding one row per
+// unit (name on the left, tokens in the right part), tokens placed by tokenPositionsAt.
+const FLOW = { blockW: 130, head: 20, unitW: 120, cellH: 14, token: 12, gap: 30 };
+let flowCycleMax = 0;
+let currentFlowModel = null;
+// Maximum token pile and per-unit pile over the whole run: the blocks and
+// unit rows are sized from it so no token is drawn outside its block.
+let flowShape = { pile: 1, byUnit: new Map() };
+
+function maxOccupancy(model) {
+  const pile = { dispatch: 1, waiting: 1, ready: 1, execute: 1, retire: 1 };
+  const byUnit = new Map();
+  const { maxCycle } = model.cycleIndex;
+  for (let c = 0; c <= maxCycle; c++) {
+    const counts = { dispatch: 0, waiting: 0, ready: 0, execute: 0, retire: 0 };
+    const unitCounts = {};
+    let any = false;
+    for (const t of tokenPositionsAt(model, c)) {
+      counts[t.stage]++;
+      any = true;
+      // a token in the execute block parks somewhere: on every held unit,
+      // or on its last unit when only latency remains
+      const spots = t.units.length ? t.units : t.lastUnits;
+      for (const u of spots) unitCounts[u] = (unitCounts[u] || 0) + 1;
+    }
+    if (!any) continue;
+    for (const k in counts) pile[k] = Math.max(pile[k], counts[k]);
+    for (const u in unitCounts) byUnit.set(+u, Math.max(byUnit.get(+u) || 1, unitCounts[u]));
+  }
+  return { pile, byUnit };
+}
+
+function renderFlow(model) {
+  const slider = document.getElementById('flow-cycle');
+  const status = document.getElementById('flow-status');
+  const notice = document.getElementById('flow-notice');
+  const play = document.getElementById('flow-play');
+  const step = document.getElementById('flow-step');
+  stopFlow();
+  // Tearing down an old diagram clears the model and every handler before
+  // anything else can draw or fire.
+  currentFlowModel = null;
+  slider.oninput = null;
+  play.onclick = null;
+  step.onclick = null;
+  document.getElementById('flow-list').textContent = '';
+  if (model.events === null) {
+    notice.hidden = false;
+    notice.textContent =
+      'This JSON has no issue events, so the flow diagram needs a run from assembly (our patched llvm-mca adds -issue-events).';
+    document.getElementById('flow').textContent = '';
+    slider.disabled = true;
+    play.disabled = true;
+    step.disabled = true;
+    status.textContent = 'No issue events.';
+    return;
+  }
+  notice.hidden = true;
+  slider.disabled = false;
+  play.disabled = false;
+  step.disabled = false;
+  flowCycleMax = model.cycleIndex.maxCycle;
+  slider.max = flowCycleMax;
+  slider.value = 0;
+  flowShape = maxOccupancy(model);
+  currentFlowModel = model;
+  drawFlowBlocks(model);
+  slider.oninput = () => setFlowCycle(model, +slider.value); // assigned, not added: each run would stack a listener on the old model
+  play.onclick = toggleFlowPlay;
+  step.onclick = () => {
+    stopFlow();
+    setFlowCycle(model, Math.min(flowCycleMax, +slider.value + 1));
+  };
+  setFlowCycle(model, 0);
+}
+
+function drawFlowBlocks(model) {
+  const host = document.getElementById('flow');
+  host.textContent = '';
+  const { blockW, head, unitW, cellH, gap } = FLOW;
+  const execW = unitW + 6;
+  // one row per unit per simultaneous occupancy, so tokens never spill out
+  const execH = head + model.resources.reduce((s, _r, u) => s + cellH * (flowShape.byUnit.get(u) || 1), 0) + 4;
+  const blockH = (cls) => head + cellH * flowShape.pile[cls] + 4;
+  const x0 = { dispatch: 0, waiting: blockW + gap, ready: 2 * (blockW + gap) };
+  const execX = 3 * (blockW + gap);
+  const retireX = execX + execW + gap;
+  const width = retireX + blockW + 20;
+  const height = Math.max(execH, blockH('dispatch'), blockH('waiting'), blockH('ready'), blockH('retire')) + 4;
+  const root = svg('svg', { width, height, 'aria-hidden': 'true' });
+  const blocks = [
+    ['dispatch', x0.dispatch, blockW, blockH('dispatch'), 'Dispatch'],
+    ['waiting', x0.waiting, blockW, blockH('waiting'), 'Scheduler (waiting)'],
+    ['ready', x0.ready, blockW, blockH('ready'), 'Scheduler (ready)'],
+    ['retire', retireX, blockW, blockH('retire'), 'Retire'],
+  ];
+  for (const [cls, x, w, h, name] of blocks) {
+    const g = svg('g', { class: 'flow-block', 'data-block': cls });
+    g.appendChild(svg('rect', { x, y: 0, width: w, height: h, fill: '#f1f5f9', stroke: '#64748b' }));
+    const t = svg('text', { x: x + 4, y: 13, 'font-size': 10 });
+    t.textContent = name;
+    g.appendChild(t);
+    root.appendChild(g);
+  }
+  const eg = svg('g', { class: 'flow-block', 'data-block': 'execute' });
+  eg.appendChild(svg('rect', { x: execX, y: 0, width: execW, height: execH, fill: '#f1f5f9', stroke: '#64748b' }));
+  const et = svg('text', { x: execX + 4, y: 13, 'font-size': 10 });
+  et.textContent = 'Execution units';
+  eg.appendChild(et);
+  let y = head; // unit rows stack from the block head
+  model.resources.forEach((name, u) => {
+    const rows = flowShape.byUnit.get(u) || 1;
+    const g = svg('g', { class: 'flow-unit', 'data-unit': u, transform: `translate(${execX + 3},${y})` });
+    g.appendChild(svg('rect', { width: unitW, height: cellH * rows - 2, fill: '#fff', stroke: '#64748b' }));
+    g.appendChild(svg('text', { x: 3, y: cellH - 4, 'font-size': 9 })).textContent = label(name);
+    g.appendChild(svg('title', {})).textContent = label(name);
+    eg.appendChild(g);
+    y += cellH * rows;
+  });
+  // insert before retire so the DOM order follows the pipeline direction
+  root.insertBefore(eg, root.lastChild);
+  const tg = svg('g', { class: 'flow-tokens' });
+  root.appendChild(tg);
+  host.appendChild(root);
+}
+
+// A multi-resource instruction gets one token, drawn on its busiest unit,
+// with data-units naming every held unit; the text list below the diagram
+// carries the same set (with names), so nothing is only in the SVG.
+function setFlowCycle(model, cycle) {
+  if (!currentFlowModel) return; // a no-events load tore the diagram down
+  const root = document.querySelector('#flow svg');
+  if (!root) return;
+  const slider = document.getElementById('flow-cycle');
+  slider.value = cycle;
+  // highlight the same column in the timeline (a line, so the timeline's rect
+  // count is unchanged)
+  for (const el of document.querySelectorAll('#timeline line.flow-cur, #timeline line.flow-halo')) el.remove();
+  const tl = document.querySelector('#timeline svg');
+  if (tl?.lastChild) {
+    const x = LEFT + cycle * CELL - CELL / 2;
+    const y1 = TOP - 2;
+    const y2 = +tl.lastChild.getAttribute('y') + CELL;
+    // red is about 1.04:1 against the green and orange bars; the white halo gives it an edge there
+    tl.appendChild(svg('line', { class: 'flow-halo', x1: x, x2: x, y1, y2, stroke: '#fff', 'stroke-width': 4 }));
+    tl.appendChild(svg('line', { class: 'flow-cur', x1: x, x2: x, y1, y2, stroke: '#dc2626', 'stroke-width': 2 }));
+  }
+  const tg = root.querySelector('.flow-tokens');
+  tg.textContent = '';
+  const tokens = tokenPositionsAt(model, cycle);
+  const busy = {};
+  const onUnitCount = {};
+  const counts = { dispatch: 0, waiting: 0, ready: 0, execute: 0, retire: 0 };
+  const inFlight = {};
+  for (const t of tokens) {
+    const block = t.stage;
+    // Its hold ended but not yet executed: executing latency. Keep it in the
+    // execution block on the last unit it used, drawn dashed and dimmed.
+    const inLatency = block === 'execute' && t.units.length === 0 && t.lastUnits.length > 0;
+    counts[block]++;
+    const bg = root.querySelector(`.flow-block[data-block="${block}"]`);
+    const br = bg.querySelector('rect');
+    const n = +bg.dataset.n || 0;
+    bg.dataset.n = n + 1;
+    for (const u of t.units) busy[u] = true;
+    let x, y;
+    if (block === 'execute') {
+      const onUnit = inLatency ? t.lastUnits[0] : t.units[0];
+      if (onUnit !== undefined) {
+        const ug = root.querySelector(`[data-unit="${onUnit}"]`);
+        const m = ug.getAttribute('transform').match(/translate\(([\d.]+),([\d.]+)\)/);
+        // centred in the unit's row; each token already on that unit this cycle sits one row further down
+        const k = onUnitCount[onUnit] || 0;
+        onUnitCount[onUnit] = k + 1;
+        x = +m[1] + FLOW.unitW / 2 - FLOW.token / 2;
+        y = +m[2] + (FLOW.cellH - FLOW.token) / 2 - 1 + k * FLOW.cellH;
+      } else {
+        x = +br.getAttribute('x') + 3 + (FLOW.unitW - FLOW.token) / 2;
+        y = FLOW.head + n * FLOW.cellH;
+      }
+    } else {
+      x = +br.getAttribute('x') + FLOW.blockW / 2 - FLOW.token / 2;
+      y = FLOW.head + n * FLOW.cellH;
+    }
+    if (t.units.length > 1) {
+      // the solid token stays on units[0]; its mates get a small corner marker
+      // with the same label, so a shared hold never looks like an empty unit
+      for (const u of t.units.slice(1)) {
+        const ug = root.querySelector(`[data-unit="${u}"]`);
+        const m = ug.getAttribute('transform').match(/translate\(([\d.]+),([\d.]+)\)/);
+        const mg = svg('g', { class: 'flow-marker', 'data-instr': t.instr, 'data-iter': t.iter });
+        const mx = +m[1] + FLOW.unitW - 6;
+        const my = +m[2] + 1;
+        mg.appendChild(svg('rect', { x: mx, y: my, width: 5, height: 5, fill: '#dc2626', stroke: '#7f1d1d', 'stroke-width': 0.5 }));
+        const mt = svg('text', { x: mx - 2, y: my + 4.5, 'font-size': 5.5, 'text-anchor': 'end', fill: '#7f1d1d' });
+        mt.textContent = `${t.iter}:${t.instr}`;
+        mg.appendChild(mt);
+        mg.appendChild(svg('title', {})).textContent = `${model.instructions[t.instr]}\niter ${t.iter}, on ${t.units.map((x) => label(model.resources[x])).join(', ')}`;
+        tg.appendChild(mg);
+      }
+    }
+    const g = svg('g', {
+      class: 'flow-token',
+      'data-instr': t.instr,
+      'data-iter': t.iter,
+      'data-block': block,
+      'data-units': t.units.join(' '),
+    });
+    if (inLatency) {
+      g.setAttribute('data-latency', '1');
+      inFlight[t.lastUnits[0]] = true;
+    }
+    const rectAttrs = { x, y, width: FLOW.token, height: FLOW.token, fill: '#dc2626', stroke: '#7f1d1d' };
+    // hollow and dashed, so it differs in shape from a solid active token; at 60% opacity the outline stays 3:1 on white
+    if (inLatency) Object.assign(rectAttrs, { fill: '#fff', 'stroke-dasharray': '2 2', opacity: 0.6 });
+    g.appendChild(svg('rect', rectAttrs));
+    const lt = svg('text', { x: x + FLOW.token / 2, y: y + FLOW.token - 3.5, 'font-size': 6, 'text-anchor': 'middle', fill: inLatency ? '#111827' : '#fff' });
+    lt.textContent = `${t.iter}:${t.instr}`;
+    g.appendChild(lt);
+    g.appendChild(svg('title', {})).textContent = inLatency
+      ? `${model.instructions[t.instr]}\niter ${t.iter}, executing (latency), last on ${label(model.resources[t.lastUnits[0]])}`
+      : t.units.length
+        ? `${model.instructions[t.instr]}\niter ${t.iter}, ${block}, on ${t.units.map((u) => label(model.resources[u])).join(', ')}`
+        : `${model.instructions[t.instr]}\niter ${t.iter}, ${block}`;
+    tg.appendChild(g);
+  }
+  for (const bg of root.querySelectorAll('.flow-block')) bg.dataset.n = 0;
+  const busyNames = Object.keys(busy)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((u) => label(model.resources[u]));
+  const inFlightNames = Object.keys(inFlight)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((u) => label(model.resources[u]));
+  document.getElementById('flow-status').textContent =
+    `Cycle ${cycle}. Dispatch ${counts.dispatch}, waiting ${counts.waiting}, ready ${counts.ready}, ` +
+    `executing on ${busyNames.length ? busyNames.join(', ') : 'no units'}, retire ${counts.retire}.` +
+    inFlightNames.map((u) => ` Executing (latency), last on ${u}.`).join('');
+  // the SVG is aria-hidden; this list is the text equivalent, one line per token
+  const ul = document.createElement('ul');
+  for (const t of tokens) {
+    const li = document.createElement('li');
+    const state =
+      t.units.length > 0
+        ? `executing on ${t.units.map((u) => label(model.resources[u])).join(', ')}`
+        : t.lastUnits.length > 0
+          ? `executing (latency), last on ${t.lastUnits.map((u) => label(model.resources[u])).join(', ')}`
+          : t.stage;
+    li.textContent = `${t.stage}: ${t.iter}:${t.instr} ${model.instructions[t.instr]} — ${state}`;
+    ul.appendChild(li);
+  }
+  const host = document.getElementById('flow-list');
+  host.textContent = '';
+  host.appendChild(ul);
+}
+
+let flowTimer = null;
+function stopFlow() {
+  if (flowTimer) clearInterval(flowTimer);
+  flowTimer = null;
+  const b = document.getElementById('flow-play');
+  if (b) b.textContent = 'Play';
+}
+function toggleFlowPlay() {
+  const b = document.getElementById('flow-play');
+  if (flowTimer) return stopFlow();
+  b.textContent = 'Pause';
+  const slider = document.getElementById('flow-cycle');
+  if (+slider.value >= flowCycleMax) slider.value = 0;
+  flowTimer = setInterval(() => {
+    const next = +slider.value + 1;
+    if (next > flowCycleMax) return stopFlow();
+    setFlowCycle(currentFlowModel, next);
+  }, 333);
 }
 
 // The same numbers as text, for keyboard and screen reader users.

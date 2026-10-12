@@ -13,8 +13,17 @@ file, pick a CPU from the list (filled from `cpus.json`) and an iteration
 count, and hit Run. llvm-mca runs as WASM in a Web Worker, so the page stays
 responsive; the ~12 MB binary downloads on page load and the Run button shows
 progress until it is ready. Runs pass `-mtriple <group> -mcpu <cpu>
--iterations <n> -timeline -json`; the timeline view keeps at most 10
+-iterations <n> -timeline -json -issue-events`; the timeline view keeps at most 10
 iterations, and the page shows a notice when the cap cuts the output.
+
+A CPU flow diagram sits under the heatmap: the dispatch, scheduler-waiting,
+scheduler-ready, execution-unit and retire blocks, with one box per real unit
+from the CPU's scheduling model. Issue events from our patched llvm-mca's
+`-issue-events` flag (`wasm/patches/issue-view.patch`) place each instruction
+token on its exact busy unit. A cycle slider with play and step buttons moves
+the tokens cycle by cycle, highlights the same column in the timeline, and
+updates an aria-live line with the cycle and busy units. Dropped JSON without
+issue events shows a notice instead of the diagram.
 
 To generate the same JSON by hand (fixtures are pinned to LLVM 23, because
 the browser WASM build of llvm-mca tracks llvmorg-23.1.3 and the tests
