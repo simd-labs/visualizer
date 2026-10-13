@@ -101,6 +101,7 @@ with `wasm/dist/` to GitHub Pages.
 
 ```
 sh test/gen-fixtures.sh              # regenerate test/fixtures/*
+node --test test/corpus.test.mjs     # compiled-kernel corpus (test/corpus/asm, no compiler needed); sh test/gen-corpus.sh regenerates it with clang++-23
 npm test                             # node tests + playwright tests
 ```
 
