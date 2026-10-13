@@ -16,14 +16,42 @@ progress until it is ready. Runs pass `-mtriple <group> -mcpu <cpu>
 -iterations <n> -timeline -json -issue-events`; the timeline view keeps at most 10
 iterations, and the page shows a notice when the cap cuts the output.
 
-A CPU flow diagram sits under the heatmap: the dispatch, scheduler-waiting,
+The page opens with an x86 SSE2 example loop for znver4 in the box (src/examples.js);
+Run starts it. A change of CPU puts in the example for that CPU's architecture
+(AArch64 AdvSIMD, RV64I), unless the box holds the user's own asm. The empty
+page's button runs the selected CPU's example. Results
+show the CPU flow diagram and the timeline under one sticky cycle bar: side by
+side on wide screens, stacked below 1300px. The flow diagram scales to its
+column and never scrolls; the timeline scrolls sideways when it has more cycles
+than fit. The heatmap
+follows, and the text tables sit in a collapsed "Data tables" section. A
+header button switches light and dark mode; the choice is kept in
+localStorage, and without one the page follows the system setting.
+
+The CPU flow diagram shows the dispatch, scheduler-waiting,
 scheduler-ready, execution-unit and retire blocks, with one box per real unit
 from the CPU's scheduling model. Issue events from our patched llvm-mca's
 `-issue-events` flag (`wasm/patches/issue-view.patch`) place each instruction
-token on its exact busy unit. A cycle slider with play and step buttons moves
+token on its exact busy unit. The layout follows the usual CPU block diagram:
+the queues across the top, one box per execution port below them, retire at
+the bottom. A cycle slider with play and step buttons (and a 1 to 30 cycles/s
+speed slider for play) moves
 the tokens cycle by cycle, highlights the same column in the timeline, and
 updates an aria-live line with the cycle and busy units. Dropped JSON without
 issue events shows a notice instead of the diagram.
+
+Execution units appear under vendor-style names (`Port 0`, `ALU0`, `FP1`,
+`S0`, `V2`, `L0`) in integer, FP/vector and memory bands, with dividers as
+dashed "slow" units in the integer band. The names come from
+`src/unit-names.json`, which maps llvm-mca resource names (`Zn4ALU0`,
+`V2UnitS0`) to the port and pipe names in the Intel Optimization Reference
+Manual, the AMD Software Optimization Guides and the Arm Software
+Optimization Guides. `src/unit-names.js` looks them up. A resource that no
+rule names is shown with its model prefix dropped and its camelCase split.
+Tooltips and the data tables keep llvm-mca's own name next to the vendor
+name. The file holds facts (unit names and port numbers) and short cited
+quotes only, no copied text or images. Each rule's `source` field records
+its URL.
 
 To generate the same JSON by hand (fixtures are pinned to LLVM 23, because
 the browser WASM build of llvm-mca tracks llvmorg-23.1.3 and the tests

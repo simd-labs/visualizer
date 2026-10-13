@@ -1,0 +1,2482 @@
+{
+ "meta": {
+  "generated": "probe of TargetInfo.Resources via wasm llvm-mca; rules ordered, first match wins; use /.*(\\\\.\\\\d+)?$/ to expand resource groups",
+  "families": [
+   "intel-skylake",
+   "intel-icelake",
+   "intel-alderlake-p",
+   "intel-sapphirerapids",
+   "intel-gracemont(em=alderlake model)",
+   "amd-zen2",
+   "amd-zen3",
+   "amd-zen4",
+   "arm-neoverse",
+   "arm-cortex-a55",
+   "sifive-7",
+   "sifive-p600",
+   "generic"
+  ]
+ },
+ "rules": [
+  {
+   "label": "SKLPort00",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort0$",
+   "display": "Port 0 (ALU / Vec ALU+FMA)",
+   "cluster": "int",
+   "port": 0,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort01",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort1$",
+   "display": "Port 1 (ALU / Vec FMA)",
+   "cluster": "int",
+   "port": 1,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort02",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort2$",
+   "display": "Port 2 (Load AGU)",
+   "cluster": "mem",
+   "port": 2,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort03",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort3$",
+   "display": "Port 3 (Load AGU)",
+   "cluster": "mem",
+   "port": 3,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort04",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort4$",
+   "display": "Port 4 (Store data)",
+   "cluster": "mem",
+   "port": 4,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort05",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort5$",
+   "display": "Port 5 (ALU / Vec shuffle)",
+   "cluster": "int",
+   "port": 5,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort06",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort6$",
+   "display": "Port 6 (ALU / Branch)",
+   "cluster": "branch",
+   "port": 6,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SKLPort07",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKLPort7$",
+   "display": "Port 7 (Store AGU)",
+   "cluster": "mem",
+   "port": 7,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ICXPort00",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort0$",
+   "display": "Port 0 (ALU / Vec ALU)",
+   "cluster": "int",
+   "port": 0,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort01",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort1$",
+   "display": "Port 1 (ALU / Vec FMA)",
+   "cluster": "int",
+   "port": 1,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort02",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort2$",
+   "display": "Port 2 (Load AGU)",
+   "cluster": "mem",
+   "port": 2,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort03",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort3$",
+   "display": "Port 3 (Load AGU)",
+   "cluster": "mem",
+   "port": 3,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort04",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort4$",
+   "display": "Port 4 (Store data)",
+   "cluster": "mem",
+   "port": 4,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort05",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort5$",
+   "display": "Port 5 (ALU / Vec shuffle)",
+   "cluster": "int",
+   "port": 5,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort06",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort6$",
+   "display": "Port 6 (ALU / Branch)",
+   "cluster": "branch",
+   "port": 6,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort07",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort7$",
+   "display": "Port 7 (Store AGU)",
+   "cluster": "mem",
+   "port": 7,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort08",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort8$",
+   "display": "Port 8 (Store data)",
+   "cluster": "mem",
+   "port": 8,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ICXPort09",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICXPort9$",
+   "display": "Port 9 (Load AGU)",
+   "cluster": "mem",
+   "port": 9,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "ADLPPort00",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort00$",
+   "display": "Port 0 (ALU / Vec ALU)",
+   "cluster": "int",
+   "port": 0,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort01",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort01$",
+   "display": "Port 1 (ALU / Vec FMA)",
+   "cluster": "int",
+   "port": 1,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort02",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort02$",
+   "display": "Port 2 (Load AGU)",
+   "cluster": "mem",
+   "port": 2,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort03",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort03$",
+   "display": "Port 3 (Load AGU)",
+   "cluster": "mem",
+   "port": 3,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort04",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort04$",
+   "display": "Port 4 (Store data)",
+   "cluster": "mem",
+   "port": 4,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort05",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort05$",
+   "display": "Port 5 (ALU / Vec shift/FMA)",
+   "cluster": "int",
+   "port": 5,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort06",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort06$",
+   "display": "Port 6 (ALU / Branch)",
+   "cluster": "branch",
+   "port": 6,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort07",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort07$",
+   "display": "Port 7 (Load AGU)",
+   "cluster": "mem",
+   "port": 7,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort08",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort08$",
+   "display": "Port 8 (Store data)",
+   "cluster": "mem",
+   "port": 8,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort09",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort09$",
+   "display": "Port 9 (Store data)",
+   "cluster": "mem",
+   "port": 9,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort10",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort10$",
+   "display": "Port 10 (ALU / Branch)",
+   "cluster": "branch",
+   "port": 10,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ADLPPort11",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPort11$",
+   "display": "Port 11 (Store AGU)",
+   "cluster": "mem",
+   "port": 11,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort00",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort00$",
+   "display": "Port 0 (ALU / Vec ALU)",
+   "cluster": "int",
+   "port": 0,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort01",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort01$",
+   "display": "Port 1 (ALU / Vec FMA)",
+   "cluster": "int",
+   "port": 1,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort02",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort02$",
+   "display": "Port 2 (Load AGU)",
+   "cluster": "mem",
+   "port": 2,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort03",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort03$",
+   "display": "Port 3 (Load AGU)",
+   "cluster": "mem",
+   "port": 3,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort04",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort04$",
+   "display": "Port 4 (Store data)",
+   "cluster": "mem",
+   "port": 4,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort05",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort05$",
+   "display": "Port 5 (ALU / Vec shift/FMA)",
+   "cluster": "int",
+   "port": 5,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort06",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort06$",
+   "display": "Port 6 (ALU / Branch)",
+   "cluster": "branch",
+   "port": 6,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort07",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort07$",
+   "display": "Port 7 (Load AGU)",
+   "cluster": "mem",
+   "port": 7,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort08",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort08$",
+   "display": "Port 8 (Store data)",
+   "cluster": "mem",
+   "port": 8,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort09",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort09$",
+   "display": "Port 9 (Store data)",
+   "cluster": "mem",
+   "port": 9,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort10",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort10$",
+   "display": "Port 10 (ALU / Branch)",
+   "cluster": "branch",
+   "port": 10,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPort11",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPort11$",
+   "display": "Port 11 (Store AGU)",
+   "cluster": "mem",
+   "port": 11,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "SKL dividers",
+   "family": "intel-skylake",
+   "cpus": [
+    "skylake",
+    "skylake-avx512",
+    "skx",
+    "cascadelake",
+    "cooperlake"
+   ],
+   "match": "^SKL(FP)?Divider$",
+   "display": "Divider",
+   "cluster": "other",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "ICX dividers",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICX(FP)?Divider$",
+   "display": "Divider (in-pipe)",
+   "cluster": "other",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "zn2ALU",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dALU([0-3])$",
+   "display": "ALU$1",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2AGU",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dAGU([0-3])$",
+   "display": "AGU$1",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2BRU",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dBRU1$",
+   "display": "Branch",
+   "cluster": "branch",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 FP pipes",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dFP([0-3])$",
+   "display": "FP$1",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 FP45",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dFP45.*$",
+   "display": "FP4/5 (store/fma)",
+   "cluster": "vec",
+   "port": 4,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 FPSt",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dFPSt$",
+   "display": "FP store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 LSU",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dLSU.*$",
+   "display": "Memory (LSU: load/store unit)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 Load",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dLoad.*$",
+   "display": "Load",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 Store",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn\\dStore.*$",
+   "display": "Store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn3ALU",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dALU([0-3])$",
+   "display": "ALU$1",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3AGU",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dAGU([0-3])$",
+   "display": "AGU$1",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3BRU",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dBRU1$",
+   "display": "Branch",
+   "cluster": "branch",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3 FP pipes",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dFP([0-3])$",
+   "display": "FP$1",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3 FP45",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dFP45.*$",
+   "display": "FP4/5 (store/fma)",
+   "cluster": "vec",
+   "port": 4,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3 FPSt",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dFPSt$",
+   "display": "FP store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3 LSU",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dLSU.*$",
+   "display": "Memory (LSU: load/store unit)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3 Load",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dLoad.*$",
+   "display": "Load",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn3 Store",
+   "family": "amd-zen3",
+   "cpus": [
+    "znver3"
+   ],
+   "match": "^Zn\\dStore.*$",
+   "display": "Store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://kib.kiev.ua/x86docs/AMD/Optimization/56665_3.00_Software%20Optimization%20Guide%20for%20AMD%20Family%2019h%20Processors%20%28PUB%29.pdf",
+    "section": "Software Optimization Guide for AMD Family 19h Processors (Pub 56665 Rev 3.00), sections 2.10.1-2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of general purpose integer operations.\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere is also a separate branch execution unit (BRU) attached to scheduler 3. There are three Address Generation Units (AGUs) for\nall load and store address generation.",
+    "note": "Official page docs.amd.com/v/u/en-US/56665 is JavaScript-only; quote from third-party mirror."
+   }
+  },
+  {
+   "label": "zn4ALU",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dALU([0-3])$",
+   "display": "ALU$1",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4AGU",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dAGU([0-3])$",
+   "display": "AGU$1",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4BRU",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dBRU1$",
+   "display": "Branch",
+   "cluster": "branch",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4 FP pipes",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dFP([0-3])$",
+   "display": "FP$1",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4 FP45",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dFP45.*$",
+   "display": "FP4/5 (store/fma)",
+   "cluster": "vec",
+   "port": 4,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4 FPSt",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dFPSt$",
+   "display": "FP store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4 LSU",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dLSU.*$",
+   "display": "Memory (LSU: load/store unit)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4 Load",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dLoad.*$",
+   "display": "Load",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "zn4 Store",
+   "family": "amd-zen4",
+   "cpus": [
+    "znver4",
+    "znver5"
+   ],
+   "match": "^Zn\\dStore.*$",
+   "display": "Store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf-mirror",
+    "url": "https://www.numberworld.org/blogs/2024_8_7_zen5_avx512_teardown/57647_zen4_sog.pdf",
+    "section": "Software Optimization Guide for the AMD Zen4 Microarchitecture (Pub 57647 Rev 1.00/1.01, Apr 2023), section 2.10.2",
+    "quote": "The processor contains 4 general purpose integer execution pipes. Each pipe has an ALU capable of\nALU1 additionally has multiply/CRC/PDEP/PEXT capability and ALU0 additionally has divide and branch execution capability.\nThere are three Address Generation Units (AGUs) for all load and store address generation.",
+    "note": "docs.amd.com copy not reached; quote from third-party mirror. Third-party mirror, verify against the docs.amd.com copy before redistributing text."
+   }
+  },
+  {
+   "label": "Branch",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitB(..)?$",
+   "display": "Branch",
+   "cluster": "branch",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Single-cycle ALU",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitS(\\d)?(..)?$",
+   "display": "S$2 (int ALU)",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Multicycle ALU",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitM(\\d)?(..)?$",
+   "display": "M$2 (int multicycle)",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Load/Store",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitL(01|..)?(..)?$",
+   "display": "L0/L1 (load/store)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "N1 exposes N1UnitL (2 instances); N2/V1/V2 expose UnitL01 with instances"
+  },
+  {
+   "label": "Load 2",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitL2(..)?$",
+   "display": "L2 (load)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Store data",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitD(..)?$",
+   "display": "SD (store data)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Flags",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitFlg(..)?$",
+   "display": "Flags/CMP",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Vector",
+   "family": "arm-neoverse",
+   "cpus": [
+    "neoverse-n1",
+    "neoverse-n2",
+    "neoverse-n3",
+    "cortex-a76",
+    "cortex-a77",
+    "cortex-a78",
+    "cortex-x1",
+    "cortex-x2",
+    "cortex-x3",
+    "cortex-x4",
+    "cortex-x925",
+    "cortex-a710",
+    "cortex-a715",
+    "cortex-a520",
+    "cortex-a720",
+    "cortex-a725",
+    "cortex-x1c",
+    "cortex-x2",
+    "neoverse-v1",
+    "neoverse-v2",
+    "neoverse-v3",
+    "neoverse-v3ae",
+    "cortex-x1"
+   ],
+   "match": "^(N1|N2|V1|V2)UnitV(\\d)(..)?$",
+   "display": "V$2 (FP/ASIMD)",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/668bc0a369e89f01e39c4668",
+    "section": "Neoverse V2 Software Optimization Guide (PJDOC-466751330-593177), Table 3-1",
+    "quote": "Integer single cycle 0/1/2/3 S\nInteger single cycle 0/1 R\nFP/ASIMD 0/1/2/3 V",
+    "note": "V2 adds R (integer single cycle 0/1) to the N1-style symbols."
+   },
+   "transform": "trailing char after the dot is the ProcResource instance index (NUL,1,...)"
+  },
+  {
+   "label": "Branch",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitB(..)?$",
+   "display": "Branch",
+   "cluster": "branch",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "Int ALU",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitALU(..)?$",
+   "display": "ALU",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "MAC",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitMAC(..)?$",
+   "display": "MAC",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "Int div",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitDiv(..)?$",
+   "display": "Div",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "Load",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitLd(..)?$",
+   "display": "Load",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "Store",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitSt(..)?$",
+   "display": "Store",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "FP ALU",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitFPALU(..)?$",
+   "display": "FP ALU",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "FP MAC",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitFPMAC(..)?$",
+   "display": "FP MAC",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "FP div",
+   "family": "arm-cortex-a55",
+   "cpus": [
+    "cortex-a55",
+    "cortex-a510"
+   ],
+   "match": "^CortexA55UnitFPDIV(..)?$",
+   "display": "FP Div/Sqrt",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://documentation-service.arm.com/static/5f1fe66bbb903e39c84d7d75",
+    "section": "Cortex-A55 Software Optimization Guide (ARM-EPM-128372), chapter 3 Pipeline",
+    "quote": "The Arithmetic and Logical Unit (ALU) pipeline can forward results from the end of ex1 and ex2 to earlier stages of both ALU\nThe DIV pipeline can only accept operands in the iss stage\nThe MAC pipeline can only accept multiply operands in the iss stage\nThe first stage (ex1) of both the load and store pipeline contains an AGU.",
+    "note": "A55 is in-order; pipes are ALU x2, MAC, DIV, load, store, FPALU, FPMAC, FPDIV, branch."
+   }
+  },
+  {
+   "label": "Pipe A",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7PipeA$",
+   "display": "Pipe A (integer / memory / vector / address generation unit)",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "Pipe B",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7PipeB$",
+   "display": "Pipe B (integer / control / multiply / division / floating point)",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "Int Div",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7IDiv$",
+   "display": "Int Div",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "FP Div",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7FDiv$",
+   "display": "FP Div/Sqrt",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "VA1",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7VA1$",
+   "display": "Vector arith 1 (vector arithmetic unit)",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "VCQ",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7VCQ$",
+   "display": "Vector command queue (vector command queue)",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "VL",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7VL$",
+   "display": "Vector load (vector load unit)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "VS",
+   "family": "sifive-7",
+   "cpus": [
+    "sifive-u54",
+    "sifive-u74",
+    "sifive-e76",
+    "sifive-s76",
+    "sifive-u54-mc"
+   ],
+   "match": "^(VLEN\\d+)?SiFive7VS$",
+   "display": "Vector store (vector store unit)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive 7-series core complex manuals, not fetched)",
+    "note": "Names Pipe A / Pipe B / VA1 / VL / VS / VCQ are the LLVM resource names, matching the SiFive 7 microarchitecture comment in llvm/lib/Target/RISCV/RISCVSchedSiFive7.td: \"The SiFive7 microarchitecture has three kinds of pipelines: A, B, V. Pipe A can handle memory, integer alu and vector operations. Pipe B can handle integer alu, control flow, integer multiply and divide, and floating point computation.\" Source: llvm-project local checkout line 267."
+   }
+  },
+  {
+   "label": "IEXQ",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600IEXQ(\\d)$",
+   "display": "IEXQ$1 (int execute)",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "FEXQ",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600FEXQ(\\d)$",
+   "display": "FEXQ$1 (FP execute)",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "LDST",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600LDST(\\..)?$",
+   "display": "LDST (load/store)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   },
+   "transform": "suffix \".<byte>\" is the ProcResource<2> instance index (0/1)"
+  },
+  {
+   "label": "Div",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600Div$",
+   "display": "Div",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "FloatDiv",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600FloatDiv$",
+   "display": "FloatDiv",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "VEXQ",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600VEXQ(\\d)$",
+   "display": "VEXQ$1 (vector execute)",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "VLD/VST",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600V(LD|ST)$",
+   "display": "VLD/VST (vector load/store)",
+   "cluster": "mem",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "VDiv/VFloatDiv",
+   "family": "sifive-p600",
+   "cpus": [
+    "sifive-p450",
+    "sifive-p470",
+    "sifive-p600",
+    "sifive-p650",
+    "sifive-p670"
+   ],
+   "match": "^SiFiveP600V(Float)?Div$",
+   "display": "VDiv/VFloatDiv",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "vendor-td",
+    "url": "https://sifive.github.io/ (SiFive P600-series manuals, not fetched)",
+    "note": "IEXQ/FEXQ/LDST/VEXQ per RISCVSchedSiFiveP600.td: \"Two Load/Store ports that can issue either two loads, two stores, or one load and one store\"; \"4-wide pipeline with 4 ALU pipes\"; \"VEXQ0 handle Mask, Simple Slide instructions, VEXQ1 handle Complex Slide, Permutation, Reductions, Divide instructions.\" Source: llvm-project local checkout lines 316-354."
+   }
+  },
+  {
+   "label": "ICX dividers",
+   "family": "intel-icelake",
+   "cpus": [
+    "icelake-client",
+    "icelake-server",
+    "tigerlake",
+    "rocketlake"
+   ],
+   "match": "^ICX(FP)?Divider$",
+   "display": "Divider",
+   "cluster": "other",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.4.1.2 The Out of Order and Execution Engines, Table 2-4 (pages 2-14 to 2-15)",
+    "quote": "Table 2-4. Dispatch Port and Execution Stacks of the Ice Lake Client Microarchitecture\nPort 0 Port 11 Port 2 Port 3 Port 4 Port 5 Port 6 Port 7 Port 8 Port 9",
+    "note": "Header \"Port 11\" is Port 1 with footnote 1. Ice Lake has ten ports, 0-9."
+   }
+  },
+  {
+   "label": "zn2 FPU",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn2FPU([0-3])$",
+   "display": "FPU$1",
+   "cluster": "vec",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 Divider",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn2Divider$",
+   "display": "Divider",
+   "cluster": "other",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "zn2 Multiplier",
+   "family": "amd-zen2",
+   "cpus": [
+    "znver2"
+   ],
+   "match": "^Zn2Multiplier$",
+   "display": "Multiplier",
+   "cluster": "int",
+   "port": null,
+   "source": {
+    "type": "derived",
+    "url": "https://chipswiki.org/Amd/microarchitectures/zen_2",
+    "section": "WikiChip-derived mirror",
+    "quote": "Larger scheduler (4x16 ALU + 1x28 AGU, up from 4x14 ALU + 2x14 AGU",
+    "note": "No AMD Zen 2 guide text fetched (55723 FAILED); Zen 2 ALU/AGU naming follows the same 4x-ALU + 3x-AGU scheme as Zen 3/4 per Agner Fog."
+   }
+  },
+  {
+   "label": "ADLPPortInvalid",
+   "family": "intel-alderlake-p",
+   "cpus": [
+    "alderlake",
+    "arrowlake",
+    "arrowlake-s",
+    "arrowlake_s",
+    "lunarlake",
+    "pantherlake",
+    "gracemont",
+    "sierraforest",
+    "grandridge",
+    "clearwaterforest"
+   ],
+   "match": "^ADLPPortInvalid$",
+   "display": "invalid (unused marker)",
+   "cluster": "other",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Intel 64 and IA-32 Architectures Optimization Reference Manual (Order 248966-049, Jan 2024)",
+    "quote": "Table 2-11. Dispatch Port and Execution Stacks of the Skylake Client Microarchitecture\nPort 0 Port 1 Port 2, 3 Port 4 Port 5 Port 6 Port 7",
+    "note": "Golden Cove port list: \"Table 2-1. Dispatch Port and Execution Stacks of the Golden Cove Microarchitecture\", ports 0-11."
+   }
+  },
+  {
+   "label": "SPRPortInvalid",
+   "family": "intel-sapphirerapids",
+   "cpus": [
+    "sapphirerapids",
+    "graniterapids",
+    "graniterapids-d",
+    "emeraldrapids"
+   ],
+   "match": "^SPRPortInvalid$",
+   "display": "invalid (unused marker)",
+   "cluster": "other",
+   "port": null,
+   "source": {
+    "type": "vendor-pdf",
+    "url": "https://cdrdv2-public.intel.com/814198/248966-Optimization-Reference-Manual-V1-049.pdf",
+    "section": "Section 2.1 SAPPHIRE RAPIDS MICROARCHITECTURE",
+    "quote": "Intel processors based on Sapphire Rapids microarchitecture use Golden Cove cores and support the",
+    "note": "Sapphire Rapids uses the Golden Cove port table (Table 2-1): ports 0-11."
+   }
+  },
+  {
+   "label": "fallback",
+   "family": "generic",
+   "cpus": [
+    "*"
+   ],
+   "match": "^.*$",
+   "display": "$0",
+   "cluster": "other",
+   "port": null,
+   "transform": "strip model prefix (Zn\\\\d|SKL|ICX|ADLP|SPR|V\\\\dUnit|N\\\\dUnit|CortexA55Unit|VLEN\\\\d+SiFive|SiFiveP600) then humanize",
+   "source": {
+    "type": "derived",
+    "url": "none",
+    "note": "suffix .\\\\d+ removed; digits expanded to instances"
+   }
+  }
+ ]
+}

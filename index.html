@@ -4,52 +4,93 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>simd-labs visualizer</title>
+  <script>
+    // Set the theme before first paint; src/render.js keeps it in sync afterwards.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('simd-labs-theme'); } catch (e) { /* storage blocked */ }
+      if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>llvm-mca timeline visualizer</h1>
-    <p>Paste an assembly loop, or drop a <code>.s</code> file, and analyze it in the browser. You can also drop an llvm-mca <code>-timeline -json</code> output file, or pick one:</p>
+  <header class="header">
+    <span class="logo">llvm-mca visualizer</span>
+    <div class="header-right">
+      <label id="drop" class="btn" title="You can also drop a file anywhere on the page">
+        <input type="file" id="file" class="vh" accept=".json,.s,.S,.asm,application/json">
+        Open asm or JSON
+      </label>
+      <button id="theme-toggle" class="icon-btn" type="button" title="Switch to dark mode" aria-label="Switch to dark mode" aria-pressed="false">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="3.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13.5 8.5a5.5 5.5 0 01-7.5 2A5.5 5.5 0 018.5 2a4 4 0 005 6.5z"/></svg>
+      </button>
+    </div>
   </header>
-  <label id="drop">
-    Drop a .s or .json file here or <input type="file" id="file" accept=".json,.s,.S,.asm,application/json">
-  </label>
-  <fieldset id="run-form">
-    <label for="asm">Assembly</label>
-    <textarea id="asm" rows="10" spellcheck="false" placeholder="loop:&#10;  vmovups (%rsi,%rax,4), %ymm0&#10;  vfmadd231ps %ymm1, %ymm2, %ymm0&#10;  addq $8, %rax&#10;  jne loop"></textarea>
-    <label for="cpu">CPU</label>
-    <select id="cpu"></select>
-    <label for="iterations">Iterations</label>
-    <input type="number" id="iterations" value="100" min="1" max="10000">
-    <button id="run" disabled>Loading llvm-mca...</button>
-  </fieldset>
-  <p id="error" role="alert" hidden></p>
-  <main id="out" hidden>
-    <h2>Timeline</h2>
-    <p id="notice" hidden></p>
-    <p id="legend" class="legend"></p>
-    <div id="timeline"></div>
-    <details open><summary>Timeline as a table</summary><div id="timeline-table"></div></details>
-    <h2>Resource pressure per iteration</h2>
-    <div id="heatmap"></div>
-    <details open><summary>Heatmap as a table</summary><div id="heatmap-table"></div></details>
-    <h2>CPU flow</h2>
-    <p id="flow-notice" hidden></p>
-    <p>
-      <button id="flow-play" type="button">Play</button>
-      <button id="flow-step" type="button">Step</button>
-      <label for="flow-cycle">Cycle</label>
-      <input type="range" id="flow-cycle" min="0" max="0" value="0" step="1">
-    </p>
-    <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
-    <div id="flow"></div>
-    <details open><summary>Flow as a list</summary><div id="flow-list"></div></details>
-    <p id="flow-status" role="status" aria-live="polite"></p>
-  </main>
-  <footer>
-    llvm-mca is part of the LLVM project, licensed under
-    <a href="wasm/dist/LICENSE.TXT">Apache-2.0 WITH LLVM-exception</a>.
-  </footer>
+
+  <section id="run-form" class="input-bar" aria-label="Input">
+    <div class="asm-col">
+      <label for="asm">Assembly</label>
+      <textarea id="asm" rows="10" spellcheck="false" placeholder="loop:&#10;  movups (%rsi,%rax,4), %xmm0&#10;  mulps %xmm1, %xmm0&#10;  addq $4, %rax&#10;  jne loop"></textarea>
+      <p id="asm-caption" hidden></p>
+    </div>
+    <div class="controls">
+      <label class="field cpu-field">CPU <select id="cpu"></select></label>
+      <label class="field">Iterations <input type="number" id="iterations" value="100" min="1" max="10000"></label>
+      <button id="run" class="btn primary" disabled>Loading llvm-mca...</button>
+    </div>
+  </section>
+
+  <div class="results">
+    <p id="error" role="alert" hidden></p>
+    <p id="empty" class="panel">Paste an assembly loop and press Run, or drop a .s or llvm-mca JSON file on the page. <button id="example" class="btn" type="button">Run an example loop</button></p>
+
+    <main id="out" hidden>
+      <div class="cycle-bar">
+        <button id="flow-play" class="btn" type="button">Play</button>
+        <label for="flow-speed">Speed</label>
+        <input type="range" id="flow-speed" min="1" max="30" value="4" step="1" aria-valuetext="4 cycles per second">
+        <output id="flow-speed-value" for="flow-speed">4 cycles/s</output>
+        <button id="flow-step" class="btn" type="button">Step</button>
+        <label for="flow-cycle">Cycle</label>
+        <input type="range" id="flow-cycle" min="0" max="0" value="0" step="1">
+        <output id="flow-cycle-value" for="flow-cycle"></output>
+        <p id="flow-status" role="status" aria-live="polite"></p>
+      </div>
+      <section class="panel" aria-labelledby="h-flow">
+        <h2 id="h-flow">CPU flow</h2>
+        <p id="flow-notice" hidden></p>
+        <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in, labelled iteration:instruction</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
+        <div id="flow"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-timeline">
+        <h2 id="h-timeline">Timeline</h2>
+        <p id="notice" hidden></p>
+        <p id="legend" class="legend"></p>
+        <div id="timeline" class="scroll"></div>
+      </section>
+      <section class="panel" aria-labelledby="h-heatmap">
+        <h2 id="h-heatmap">Resource pressure per iteration</h2>
+        <div id="heatmap" class="scroll"></div>
+      </section>
+      <details class="panel">
+        <summary>Data tables: the charts as text</summary>
+        <h3>Timeline</h3>
+        <div id="timeline-table" class="scroll"></div>
+        <h3>Resource pressure per iteration</h3>
+        <div id="heatmap-table" class="scroll"></div>
+        <h3>CPU flow at the current cycle</h3>
+        <div id="flow-list"></div>
+      </details>
+    </main>
+
+    <footer>
+      llvm-mca is part of the LLVM project, licensed under
+      <a href="wasm/dist/LICENSE.TXT">Apache-2.0 WITH LLVM-exception</a>.
+    </footer>
+  </div>
   <script type="module" src="src/render.js"></script>
 </body>
 </html>

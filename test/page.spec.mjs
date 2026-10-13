@@ -1,17 +1,24 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import { lookup } from '../src/unit-names.js';
+import { EXAMPLES } from '../src/examples.js';
 
 // Layout constants from src/render.js; the position checks below depend on them.
-const CELL = 10;
+const CELL = 14;
+const HCELL = 32; // heatmap column width
 const LEFT = 200;
 const TOP = 16;
-const HEAD = 60;
+const HEAD = 90;
+const SCALE_ROW = 12; // heatmap space for the pressure scale
 const STAGES = ['wait', 'ready', 'exec', 'done'];
 
 const fixture = (name) => JSON.parse(readFileSync(`test/fixtures/${name}.json`, 'utf8'));
 const label = (s) => s.replace(/[\u0000-\u001f]/g, (c) => c.charCodeAt(0));
 const rowName = (asm, i) => (i === asm.length ? 'total/iter' : asm[i]);
 const nd = (x) => x.toFixed(2);
+// a unit's vendor-style name, and the "name (llvm-mca name)" form of tooltips and tables
+const unitName = (j, k) => lookup(j.TargetInfo.CPUName, j.TargetInfo.Resources[k]).name;
+const unitRef = (j, k) => `${unitName(j, k)} (${label(j.TargetInfo.Resources[k])})`;
 
 // Expected values come from the JSON, not from the page's own code.
 function expectedRows(j) {
@@ -98,7 +105,7 @@ for (const via of ['drop', 'picker']) {
 
       // every rect's x, width, fill stage, and tooltip
       const rects = expectedRects(j);
-      const got = await page.locator('#timeline svg rect').evaluateAll((els) =>
+      const got = await page.locator('#timeline svg > rect').evaluateAll((els) =>
         els.map((r) => ({
           x: r.getAttribute('x'),
           y: r.getAttribute('y'),
@@ -115,10 +122,14 @@ for (const via of ['drop', 'picker']) {
         expect(g.title, `rect ${i} title`).toBe(rects[i].title);
       });
 
-      // cycle labels and grid lines every 5 cycles up to the last retire
+      // cycle labels every 5 cycles up to the last retire, then the cap tick
+      // (ceil of the last retire to a 5), so the axis reaches the cap
       const maxCycle = Math.max(...rows.map((r) => r.e.CycleRetired));
+      const lastTick = Math.ceil(maxCycle / 5) * 5;
       const axis = [];
       for (let c = 0; c <= maxCycle; c += 5) axis.push(String(c));
+      if (lastTick !== +axis.at(-1)) axis.push(String(lastTick));
+      axis.sort((a, b) => +a - +b);
       expect(await page.locator('#timeline svg text.axis').allTextContents()).toEqual(axis);
       expect(await page.locator('#timeline svg line.grid').count()).toBe(axis.length);
 
@@ -151,13 +162,16 @@ for (const via of ['drop', 'picker']) {
       const resources = j.TargetInfo.Resources;
       const matrix = expectedMatrix(j);
 
-      // headers: exact names, no control characters
-      const heads = await page.locator('#heatmap svg text.col').allTextContents();
-      expect(heads.length).toBeGreaterThan(0);
-      expect(heads).toEqual(resources.map(label));
-      expect(heads.filter((t) => /[\u0000-\u001f]/.test(t))).toEqual([]);
+      // headers: the visible text is the display name; the raw llvm-mca name sits in the tooltip
+      const headEls = await page.locator('#heatmap svg text.col').evaluateAll((els) =>
+        els.map((e) => ({ text: e.firstChild.textContent, tip: e.querySelector('title')?.textContent ?? '' }))
+      );
+      expect(headEls.length).toBeGreaterThan(0);
+      expect(headEls.map((h) => h.text)).toEqual(resources.map((_r, k) => unitName(j, k)));
+      expect(headEls.map((h) => h.tip)).toEqual(resources.map((_r, k) => unitRef(j, k)));
+      expect(headEls.filter((h) => /[\u0000-\u001f]/.test(h.text))).toEqual([]);
 
-      // each header centred on its column (column centre = 100 + 10j + 4.5)
+      // each header centred on its column (column centre = 100 + HCELL j + HCELL / 2)
       const centres = await page.locator('#heatmap svg text.col').evaluateAll((els) => {
         const left = els[0].ownerSVGElement.getBoundingClientRect().left;
         return els.map((e) => {
@@ -165,15 +179,16 @@ for (const via of ['drop', 'picker']) {
           return (b.left + b.right) / 2 - left;
         });
       });
-      centres.forEach((c, j2) => expect(Math.abs(c - (104.5 + CELL * j2)), `header ${j2}`).toBeLessThan(1));
+      centres.forEach((c, j2) => expect(Math.abs(c - (100 + HCELL / 2 + HCELL * j2)), `header ${j2}`).toBeLessThan(1));
 
       // every non-zero cell is drawn with its value, and no others
       const cells = await page.locator('#heatmap svg rect[data-cy]').evaluateAll((els) =>
         els.map((r) => ({ cy: r.getAttribute('data-cy'), x: r.getAttribute('x'), y: r.getAttribute('y'), title: r.querySelector('title').textContent }))
       );
+      const headerH = Math.max(HEAD, ...resources.map((_r, k) => unitName(j, k).length * 0.62 * 12 + 8));
       const want = [];
       matrix.forEach((row, i) => row.forEach((v, k) => {
-        if (v !== 0) want.push({ cy: `${i},${k}`, x: String(100 + k * CELL), y: String(HEAD + i * CELL), title: `${rowName(asm, i)}, ${label(resources[k])}: ${nd(v)}` });
+        if (v !== 0) want.push({ cy: `${i},${k}`, x: String(100 + k * HCELL), y: String(headerH + SCALE_ROW + i * CELL), title: `${rowName(asm, i)}, ${unitRef(j, k)}: ${nd(v)}` });
       }));
       expect(want.length).toBeGreaterThan(0);
       expect(cells).toEqual(want);
@@ -182,7 +197,7 @@ for (const via of ['drop', 'picker']) {
       const table = await page.locator('#heatmap-table tr').evaluateAll((trs) =>
         trs.map((tr) => [...tr.children].map((c) => c.textContent))
       );
-      expect(table[0]).toEqual(['Instruction', ...resources.map(label)]);
+      expect(table[0]).toEqual(['Instruction', ...resources.map((_r, k) => unitRef(j, k))]);
       expect(table.slice(1)).toEqual(matrix.map((row, i) => [rowName(asm, i), ...row.map(nd)]));
       expect(errors).toEqual([]);
     });
@@ -198,8 +213,13 @@ for (const via of ['drop', 'picker']) {
       expect(legend.map((l) => l[0])).toEqual(STAGES);
       const colorOf = Object.fromEntries(legend.map(([s, c]) => [s, c]));
 
-      const fills = await page.locator('#timeline svg rect').evaluateAll((els) =>
-        els.map((r) => [r.querySelector('title').textContent.match(/, (\w+): /)[1], getComputedStyle(r).fill])
+      const fills = await page.locator('#timeline svg > rect[fill]').evaluateAll((els) =>
+        els.map((r) => {
+          const s = r.querySelector('title').textContent.match(/, (\w+): /)[1];
+          const f = getComputedStyle(r).fill;
+          // a hatched stage reports its pattern's base color
+          return [s, f.startsWith('url(') ? getComputedStyle(document.querySelector(f.slice(5, -2)).querySelector('rect')).fill : f];
+        })
       );
       expect(fills.length).toBeGreaterThan(0);
       for (const [stage, fill] of fills) expect(fill, `${stage} cell color`).toBe(colorOf[stage]);
@@ -232,7 +252,7 @@ test('znver4-i100: the notice is visible and names the iteration cap', async ({ 
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    "Showing 10 of 100 iterations. llvm-mca's iteration cap (-timeline-max-iterations, default 10) or cycle cap (-timeline-max-cycles, default 80) cut the timeline. The file does not say which. Rerun with higher values, or 0 for no cycle limit."
+    "Showing iterations 0-9 of 100. llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows."
   );
   await expect(page.locator('#timeline svg text.row')).toHaveCount(40);
   expect(errors).toEqual([]);
@@ -243,7 +263,7 @@ test('znver4-cap18: the notice is visible and names the cycle cap', async ({ pag
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    "Showing 4 of 10 iterations. llvm-mca's cycle cap (-timeline-max-cycles, default 80) cut the timeline. Rerun with a higher value, or 0 for no cycle limit."
+    "Showing iterations 0-3 of 10. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows."
   );
   await expect(page.locator('#timeline svg text.row')).toHaveCount(17);
   expect(errors).toEqual([]);
@@ -315,10 +335,10 @@ test('skylake-idivq: a cap that cuts the first row shows a message, not a broken
   const errors = await open(page, 'drop', 'skylake-idivq.json');
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#timeline')).toHaveText(
-    'No instruction retired within the cycle cap, so there is no timeline to draw. Raise -timeline-max-cycles.'
+    'No instruction retired within the cycle cap, so there is no timeline to draw. Raise the cycle limit when producing the JSON.'
   );
   await expect(page.locator('#notice')).toHaveText(
-    "Showing 0 of 3 iterations. llvm-mca's cycle cap (-timeline-max-cycles, default 80) cut the timeline. Rerun with a higher value, or 0 for no cycle limit."
+    "Showing no iterations of 3. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows."
   );
   expect(await page.locator('svg[width*="Infinity"], svg[height*="Infinity"]').count()).toBe(0);
   expect(errors).toEqual([]);
@@ -383,7 +403,7 @@ async function expectModelMatchesFixture(page, jsonName) {
   const rows = expectedRows(j);
   expect(await page.locator('#timeline svg text.row').allTextContents())
     .toEqual(rows.map((r) => `[${r.iter},${r.instr}]`));
-  const rects = await page.locator('#timeline svg rect').evaluateAll((els) =>
+  const rects = await page.locator('#timeline svg > rect').evaluateAll((els) =>
     els.map((r) => ({ x: r.getAttribute('x'), y: r.getAttribute('y'), width: r.getAttribute('width') }))
   );
   expect(rects).toEqual(expectedRects(j).map(({ x, y, width }) => ({ x, y, width })));
@@ -393,7 +413,7 @@ async function expectModelMatchesFixture(page, jsonName) {
   const want = [];
   const asmList = j.CodeRegions[0].Instructions;
   expectedMatrix(j).forEach((row, i) => row.forEach((v, k) => {
-    if (v !== 0) want.push({ cy: `${i},${k}`, title: `${rowName(asmList, i)}, ${label(j.TargetInfo.Resources[k])}: ${nd(v)}` });
+    if (v !== 0) want.push({ cy: `${i},${k}`, title: `${rowName(asmList, i)}, ${unitRef(j, k)}: ${nd(v)}` });
   }));
   expect(cells).toEqual(want);
 }
@@ -548,7 +568,9 @@ test('flow diagram: tokens land on their events units at cycle 2, slider moves t
   const tokRect = await page.locator('#flow svg .flow-token', { hasText: '0:3' }).locator('rect');
   const unitRect = await page.locator('#flow svg .flow-unit[data-unit="7"] rect').boundingBox();
   const tokBox = await tokRect.boundingBox();
-  expect(Math.abs(tokBox.x + tokBox.width / 2 - (unitRect.x + unitRect.width / 2))).toBeLessThan(2);
+  // tokens pack from the unit's left pad; a centered check only fits a centered token
+  expect(tokBox.x).toBeGreaterThanOrEqual(unitRect.x - 1);
+  expect(tokBox.x + tokBox.width).toBeLessThanOrEqual(unitRect.x + unitRect.width + 1);
 
   // timeline highlight follows the slider, drawn over a white halo so it stays visible on the bars
   const hl = page.locator('#timeline line.flow-cur');
@@ -564,7 +586,7 @@ test('flow diagram: tokens land on their events units at cycle 2, slider moves t
 
   // aria-live line states the cycle and units
   await expect(page.locator('#flow-status')).toContainText('Cycle 9.');
-  await expect(page.locator('#flow-status')).toContainText('executing on Zn4FP1');
+  await expect(page.locator('#flow-status')).toContainText('executing on FP1');
   expect(errors).toEqual([]);
 });
 
@@ -591,13 +613,15 @@ test('flow diagram: a token past its hold draws in execution with the latency st
   await expect(rect).toHaveAttribute('opacity', '0.6');
   // hollow, so the shape differs from a solid active token, not just its brightness
   await expect(rect).toHaveAttribute('fill', '#fff');
-  // stacked on the event's last unit
+  // stacked on the event's last unit: centred across it, under its name
   const unitBox = await page.locator('#flow svg .flow-unit[data-unit="20"]').boundingBox();
   const tokBox = await tok.boundingBox();
-  expect(Math.abs(tokBox.x + tokBox.width / 2 - (unitBox.x + unitBox.width / 2))).toBeLessThan(2);
-  expect(Math.abs(tokBox.y + tokBox.height / 2 - (unitBox.y + unitBox.height / 2))).toBeLessThan(2);
-  await expect(tok.locator('title')).toContainText('executing (latency), last on Zn4Load.2');
-  await expect(page.locator('#flow-status')).toContainText('Executing (latency), last on Zn4Load.2.');
+  expect(tokBox.x).toBeGreaterThanOrEqual(unitBox.x - 1);
+  expect(tokBox.x + tokBox.width).toBeLessThanOrEqual(unitBox.x + unitBox.width + 1);
+  expect(tokBox.y).toBeGreaterThanOrEqual(unitBox.y);
+  expect(tokBox.y + tokBox.height).toBeLessThanOrEqual(unitBox.y + unitBox.height);
+  await expect(tok.locator('title')).toContainText('executing (latency), last on Load 2 (Zn4Load.2)');
+  await expect(page.locator('#flow-status')).toContainText('Executing (latency), last on Load 2.');
   expect(errors).toEqual([]);
 });
 
@@ -760,7 +784,8 @@ test('JSON with leading whitespace and a BOM renders as JSON', async ({ page }) 
   await dropFile(page, 'znver4-padded.json', padded);
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#timeline svg text.row')).toHaveCount(12);
-  await expect(page.locator('#asm')).toHaveValue('');
+  // routed as JSON: the box keeps the example it loaded with
+  await expect(page.locator('#asm')).toHaveValue(EXAMPLES.x86_64);
 });
 
 test('flow tokens stay inside their blocks for a 100-iteration run', async ({ page }) => {
@@ -954,3 +979,598 @@ test('flow diagram: every unit a multi-resource instruction holds carries its ma
   expect(groups['20']).toEqual(['flow-marker']);
   expect(errors).toEqual([]);
 });
+
+// ---------------------------------------------------------------------------
+// Redesign: theme, chart contrast in dark mode, example loop, 800px layout.
+
+const lumOf = (rgb) => {
+  const c = rgb.match(/[\d.]+/g).slice(0, 3).map((v) => {
+    const x = Number(v) / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+};
+const contrast = (a, b) => {
+  const [hi, lo] = [lumOf(a), lumOf(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+const DARK_BG = 'rgb(11, 18, 32)';
+const LIGHT_BG = 'rgb(246, 247, 251)';
+const bodyBg = (page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+
+test('theme follows prefers-color-scheme when unset, and the toggle persists across reload', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/');
+  const html = page.locator('html');
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  expect(await bodyBg(page)).toBe(DARK_BG);
+  // nothing stored yet: a system change is followed live and on reload
+  await page.emulateMedia({ colorScheme: 'light' });
+  await expect(html).toHaveAttribute('data-theme', 'light');
+  await page.reload();
+  await expect(html).toHaveAttribute('data-theme', 'light');
+  expect(await bodyBg(page)).toBe(LIGHT_BG);
+
+  await page.locator('#theme-toggle').click();
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('#theme-toggle')).toHaveAttribute('aria-pressed', 'true');
+  expect(await bodyBg(page)).toBe(DARK_BG);
+  // the stored choice beats the light system setting after a reload
+  await page.reload();
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  expect(await bodyBg(page)).toBe(DARK_BG);
+  await page.locator('#theme-toggle').click();
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.reload();
+  await expect(html).toHaveAttribute('data-theme', 'light');
+
+  // no flash: the inline head script alone sets the theme before any module runs
+  await page.evaluate(() => localStorage.clear());
+  await page.route('**/src/render.js', (route) => route.abort());
+  await page.reload();
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  expect(await bodyBg(page)).toBe(DARK_BG);
+});
+
+test('both themes: every stage pair is >= 3:1, or is told apart by its fill pattern', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await page.locator('#example').click();
+  await expect(page.locator('#flow svg')).toHaveCount(1, { timeout: 60000 });
+  // the pairs luminance alone separates nowhere on a 4-slot ramp; they differ
+  // by pattern (wait and done are striped over the panel color) instead
+  const order = ['wait', 'ready', 'exec', 'done'];
+  const patterned = new Set(['exec|wait', 'done|ready']);
+  const key = (a, b) => [a, b].sort().join('|');
+  const mins = {};
+  for (const theme of ['light', 'dark']) {
+    if (theme === 'dark') await page.locator('#theme-toggle').click();
+    const c = await page.evaluate(() => {
+      const cs = (el) => getComputedStyle(el);
+      const panel = cs(document.querySelector('#timeline').closest('.panel')).backgroundColor;
+      const stage = {};
+      const fill = {};
+      for (const r of document.querySelectorAll('#timeline svg > rect[fill]')) {
+        const s = r.querySelector('title').textContent.match(/, (\w+): /)[1];
+        const f = cs(r).fill;
+        // a hatched stage measures by its pattern's base color
+        stage[s] = f.startsWith('url(') ? cs(document.querySelector(f.slice(5, -2)).querySelector('rect')).fill : f;
+        fill[s] = f;
+      }
+      return { panel, stage, fill };
+    });
+    for (const s of order) {
+      expect(c.stage[s], `${theme}: ${s} rendered`).toBeTruthy();
+      expect(contrast(c.stage[s], c.panel), `${theme}: ${s} against the panel`).toBeGreaterThanOrEqual(3);
+    }
+    for (let i = 0; i < order.length; i++) {
+      for (let j = i + 1; j < order.length; j++) {
+        const r = contrast(c.stage[order[i]], c.stage[order[j]]);
+        mins[`${theme} ${key(order[i], order[j])}`] = r;
+        if (patterned.has(key(order[i], order[j]))) {
+          // the pattern has to actually render: striped stage, other one solid
+          expect(c.fill[order[i]].startsWith('url(') !== c.fill[order[j]].startsWith('url('),
+            `${theme}: ${order[i]}/${order[j]} differ by pattern`).toBe(true);
+        } else {
+          expect(r, `${theme}: ${order[i]} next to ${order[j]}`).toBeGreaterThanOrEqual(3);
+        }
+      }
+    }
+  }
+  console.log('pairwise minimum contrast:', JSON.stringify(mins));
+  expect(errors).toEqual([]);
+});
+
+test('dark mode: rendered flow element colors meet their contrast ratios', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.locator('#example').click();
+  await expect(page.locator('#flow svg')).toHaveCount(1, { timeout: 60000 });
+  // switch after rendering: the charts must redraw in the dark palette
+  await page.locator('#theme-toggle').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.locator('#flow-cycle').fill('1');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+
+  const c = await page.evaluate(() => {
+    const cs = (el) => getComputedStyle(el);
+    const panel = cs(document.querySelector('#timeline').closest('.panel')).backgroundColor;
+    const stage = {};
+    for (const r of document.querySelectorAll('#timeline svg > rect[fill]')) {
+      const s = r.querySelector('title').textContent.match(/, (\w+): /)[1];
+      const f = cs(r).fill;
+      // a hatched stage measures by its pattern's base color
+      stage[s] = f.startsWith('url(') ? cs(document.querySelector(f.slice(5, -2)).querySelector('rect')).fill : f;
+    }
+    const unit = document.querySelector('#flow svg .flow-unit');
+    const block = document.querySelector('#flow svg .flow-block[data-block="execute"] rect');
+    const token = document.querySelector('#flow svg .flow-token:not([data-latency]) rect');
+    const flowPanel = cs(document.querySelector('#flow').closest('.panel')).backgroundColor;
+    return {
+      panel,
+      stage,
+      axis: cs(document.querySelector('#timeline svg text.axis')).fill,
+      unitFill: cs(unit.querySelector('rect')).fill,
+      unitEdge: cs(unit.querySelector('rect')).stroke,
+      unitText: cs(unit.querySelector('text')).fill,
+      blockFill: cs(block).fill,
+      blockText: cs(document.querySelector('#flow svg .flow-block text')).fill,
+      flowPanel,
+      tokenFill: cs(token).fill,
+      tokenText: cs(token.nextElementSibling).fill,
+    };
+  });
+  expect(c.panel).toBe('rgb(19, 28, 48)'); // the dark --surface, so this is really dark mode
+  const order = ['wait', 'ready', 'exec', 'done'];
+  for (const [k, s] of order.entries()) {
+    expect(c.stage[s], `${s} rendered`).toBeTruthy();
+    expect(contrast(c.stage[s], c.panel), `${s} against the panel`).toBeGreaterThanOrEqual(3);
+    if (k > 0) expect(contrast(c.stage[order[k - 1]], c.stage[s]), `${order[k - 1]} next to ${s}`).toBeGreaterThanOrEqual(3);
+  }
+  expect(contrast(c.axis, c.panel), 'cycle labels').toBeGreaterThanOrEqual(4.5);
+  expect(contrast(c.unitText, c.unitFill), 'unit name').toBeGreaterThanOrEqual(4.5);
+  expect(contrast(c.blockText, c.blockFill), 'block name').toBeGreaterThanOrEqual(4.5);
+  expect(contrast(c.unitEdge, c.unitFill), 'unit outline').toBeGreaterThanOrEqual(3);
+  expect(contrast(c.unitEdge, c.blockFill), 'unit outline on its block').toBeGreaterThanOrEqual(3);
+  expect(contrast(c.tokenFill, c.unitFill), 'token on a unit').toBeGreaterThanOrEqual(3);
+  expect(contrast(c.tokenFill, c.blockFill), 'token on a block').toBeGreaterThanOrEqual(3);
+  expect(contrast(c.tokenText, c.tokenFill), 'token label').toBeGreaterThanOrEqual(4.5);
+  expect(errors).toEqual([]);
+});
+
+test('the example-loop button fills the editor and renders results with no other input', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await expect(page.locator('#empty')).toBeVisible();
+  // clickable while the WASM still loads: the run queues until it is ready
+  await page.locator('#example').click();
+  await expect(page.locator('#asm')).toHaveValue(EXAMPLES.x86_64);
+  await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#empty')).toBeHidden();
+  await expect(page.locator('#error')).toBeHidden();
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  expect(await page.locator('#timeline svg text.row').count()).toBeGreaterThan(0);
+  await expect(page.locator('#flow svg')).toHaveCount(1);
+  await expect(page.locator('#flow-status')).toContainText('Cycle 0.');
+  expect(errors).toEqual([]);
+});
+
+test('800px viewport: no page-level horizontal scroll, empty or with a full run', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto('/');
+  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.locator('#example').click();
+  await expect(page.locator('#flow svg')).toHaveCount(1, { timeout: 60000 });
+  await page.locator('details.panel').evaluate((d) => { d.open = true; });
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  // the flow diagram scales down to the column instead of scrolling
+  const flow = await page.locator('#flow').evaluate((el) => el.scrollWidth - el.clientWidth);
+  expect(flow).toBeLessThanOrEqual(0);
+});
+
+// Redesign follow-up: every flow-token label must be readable at a normal
+// window width; font-size 6 gave a ~7px glyph height, which fails here.
+test('1400px: flow token labels render at least 10px tall and inside their token', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await page.goto('/');
+  await page.locator('#example').click(); // the znver4 example loop
+  await expect(page.locator('#flow svg')).toHaveCount(1, { timeout: 60000 });
+  const mid = await page.evaluate(() => {
+    const s = document.getElementById('flow-cycle');
+    const c = Math.floor(+s.max / 2);
+    s.value = c;
+    s.dispatchEvent(new Event('input'));
+    return c;
+  });
+  const bad = await page.evaluate(() => {
+    const out = [];
+    const seen = [];
+    let minH = Infinity;
+    for (const t of document.querySelectorAll('#flow svg .flow-token > text')) {
+      const l = t.getBoundingClientRect();
+      const r = t.closest('.flow-token').querySelector('rect').getBoundingClientRect();
+      minH = Math.min(minH, l.height);
+      if (l.height < 10) out.push(`${t.textContent}: ${l.height.toFixed(1)}px tall`);
+      if (l.right > r.right + 0.5 || l.left < r.left - 0.5 || l.bottom > r.bottom + 0.5 || l.top < r.top - 0.5) {
+        out.push(`${t.textContent} overflows its token`);
+      }
+      seen.push({ box: l, key: t.textContent });
+    }
+    for (let i = 0; i < seen.length; i++) {
+      for (let j = i + 1; j < seen.length; j++) {
+        const a = seen[i].box, b = seen[j].box;
+        const overlap = !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
+        if (overlap) out.push(`${seen[i].key} overlaps ${seen[j].key}`);
+      }
+    }
+    console.log(`min label height ${minH.toFixed(1)}px across ${seen.length} labels`);
+    return out;
+  });
+  expect(bad, `token labels at cycle ${mid}`).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+// ---------------------------------------------------------------------------
+// Phase 1 usability: the flow diagram fits without scrolling, labels are
+// readable, the timeline scrolls sideways, the legend shows the hatch, and a
+// speed slider sets the play rate.
+
+// The example button's loop, at the page's default 100 iterations; the button
+// itself hides after the first run, so later runs type it in.
+const EXAMPLE_ASM = EXAMPLES.x86_64;
+
+async function runFixtureLoop(page, asmFile, cpu, iterations = '3') {
+  const example = asmFile === 'example';
+  await page.locator('#asm').fill(example ? EXAMPLE_ASM : readFixture(asmFile));
+  await page.locator('#cpu').selectOption(cpu);
+  await page.locator('#iterations').fill(example ? '100' : iterations);
+  await expect(page.locator('#run')).toBeEnabled({ timeout: 60000 });
+  await page.locator('#run').click();
+  // the click marks the run busy synchronously; wait for it to finish
+  await expect(page.locator('#run')).toHaveText('Run', { timeout: 60000 });
+  await expect(page.locator('#out')).toBeVisible();
+  await expect(page.locator('#flow svg')).toHaveCount(1);
+}
+
+const FLOW_RUNS = [
+  ['loop.s', 'znver4'],
+  ['loop.s', 'skylake'],
+  ['loop_a64.s', 'neoverse-v2'],
+  ['loop_a64.s', 'cortex-a55'],
+  ['example', 'znver4'],
+];
+
+test('1400px: every flow diagram fits its panel with no inner scrollbar and nothing clipped', async ({ page }) => {
+  test.setTimeout(180000); // five llvm-mca runs
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await page.goto('/');
+  for (const [asmFile, cpu] of FLOW_RUNS) {
+    await runFixtureLoop(page, asmFile, cpu);
+    const r = await page.evaluate(() => {
+      const flow = document.getElementById('flow');
+      const svgEl = flow.querySelector('svg');
+      const panel = flow.closest('.panel').getBoundingClientRect();
+      const box = svgEl.getBoundingClientRect();
+      const out = [];
+      // no box between the SVG and the page may scroll or clip
+      for (let el = svgEl.parentElement; el && el !== document.body; el = el.parentElement) {
+        const cs = getComputedStyle(el);
+        if (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1) out.push(`${el.id || el.className} overflows`);
+        if (/auto|scroll|hidden|clip/.test(cs.overflowX + cs.overflowY) && el !== document.documentElement) out.push(`${el.id || el.className} clips (${cs.overflowX} ${cs.overflowY})`);
+      }
+      if (box.left < panel.left || box.right > panel.right + 0.5 || box.bottom > panel.bottom + 0.5) out.push('svg leaves its panel');
+      if (box.height > innerHeight) out.push(`svg is ${box.height}px tall, taller than the window`);
+      // every drawn element sits inside the SVG's box
+      for (const el of svgEl.querySelectorAll('rect, text')) {
+        if (el.closest('defs')) continue;
+        const b = el.getBoundingClientRect();
+        if (b.left < box.left - 1 || b.right > box.right + 1 || b.top < box.top - 1 || b.bottom > box.bottom + 1) out.push(`${el.textContent || el.tagName} clipped`);
+      }
+      return out;
+    });
+    expect(r, `${cpu} ${asmFile}`).toEqual([]);
+  }
+});
+
+test('flow diagram: the wheel over it scrolls the page', async ({ page }) => {
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await page.goto('/');
+  await runFixtureLoop(page, 'example', 'znver4');
+  const box = await page.locator('#flow svg').boundingBox();
+  await page.mouse.move(box.x + box.width / 2, Math.min(box.y + 40, 880));
+  const before = await page.evaluate(() => scrollY);
+  await page.mouse.wheel(0, 300);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(before);
+});
+
+test('the timeline box scrolls sideways when its cycles are wider than the column', async ({ page }) => {
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await open(page, 'drop', 'znver4-i100.json');
+  await expect(page.locator('#out')).toBeVisible();
+  const tl = page.locator('#timeline');
+  const dims = await tl.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth, ox: getComputedStyle(el).overflowX }));
+  expect(dims.sw).toBeGreaterThan(dims.cw);
+  // a real wheel scroll over the box moves it
+  const b = await tl.boundingBox();
+  await page.mouse.move(b.x + b.width / 2, b.y + 30);
+  await page.mouse.wheel(400, 0);
+  await expect.poll(() => tl.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+});
+
+for (const [width, min] of [[1400, 12], [800, 11]]) {
+  test(`${width}px: every SVG label renders at least ${min}px tall`, async ({ page }) => {
+    test.setTimeout(180000); // five llvm-mca runs
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    for (const [asmFile, cpu] of FLOW_RUNS) {
+      await runFixtureLoop(page, asmFile, cpu);
+      // a mid-run cycle draws tokens, latency tokens and shared-hold markers
+      await page.evaluate(() => {
+        const s = document.getElementById('flow-cycle');
+        s.value = Math.floor(+s.max / 2);
+        s.dispatchEvent(new Event('input'));
+      });
+      const small = await page.evaluate((min) => {
+        const out = [];
+        let n = 0;
+        for (const t of document.querySelectorAll('#out svg text')) {
+          if (!t.textContent) continue;
+          n++;
+          // glyph height in screen pixels: font-size times the SVG's scale
+          const m = t.getScreenCTM();
+          const h = parseFloat(getComputedStyle(t).fontSize) * Math.hypot(m.c, m.d);
+          if (h < min - 0.01) out.push(`${t.closest('[id]').id}: "${t.textContent}" ${h.toFixed(1)}px`);
+        }
+        return n === 0 ? ['no labels'] : out;
+      }, min);
+      expect(small.slice(0, 10), `${cpu} ${asmFile}`).toEqual([]);
+    }
+  });
+}
+
+test('the speed slider sets how many cycles Play advances per second', async ({ page }) => {
+  await page.goto('/');
+  await runFixtureLoop(page, 'loop.s', 'znver4', '100');
+  const speed = page.locator('#flow-speed');
+  await expect(page.getByLabel('Speed')).toHaveAttribute('id', 'flow-speed');
+  await expect(speed).toHaveAttribute('min', '1');
+  await expect(speed).toHaveAttribute('max', '30');
+  await expect(speed).toHaveValue('4');
+  await expect(page.locator('#flow-speed-value')).toHaveText('4 cycles/s');
+  // keyboard: arrows step the value and the text follows
+  await speed.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(speed).toHaveValue('5');
+  await expect(page.locator('#flow-speed-value')).toHaveText('5 cycles/s');
+  await page.keyboard.press('Home');
+  await expect(speed).toHaveValue('1');
+
+  // count cycles advanced in a fixed window, changing the speed while playing
+  const advance = async (v) => {
+    await speed.fill(String(v));
+    await speed.dispatchEvent('input');
+    const a = +(await page.locator('#flow-cycle').inputValue());
+    await page.waitForTimeout(1000);
+    return +(await page.locator('#flow-cycle').inputValue()) - a;
+  };
+  await page.locator('#flow-cycle').fill('0');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  await page.locator('#flow-play').click();
+  const slow = await advance(2);
+  await page.locator('#flow-cycle').fill('0');
+  await page.locator('#flow-cycle').dispatchEvent('input');
+  const fast = await advance(10);
+  await page.locator('#flow-play').click();
+  expect(slow).toBeGreaterThanOrEqual(1);
+  expect(slow).toBeLessThanOrEqual(3);
+  // 10 vs 2 cycles/s: about five times as many steps
+  expect(fast / slow).toBeGreaterThanOrEqual(3);
+  expect(fast).toBeGreaterThanOrEqual(7);
+});
+
+test('the wait and done legend swatches show the timeline hatch', async ({ page }) => {
+  await open(page, 'drop', 'znver4.json');
+  await expect(page.locator('#out')).toBeVisible();
+  const sw = await page.locator('#legend i').evaluateAll((els) =>
+    els.map((i) => {
+      const r = i.getBoundingClientRect();
+      return { cls: i.className, image: getComputedStyle(i).backgroundImage, w: r.width, h: r.height };
+    })
+  );
+  expect(sw.map((s) => s.cls)).toEqual(['swatch-wait', 'swatch-ready', 'swatch-exec', 'swatch-done']);
+  for (const s of sw) {
+    expect(s.w, `${s.cls} width`).toBeGreaterThanOrEqual(12);
+    expect(s.h, `${s.cls} height`).toBeGreaterThanOrEqual(12);
+    if (s.cls === 'swatch-wait' || s.cls === 'swatch-done') expect(s.image, s.cls).toMatch(/repeating-linear-gradient/);
+    else expect(s.image, s.cls).toBe('none');
+  }
+  // the stripes are really painted: pixels inside a hatched swatch differ
+  const shot = await page.locator('#legend i.swatch-wait').screenshot();
+  const png = shot.toString('base64');
+  const distinct = await page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    const set = new Set();
+    for (let k = 0; k < d.length; k += 4) set.add(`${d[k] >> 4},${d[k + 1] >> 4},${d[k + 2] >> 4}`);
+    return set.size;
+  }, png);
+  expect(distinct).toBeGreaterThanOrEqual(2);
+});
+
+// Phase 2: unit boxes carry vendor-style names (AMD guides, Arm software
+// optimization guides), not llvm-mca's resource names; hard-coded here so a
+// broken or blanked name table fails.
+const VENDOR = {
+  znver4: { file: 'loop.s', names: ['ALU0', 'ALU1', 'ALU2', 'ALU3', 'AGU0', 'AGU1', 'AGU2', 'FP0', 'FP1', 'FP2', 'FP3', 'FP4', 'FP5', 'Branch'] },
+  'neoverse-v2': { file: 'loop_a64.s', names: ['S0', 'S1', 'S2', 'S3', 'M0', 'M1', 'V0', 'V1', 'V2', 'V3', 'L0', 'L1', 'L2'] },
+};
+for (const [cpu, { file, names }] of Object.entries(VENDOR)) {
+  test(`${cpu}: the flow diagram names units the vendor way, in int, vec and mem bands`, async ({ page }) => {
+    await page.goto('/');
+    await runFixtureLoop(page, file, cpu);
+    const units = await page.locator('#flow svg .flow-unit').evaluateAll((gs) =>
+      gs.map((g) => ({
+        name: g.querySelector('text').textContent,
+        kind: g.dataset.kind,
+        title: g.querySelector('title').textContent,
+        x: g.getBoundingClientRect().x,
+        y: g.getBoundingClientRect().y,
+      }))
+    );
+    const shown = units.map((u) => u.name);
+    for (const n of names) expect(shown, `${cpu} shows ${n}`).toContain(n);
+    if (cpu === 'znver4') expect(shown.some((n) => /ALU|AGU|FP/.test(n))).toBe(true);
+    // no box shows llvm-mca's raw name; its tooltip keeps it for traceability
+    const raw = fixture(cpu).TargetInfo.Resources.map(label);
+    for (const u of units) expect(raw, `${u.name} is not a raw name`).not.toContain(u.name);
+    for (const r of raw) expect(units.some((u) => u.title.endsWith(`\n${r}`)), `tooltip names ${r}`).toBe(true);
+    // bands top to bottom: int (with branch and slow units), then vec, then mem
+    const band = { int: 0, branch: 0, slow: 0, vec: 1, mem: 2 };
+    const top = (b) => Math.min(...units.filter((u) => band[u.kind] === b).map((u) => u.y));
+    const bottom = (b) => Math.max(...units.filter((u) => band[u.kind] === b).map((u) => u.y));
+    expect(bottom(0)).toBeLessThan(top(1));
+    expect(bottom(1)).toBeLessThan(top(2));
+    await expect(page.locator('#flow svg text.flow-band')).toHaveText(['integer', 'FP/vector', 'memory']);
+    // the legend lists the same names per kind
+    await expect(page.locator('#flow-legend .flow-kind')).not.toHaveCount(0);
+    await expect(page.locator('#flow-legend')).toContainText(names[0]);
+  });
+}
+
+test('skylake: the dividers fold into the int band as dashed slow units', async ({ page }) => {
+  await page.goto('/');
+  await runFixtureLoop(page, 'loop.s', 'skylake');
+  const slow = page.locator('#flow svg .flow-unit[data-kind="slow"]');
+  await expect(slow).toHaveCount(2);
+  await expect(slow.locator('rect').first()).toHaveAttribute('stroke-dasharray', '4 3');
+  await expect(slow.first().locator('text').first()).toHaveText('Divider');
+  // port columns show "Port N" with the role lines underneath, abbreviations spelled out
+  const p0 = page.locator('#flow svg .flow-unit', { hasText: 'Port 0' });
+  await expect(p0.locator('text.role')).toHaveText(['arithmetic logic unit', 'vector arithmetic logic unit+FMA']);
+  const memTop = Math.min(...(await page.locator('#flow svg .flow-unit[data-kind="mem"]').evaluateAll((gs) => gs.map((g) => g.getBoundingClientRect().y))));
+  const slowY = (await slow.first().boundingBox()).y;
+  expect(slowY).toBeLessThan(memTop);
+});
+
+// ---------------------------------------------------------------------------
+// Phase 3: the box starts with the x86 example, and a CPU change swaps in the
+// new architecture's example unless the box holds the user's own asm.
+
+async function runAndExpectCharts(page) {
+  await expect(page.locator('#run')).toHaveText('Run', { timeout: 60000 });
+  await page.locator('#run').click();
+  await expect(page.locator('#run')).toHaveText('Run', { timeout: 60000 });
+  await expect(page.locator('#error')).toBeHidden();
+  await expect(page.locator('#out')).toBeVisible();
+  expect(await page.locator('#timeline svg text.row').count()).toBeGreaterThan(0);
+  expect(await page.locator('#flow svg .flow-unit').count()).toBeGreaterThan(0);
+}
+
+test('(a) on load the box holds the x86 example for znver4, and Run renders it', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/');
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  await expect(page.locator('#asm')).toHaveValue(EXAMPLES.x86_64);
+  // no auto-run
+  await expect(page.locator('#run')).toHaveText('Run', { timeout: 60000 });
+  await expect(page.locator('#out')).toBeHidden();
+  await runAndExpectCharts(page);
+  expect(errors).toEqual([]);
+});
+
+test('(b) picking neoverse-v2 with an unedited box swaps in the AArch64 example, which runs', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  await page.locator('#cpu').selectOption('neoverse-v2');
+  await expect(page.locator('#asm')).toHaveValue(EXAMPLES.aarch64);
+  await runAndExpectCharts(page);
+});
+
+test('(c) a CPU change keeps asm the user typed', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  await page.locator('#asm').press('End');
+  await page.locator('#asm').pressSequentially('  nop\n');
+  const edited = EXAMPLES.x86_64 + '  nop\n';
+  await expect(page.locator('#asm')).toHaveValue(edited);
+  await page.locator('#cpu').selectOption('neoverse-v2');
+  await expect(page.locator('#asm')).toHaveValue(edited);
+});
+
+test('(d) an emptied box gets the new CPU architecture example on a CPU change', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  await page.locator('#asm').fill('');
+  await page.locator('#cpu').selectOption('sifive-u74');
+  await expect(page.locator('#asm')).toHaveValue(EXAMPLES.riscv64);
+});
+
+test('(e) a change to a CPU of the same architecture keeps the example, which runs there', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#cpu')).toHaveValue('znver4');
+  await page.locator('#cpu').selectOption('skylake');
+  await expect(page.locator('#asm')).toHaveValue(EXAMPLES.x86_64);
+  await runAndExpectCharts(page);
+});
+
+// Each queue and unit box fits its own largest token pile over the run: the
+// lowest token it ever holds ends one pad (6) above its bottom edge, and a box
+// that never holds a token is one token row tall.
+for (const cpu of ['znver4', 'neoverse-v2']) {
+  test(`${cpu}: flow boxes shrink to their content`, async ({ page }) => {
+    await page.goto('/');
+    await page.locator('#cpu').selectOption(cpu);
+    await runAndExpectCharts(page);
+    const slack = await page.evaluate(() => {
+      const root = document.querySelector('#flow svg');
+      // positions relative to the SVG: the status line above it wraps differently per cycle
+      const rel = (el) => {
+        const o = root.getBoundingClientRect();
+        const r = el.getBoundingClientRect();
+        return { left: r.left - o.left, right: r.right - o.left, top: r.top - o.top, bottom: r.bottom - o.top, height: r.height };
+      };
+      const boxes = [
+        ...[...root.querySelectorAll('.flow-block')].filter((g) => g.dataset.block !== 'execute').map((g) => [g.dataset.block, g.querySelector('rect')]),
+        ...[...root.querySelectorAll('.flow-unit')].map((g) => [g.querySelector('text').textContent, g.querySelector('rect')]),
+      ].map(([name, r]) => ({ name, b: rel(r), low: null }));
+      const s = document.getElementById('flow-cycle');
+      for (let c = 0; c <= +s.max; c++) {
+        s.value = c;
+        s.dispatchEvent(new Event('input'));
+        for (const t of root.querySelectorAll('.flow-tokens rect')) {
+          const r = rel(t);
+          const cx = (r.left + r.right) / 2;
+          const cy = (r.top + r.bottom) / 2;
+          for (const x of boxes) {
+            if (cx > x.b.left && cx < x.b.right && cy > x.b.top && cy < x.b.bottom) x.low = Math.max(x.low ?? 0, r.bottom);
+          }
+        }
+      }
+      return boxes.map((x) => ({ name: x.name, h: x.b.height, gap: x.low === null ? null : x.b.bottom - x.low }));
+    });
+    const tokH = 20;
+    const pad = 6;
+    for (const x of slack) {
+      // a unit's hollow marker is inset 1px in its slot, hence the 1px slack
+      if (x.gap !== null) expect(x.gap, `${x.name} space under its lowest token`).toBeLessThanOrEqual(pad + 1.5);
+    }
+    // the znver4 and neoverse-v2 examples never fill the ready queue: it stays one row tall
+    expect(slack.find((x) => x.name === 'ready').h).toBeLessThanOrEqual(24 + tokH + pad + 1);
+  });
+}
