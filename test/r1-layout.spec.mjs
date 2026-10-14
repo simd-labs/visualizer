@@ -147,17 +147,19 @@ test('timeline cap notice does not name command-line flags', async ({ page }) =>
   expect(notice).not.toMatch(/-timeline-max|Rerun|flag/);
 });
 
-// At 1400px the flow and timeline sit side by side; each panel keeps its own
-// height instead of stretching to the other's (that left ~600px blank).
+// At 1400px the flow and timeline sit side by side; the flow panel keeps its
+// own height instead of stretching to the timeline's (that left ~600px blank).
+// ux-layout stretches the timeline box to the flow height on purpose (P10 in
+// ux-layout.spec.mjs), so the panels themselves may end up the same height.
 test('1400px: flow panel does not stretch to the timeline height', async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 900 });
   await page.goto('/');
   await runExample(page);
-  const r = await page.evaluate(() => ({
-    flow: document.querySelector('#out > .panel:has(> #flow)').getBoundingClientRect().height,
-    timeline: document.querySelector('#out > .panel:has(> #timeline)').getBoundingClientRect().height,
-  }));
-  // content-sized panels: fixed ~665/810, ~750 off (a 600px gap by grid stretch)
-  expect(Math.abs(r.timeline - r.flow)).toBeLessThan(300);
-  expect(Math.abs(r.timeline - r.flow)).toBeGreaterThan(5);
+  const r = await page.evaluate(() => {
+    const panel = document.querySelector('#out > .panel:has(> #flow)');
+    const content = [...panel.children].reduce((h, k) => h + k.getBoundingClientRect().height, 0);
+    return { flow: panel.getBoundingClientRect().height, content };
+  });
+  // content-sized panel: fixed 810 -> ~1058, the blank below the flow stays small
+  expect(r.flow - r.content).toBeLessThan(300);
 });

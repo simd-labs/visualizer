@@ -341,7 +341,7 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 #timeline { max-height: 520px; scrollbar-gutter: stable; }
 @media (min-width: 1400px) {
   /* the flex sizing above replaces the cap when the panel is taller */
-  #timeline { max-height: none; }
+  #timeline { max-height: none; min-height: 520px; }
 }
 /* The flow diagram never scrolls: its viewBox shrinks to the column width. */
 /* The flow panel keeps its own height; blank space below Retire was defect 25/35. */
@@ -355,13 +355,14 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 #notice-more { display: inline-block; vertical-align: baseline; margin-right: 1rem; margin-bottom: 0.2rem; line-height: 1.2; }
 /* the legend floats to the section's top right, so it shares the heading
    line instead of adding one */
-#legend { float: right; margin-bottom: 0.2rem; line-height: 1.2; padding-top: 2px; text-align: right; }
+#legend { float: right; margin-bottom: 0.15rem; line-height: 1.19; padding-top: 2px; text-align: right; }
 #timeline { clear: both; }
 #flow svg { display: block; max-width: 100%; height: auto; }
 #flow svg text { font-family: var(--font-mono); }
+/* stacked (below the 1400px side-by-side breakpoint) the headings shrink to
+   inline so the head sits on one line; the legend stays a floated block */
 @media (max-width: 1399px) {
   #h-flow, #h-timeline { display: inline; margin-right: 1rem; }
-  #flow-legend, #legend { display: inline-flex; vertical-align: baseline; }
 }
 .scroll svg { display: block; overflow: visible; }
 .scroll svg text:not([fill]), #flow svg text:not([fill]) { fill: var(--text); }
