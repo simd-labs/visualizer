@@ -95,12 +95,14 @@ export function buildModel(json) {
       if (b <= a || b > maxCycle + 1 || a > maxCycle) return;
       enter[a].push([i, stage, opts ?? null, b]);
     };
-    span(r.dispatched + 1, r.ready, 'waiting');
+    // a waiting instruction queues on the unit its issue event names first
+    const queue = { queue: ev?.units[0]?.unit ?? null };
+    span(r.dispatched + 1, r.ready, 'waiting', queue);
     // "Ready" is not drawable while dispatched: an instruction that becomes
     // ready before its dispatch cycle (cortex-a55 issues in the order it
     // dispatches, so dispatched < issued) waits on width or an in-order
     // scoreboard entry, not on operands.
-    span(Math.max(r.ready, r.dispatched + 1), r.issued, 'ready');
+    span(Math.max(r.ready, r.dispatched + 1), r.issued, 'ready', queue);
     span(r.dispatched, r.dispatched + 1, 'dispatch');
     if (ev) {
       let holdEnd = ev.cycle;
@@ -192,7 +194,34 @@ export function tokenPositionsAt(model, cycle) {
       }
       if (opts.lastUnits) lastUnits = opts.lastUnits;
     }
-    tokens.push({ instr: r.instr, iter: r.iter, stage, units, lastUnits });
+    tokens.push({ instr: r.instr, iter: r.iter, stage, units, lastUnits, queue: opts?.queue ?? null });
   }
   return tokens;
+}
+
+// shortcut: -json names units, not schedulers, so a group is the unit name
+// without its index (Zn4ALU3 -> Zn4ALU, Zn4FP45.1 -> Zn4FP); parse the text
+// -scheduler-stats table if the real scheduler names are needed.
+export const unitGroup = (name) => name.replace(/\d*(\..)?$/, '');
+
+// Slots per group when -json gives no buffer size: the run's peak, capped so
+// a long stall does not draw dozens of empty slots.
+export const SLOT_CAP = 16;
+
+// Scheduler slots, once per run: `slots` maps each group to its fixed slot
+// count, `waiting[cycle]` maps each group to the tokens waiting there.
+export function schedulerSlots(model) {
+  const waiting = [];
+  const peak = new Map();
+  for (let c = 0; c <= model.cycleIndex.maxCycle; c++) {
+    const at = new Map();
+    for (const t of tokenPositionsAt(model, c)) {
+      if (t.stage !== 'waiting') continue;
+      const g = t.queue == null ? 'unassigned' : unitGroup(model.resources[t.queue]);
+      (at.get(g) ?? at.set(g, []).get(g)).push(t);
+    }
+    for (const [g, l] of at) peak.set(g, Math.max(peak.get(g) ?? 0, l.length));
+    waiting.push(at);
+  }
+  return { slots: new Map([...peak].map(([g, p]) => [g, Math.min(SLOT_CAP, p)])), waiting };
 }
