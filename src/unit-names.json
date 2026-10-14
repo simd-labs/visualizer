@@ -2128,7 +2128,7 @@
     "sifive-u54-mc"
    ],
    "match": "^(VLEN\\d+)?SiFive7VCQ$",
-   "display": "Vector command queue (vector command queue)",
+   "display": "Vector command queue",
    "cluster": "vec",
    "port": null,
    "source": {

@@ -31,6 +31,14 @@ test('the fixtures cover the four families the page tests run', () => {
   assert.deepEqual([...cpus].sort(), ['cortex-a55', 'neoverse-v2', 'skylake', 'znver4']);
 });
 
+test('the sub-label in a display never repeats the title', () => {
+  for (const r of names.rules) {
+    const m = r.display.match(/^(.*?)\s*\((.*)\)$/);
+    if (!m) continue;
+    assert.notEqual(m[2].trim().toLowerCase(), m[1].trim().toLowerCase(), `${r.label}: sub-label repeats the title in ${JSON.stringify(r.display)}`);
+  }
+});
+
 test('the sub-label in a display never names a second unit kind', () => {
   // Bug class: "Vector command queue (vector retire queue)" titled the flow's
   // unit "Vector command queue" while its sub-label described a different unit.
