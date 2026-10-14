@@ -40,10 +40,12 @@ function onHoldWasm(page) {
 test('the Run button and the hint agree in every state', async ({ page }) => {
   const release = onHoldWasm(page);
   await page.goto('/');
-  // loading, with progress: one wording for the whole phase, never 'Run'
+  // loading, with progress: one wording for the whole phase, never 'Run';
+  // the card says Run starts once llvm-mca is ready, not "press Run"
   await expect(page.locator('#run')).toBeDisabled();
   await expect(page.locator('#run')).toHaveText(/^Loading llvm-mca\.\.\./);
-  await expect(page.locator('#empty')).toContainText('press Run');
+  await expect(page.locator('#empty')).toContainText('Run starts once llvm-mca is ready');
+  await expect(page.locator('#empty')).not.toContainText('press Run');
   // sample the label through the rest of the loading phase: 'Loading...' only
   await page.evaluate(() => {
     const b = document.getElementById('run');

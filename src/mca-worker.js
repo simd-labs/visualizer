@@ -13,8 +13,12 @@ const ready = new Promise((r) => { readyResolve = r; });
       import('../wasm/dist/llvm-mca.js'),
     ]);
     if (!response.ok) throw new Error(`HTTP ${response.status} fetching llvm-mca.wasm`);
-    const total = +response.headers.get('content-length') || 0;
-    postMessage({ type: 'progress', got: 0, total });
+    // Content-Length is the compressed size while the reader counts the
+    // decompressed body, so a gzip stream would show got > total ("3.7 MB of
+    // 2.7 MB"). Under compression the header is useless: fall back to the
+    // decompressed total, known at the end.
+    const contentLength = +response.headers.get('content-length') || 0;
+    postMessage({ type: 'progress', got: 0, total: contentLength });
     const chunks = [];
     let got = 0;
     for (const reader = response.body.getReader();;) {
@@ -22,7 +26,7 @@ const ready = new Promise((r) => { readyResolve = r; });
       if (done) break;
       chunks.push(value);
       got += value.length;
-      postMessage({ type: 'progress', got, total });
+      postMessage({ type: 'progress', got, total: Math.max(contentLength, got) });
     }
     const bytes = new Uint8Array(got);
     let offset = 0;

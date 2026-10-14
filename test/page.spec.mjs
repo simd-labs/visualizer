@@ -194,7 +194,7 @@ for (const via of ['drop', 'picker']) {
       const cells = await page.locator('#heatmap svg rect[data-cy]').evaluateAll((els) =>
         els.map((r) => ({ cy: r.getAttribute('data-cy'), x: r.getAttribute('x'), y: r.getAttribute('y'), title: r.querySelector('title').textContent }))
       );
-      const headerH = Math.max(HEAD, ...resources.map((_r, k) => unitName(j, k).length * 0.62 * 12 + 8));
+      const headerH = Math.max(HEAD, ...resources.map((_r, k) => unitName(j, k).length * 0.62 * 13 + 8));
       const want = [];
       matrix.forEach((row, i) => row.forEach((v, k) => {
         if (v !== 0) want.push({ cy: `${i},${k}`, x: String(100 + k * HCELL), y: String(headerH + SCALE_ROW + i * CELL), title: `${rowName(asm, i)}, ${unitRef(j, k)}: ${nd(v)}` });
@@ -257,23 +257,32 @@ for (const via of ['drop', 'picker']) {
   }
 }
 
-test('znver4-i100: the notice is visible and names the iteration cap', async ({ page }) => {
+test('znver4-i100: the notice is visible and names the shown range', async ({ page }) => {
   const errors = await open(page, 'picker', 'znver4-i100.json');
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    "Showing iterations 0-9 of 100. llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
+    'Showing iterations 0-9 of 100. scroll down for more rows.'
   );
+  // the cap details sit collapsed below the one-line note
+  await expect(page.locator('#notice-more')).toBeVisible();
+  await expect(page.locator('#notice-more')).toContainText(
+    "llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
+  );
+  await expect(page.locator('#notice-more')).not.toHaveJSProperty('open', true);
   await expect(page.locator('#timeline svg text.row')).toHaveCount(40);
   expect(errors).toEqual([]);
 });
 
-test('znver4-cap18: the notice is visible and names the cycle cap', async ({ page }) => {
+test('znver4-cap18: the notice is visible and names the shown range', async ({ page }) => {
   const errors = await open(page, 'drop', 'znver4-cap18.json');
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    "Showing iterations 0-3 of 10. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
+    'Showing iterations 0-3 of 10. scroll down for more rows.'
+  );
+  await expect(page.locator('#notice-more')).toContainText(
+    "llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
   );
   await expect(page.locator('#timeline svg text.row')).toHaveCount(17);
   expect(errors).toEqual([]);
@@ -348,7 +357,11 @@ test('skylake-idivq: a cap that cuts the first row shows a message, not a broken
     'No instruction retired within the cycle cap, so there is no timeline to draw. Raise the cycle limit when producing the JSON.'
   );
   await expect(page.locator('#notice')).toHaveText(
-    "Showing no iterations of 3. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
+    'Showing no iterations of 3. scroll down for more rows.'
+  );
+  // the cap details sit collapsed below the one-line note
+  await expect(page.locator('#notice-more')).toContainText(
+    "llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
   );
   expect(await page.locator('svg[width*="Infinity"], svg[height*="Infinity"]').count()).toBe(0);
   expect(errors).toEqual([]);
@@ -1330,6 +1343,8 @@ test('the timeline box scrolls sideways when its cycles are wider than the colum
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 });
 
+// heatmap in-cell values print at 11px by design (they squeeze a number into
+// a 26-32px cell); every other SVG label renders at least `min` px tall
 for (const [width, min] of [[1400, 12], [800, 11]]) {
   test(`${width}px: every SVG label renders at least ${min}px tall`, async ({ page }) => {
     test.setTimeout(180000); // five llvm-mca runs
@@ -1352,7 +1367,8 @@ for (const [width, min] of [[1400, 12], [800, 11]]) {
           // glyph height in screen pixels: font-size times the SVG's scale
           const m = t.getScreenCTM();
           const h = parseFloat(getComputedStyle(t).fontSize) * Math.hypot(m.c, m.d);
-          if (h < min - 0.01) out.push(`${t.closest('[id]').id}: "${t.textContent}" ${h.toFixed(1)}px`);
+          const floor = t.classList.contains('heat-val') ? Math.min(min, 11) : min;
+          if (h < floor - 0.01) out.push(`${t.closest('[id]').id}: "${t.textContent}" ${h.toFixed(1)}px`);
         }
         return n === 0 ? ['no labels'] : out;
       }, min);

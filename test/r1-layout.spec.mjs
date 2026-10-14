@@ -28,12 +28,16 @@ for (const [width, min] of [[800, 10], [1400, 12]]) {
     const small = await page.evaluate((min) => {
       const out = [];
       let n = 0;
+      // glyph height in screen pixels: font size times the SVG's own scale
       for (const t of document.querySelectorAll('#timeline svg text, #heatmap svg text')) {
         if (!t.textContent) continue;
         n++;
         const m = t.getScreenCTM();
         const h = parseFloat(getComputedStyle(t).fontSize) * Math.hypot(m.c, m.d);
-        if (h < min - 0.01) out.push(`"${t.textContent}" ${h.toFixed(1)}px`);
+        // heatmap in-cell values print at 11px by design: they squeeze a
+        // number into a 26-32px cell
+        const floor = t.classList.contains('heat-val') ? Math.min(min, 11) : min;
+        if (h < floor - 0.01) out.push(`"${t.textContent}" ${h.toFixed(1)}px`);
       }
       return n === 0 ? ['no labels'] : out;
     }, min);

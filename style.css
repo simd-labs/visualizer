@@ -333,6 +333,7 @@ input[type="range"] { accent-color: var(--accent); }
 h2 { font-size: 0.95rem; margin-bottom: 0.4rem; }
 h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 #notice, #flow-notice { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.4rem; }
+#notice-more { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.4rem; }
 .scroll { overflow: auto; min-width: 0; }
 /* The timeline scrolls inside its own box instead of stretching the page.
    scrollbar-gutter reserves the bar; Linux/Breeze (and overlay-scrollbars in
@@ -347,6 +348,15 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 @media (min-width: 1400px) {
   #out > .panel:has(> #flow) { align-self: start; }
 }
+/* the timeline's head stays tight: the heading, note, details and legend flow
+   inline with tight line boxes, so the chart box starts within 60px of the heading */
+#h-timeline { display: inline; margin-right: 0.6rem; vertical-align: baseline; line-height: 1.15; }
+#notice { display: inline-block; vertical-align: baseline; margin-right: 0.6rem; margin-bottom: 0.2rem; line-height: 1.2; }
+#notice-more { display: inline-block; vertical-align: baseline; margin-right: 1rem; margin-bottom: 0.2rem; line-height: 1.2; }
+/* the legend floats to the section's top right, so it shares the heading
+   line instead of adding one */
+#legend { float: right; margin-bottom: 0.2rem; line-height: 1.2; padding-top: 2px; text-align: right; }
+#timeline { clear: both; }
 #flow svg { display: block; max-width: 100%; height: auto; }
 #flow svg text { font-family: var(--font-mono); }
 @media (max-width: 1399px) {
@@ -355,7 +365,7 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 }
 .scroll svg { display: block; overflow: visible; }
 .scroll svg text:not([fill]), #flow svg text:not([fill]) { fill: var(--text); }
-.legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1.25rem; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1.25rem; font-size: 13px; color: var(--text-secondary); margin-bottom: 0.4rem; }
 .legend i { display: inline-block; width: 14px; height: 14px; margin-right: 0.3em; vertical-align: middle; }
 .legend i.swatch-token { background: var(--token); }
 .legend i.swatch-latency { background: var(--token-hollow); opacity: 0.6; border: 1px dashed var(--token-edge); }

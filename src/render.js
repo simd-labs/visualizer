@@ -7,6 +7,7 @@ const file = document.getElementById('file');
 const err = document.getElementById('error');
 const out = document.getElementById('out');
 const notice = document.getElementById('notice');
+const noticeMore = document.getElementById('notice-more');
 const asm = document.getElementById('asm');
 const gutter = document.getElementById('asm-gutter');
 const asmCaption = document.getElementById('asm-caption');
@@ -37,6 +38,7 @@ const cpu = document.getElementById('cpu');
 const iterations = document.getElementById('iterations');
 const runBtn = document.getElementById('run');
 const empty = document.getElementById('empty');
+const emptyLabel = document.getElementById('empty-label');
 const themeBtn = document.getElementById('theme-toggle');
 let shownModel = null;
 // the default CPU is znver4, so the box starts with the x86 example; the user presses Run
@@ -82,7 +84,12 @@ function refreshRunBtn() {
   else if (runBusy) runBtn.textContent = 'Running...';
   else if (!mcaReady) runBtn.textContent = loadProgress;
   else runBtn.textContent = 'Run';
+  // the card mirrors the button: no "press Run" while Run is disabled
+  if (mcaFailed) emptyLabel.textContent = 'llvm-mca failed to load. Drop a .s or llvm-mca JSON file on the page instead.';
+  else if (!mcaReady) emptyLabel.textContent = 'Paste an assembly loop or drop a .s file; Run starts once llvm-mca is ready.';
+  else emptyLabel.textContent = 'Paste an assembly loop and press Run, or drop a .s or llvm-mca JSON file on the page.';
 }
+refreshRunBtn(); // the loading state must be right before the first progress tick
 
 // A .s file arrived (drop, pick, or Run click): fill the box and run it,
 // queueing the run while the WASM module is still loading. A newer file or
@@ -117,13 +124,19 @@ async function loadText(text) {
 
 function show(model) {
   notice.hidden = model.complete;
+  noticeMore.hidden = model.complete;
   if (!model.complete) {
     const cap = model.cycleCut
       ? "llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits."
       : "llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits.";
     const range = model.iters === 0 ? 'no iterations' : `iterations 0-${model.iters - 1}`;
-    notice.textContent =
-      `Showing ${range} of ${model.total}. ${cap} The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows.`;
+    notice.textContent = `Showing ${range} of ${model.total}. scroll down for more rows.`;
+    // the cap details sit collapsed so the chart stays near its heading; a
+    // scrollbar-covered chart box keeps the rest of the iteration:mnemonic:line rows reachable
+    noticeMore.replaceChildren(
+      noticeMore.firstElementChild,
+      cap + " The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
+    );
   }
   err.hidden = true;
   empty.hidden = true;
@@ -277,17 +290,18 @@ initMca({
 
 const HEADER = 48; // .header height: the sticky cycle bar parks under it
 
-const CELL = 14; // fits a 12px label, the smallest text size on the page
+const CELL = 14; // timeline cycle width and row height: holds a 13px label and a 13px bar
 // Shrinking a cycle column below the 12px label is unreadable, so the fit
 // floors at 12px; a run wider than the box at 12px scrolls inside the box.
 const CELL_MIN = 12;
 let timelineCell = CELL; // the drawn run's horizontal px per cycle (renderTimeline)
+const CELL_H = 13; // heatmap row height: a cell holds its 11px value below the 90px head
 const HCELL = 32; // heatmap cell: wide enough to print the pressure value inside
 const VGAP = 1; // heatmap vertical gap; horizontal cells are joined
 const LEFT = 200; // timeline gutter for the iteration:mnemonic:line row labels
 const TOP = 16; // timeline space for cycle labels
 const HEAD = 90; // heatmap space for rotated resource names
-const FONT = 12; // timeline and heatmap label size
+const FONT = 13; // timeline and heatmap label size
 const UNIT_COL = 100; // heatmap gutter for the instr N and total/iter row labels
 const SCALE_ROW = 12; // heatmap space above the columns for the pressure scale
 
@@ -424,7 +438,7 @@ function renderTimeline(model, host) {
   for (const c of ticks) {
     const x = LEFT + c * cell;
     root.appendChild(svg('line', { class: 'grid', x1: x, x2: x, y1: TOP, y2: TOP + h, stroke: FLOW_COLORS.edge, 'stroke-opacity': 0.5 }));
-    const t = svg('text', { class: 'axis', x: x + 2, y: 13, 'font-size': FONT });
+    const t = svg('text', { class: 'axis', x, y: 14, 'font-size': 13, 'text-anchor': 'middle' });
     t.textContent = c;
     root.appendChild(t);
   }
@@ -440,12 +454,12 @@ function renderTimeline(model, host) {
     for (const [a, b, stage] of spans) {
       if (b <= a) continue;
       const fill = stage === 'wait' || stage === 'done' ? `url(#hatch-${stage})` : STAGES[stage];
-      const rect = svg('rect', { x: LEFT + a * cell, y, width: (b - a) * cell, height: CELL - 1, fill });
+      const rect = svg('rect', { x: LEFT + a * cell, y: +y.toFixed(3), width: (b - a) * cell, height: CELL - 1, fill });
       rect.appendChild(svg('title', {})).textContent =
         withLabel(model, r.iter, r.instr, `${stage}: cycles ${a}-${b}`);
       root.appendChild(rect);
     }
-    const text = svg('text', { class: 'row', x: 4, y: y + CELL - 3, 'font-size': FONT });
+    const text = svg('text', { class: 'row', x: 4, y: y + CELL - 2, 'font-size': FONT });
     text.textContent = instanceLabel(model, r.iter, r.instr);
     // hover the row: its source line in the editor's gutter
     text.style.pointerEvents = 'all';
@@ -463,11 +477,17 @@ function renderHeatmap(model, host) {
   const max = Math.max(...model.matrix.flat());
   const names = model.units.map((n) => n.name);
   // every glyph keeps its set font size; a 0.62em monospace advance sizes the gutters
-  const tw = (s) => s.length * 0.62 * FONT;
-  // the header gutter fits the longest unit name at full size
+  const tw = (s) => s.length * 0.62 * 13;
+  // the header gutter and the row-label gutter share one rotated-text width
   const head = Math.max(HEAD, ...names.map((n) => tw(n) + 8));
+  // a cell prints the pressure value at 11px; 32px fits on wide screens.
+  // Narrower boxes shrink cells down to 26px (the value still fits); below
+  // that the box scrolls inside itself, never the page (800px, 23 columns).
+  const VALFONT = 11;
+  const hostW = host.clientWidth || 940;
+  const hcell = Math.max(26, Math.min(HCELL, Math.floor((hostW - UNIT_COL - 100) / names.length)));
   const root = svg('svg', {
-    width: names.length * HCELL + UNIT_COL + 100,
+    width: names.length * hcell + UNIT_COL + 100,
     height: model.matrix.length * CELL + head + SCALE_ROW + FONT + 12, // the last FONT+12 holds the scale line under the grid
     'aria-hidden': 'true',
   });
@@ -478,9 +498,9 @@ function renderHeatmap(model, host) {
       // floor of 0.7 opacity keeps the palest cell at 3:1 against white
       const opacity = 0.7 + 0.3 * (v / max);
       const rect = svg('rect', {
-        x: UNIT_COL + j * HCELL,
+        x: UNIT_COL + j * hcell,
         y: labelRow + i * CELL,
-        width: HCELL,
+        width: hcell,
         height: CELL - VGAP,
         fill: FLOW_COLORS.heat,
         opacity,
@@ -490,27 +510,27 @@ function renderHeatmap(model, host) {
       root.appendChild(rect);
     });
     const rowText = i === model.instructions.length ? 'total/iter' : `instr ${i}`;
-    const rowLabel = svg('text', { class: 'rowlabel', x: UNIT_COL - tw(rowText) - 4, y: labelRow + i * CELL + CELL - 3, 'font-size': FONT });
+    const rowLabel = svg('text', { class: 'rowlabel', x: UNIT_COL - 4, y: labelRow + i * CELL + CELL - 1, 'font-size': FONT, 'text-anchor': 'end' });
     rowLabel.textContent = rowText;
     root.appendChild(rowLabel);
   });
   names.forEach((name, j) => {
     // a central baseline puts the rotated glyphs' middle on the column centre
-    const x = UNIT_COL + j * HCELL + HCELL / 2;
+    const x = UNIT_COL + j * hcell + hcell / 2;
     const c = svg('text', { class: 'col', x, y: labelRow - 4, 'font-size': FONT, 'dominant-baseline': 'central', transform: `rotate(-90 ${x} ${labelRow - 4})` });
     c.textContent = name;
     c.appendChild(svg('title', {})).textContent = unitRef(model, j);
     root.appendChild(c);
   });
-  // the pressure scale: a labelled horizontal line under the row labels, past
-  // their longest text ("total/iter"), clear of the grid above it
+  // the pressure scale: a labelled horizontal line under the row labels,
+  // below their depth, clear of the grid and of the "total/iter" label
   const rowLabelW = Math.max('total/iter'.length * 0.62 * FONT, 56);
-  const scale = svg('text', { class: 'heat-scale', x: rowLabelW + 8, y: labelRow + model.matrix.length * CELL + 8, 'font-size': FONT, fill: FLOW_COLORS.muted });
+  const scale = svg('text', { class: 'heat-scale', x: rowLabelW + 8, y: labelRow + model.matrix.length * CELL + 14, 'font-size': FONT, fill: FLOW_COLORS.muted });
   scale.textContent = `pressure per iteration: 0 to ${fmt(max)}`;
   root.appendChild(scale);
   // a cell prints its value: fmt rounds to 2 decimals, and a value still too
   // wide drops a decimal (the text table under the SVG keeps full precision)
-  const px = (s) => Math.ceil(s.length * 0.62 * FONT) + 6;
+  const px = (s) => Math.ceil(s.length * 0.62 * VALFONT) + 6;
   const numFill = () =>
     document.documentElement.getAttribute('data-theme') === 'dark'
       ? getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()
@@ -519,12 +539,12 @@ function renderHeatmap(model, host) {
     row.forEach((v, j) => {
       if (v === 0) return;
       let s = String(fmt(v));
-      for (let d = 1; px(s) > HCELL && d <= 2; d++) s = String(+v.toFixed(2 - d));
+      for (let d = 1; px(s) > hcell && d <= 2; d++) s = String(+v.toFixed(2 - d));
       const t = svg('text', {
         class: 'heat-val',
-        x: UNIT_COL + j * HCELL + HCELL / 2,
+        x: UNIT_COL + j * hcell + hcell / 2,
         y: labelRow + i * CELL + (CELL - VGAP) / 2,
-        'font-size': FONT,
+        'font-size': VALFONT,
         'text-anchor': 'middle',
         'dominant-baseline': 'central',
         fill: numFill(),

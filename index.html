@@ -48,7 +48,7 @@
 
   <div class="results">
     <p id="error" role="alert" hidden></p>
-    <p id="empty" class="panel">Paste an assembly loop and press Run, or drop a .s or llvm-mca JSON file on the page. <button id="example" class="btn" type="button">Run an example loop</button></p>
+    <p id="empty" class="panel"><span id="empty-label">Paste an assembly loop and press Run, or drop a .s or llvm-mca JSON file on the page.</span> <button id="example" class="btn" type="button">Run an example loop</button></p>
 
     <main id="out" hidden>
       <div class="cycle-bar">
@@ -71,6 +71,7 @@
       <section class="panel" aria-labelledby="h-timeline">
         <h2 id="h-timeline">Timeline</h2>
         <p id="notice" hidden></p>
+        <details id="notice-more" hidden><summary>Why is it cut?</summary></details>
         <p id="legend" class="legend"></p>
         <div id="timeline" class="scroll"></div>
       </section>
