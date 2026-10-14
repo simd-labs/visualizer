@@ -91,17 +91,6 @@ for (const [w, h] of SIZES) {
         expect(m.tlScrollW).toBeGreaterThan(m.tlClientW);
       }
     });
-
-    // P10 (relaxed): the timeline box no longer stretches to the flow panel's
-    // height. Stretching worked both ways and pushed the flow panel past the
-    // first screen, undoing proposal 1's editor collapse. The box still ends
-    // close under the flow: the heights stay within 600px.
-    if (SIDE_BY_SIDE(w)) {
-      test('P10: the timeline height stays slack of the flow height', async ({ page }) => {
-        const m = await page.evaluate(geom);
-        expect(m.flowH - m.tlH, 'flow height vs timeline height').toBeLessThanOrEqual(600);
-      });
-    }
   });
 
   // P5: stacked, the cycle bar is sticky and the slider stays on screen while

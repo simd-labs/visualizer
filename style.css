@@ -359,9 +359,69 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 #notice-more { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.4rem; }
 .scroll { overflow: auto; min-width: 0; }
 /* The timeline scrolls inside its own box instead of stretching the page.
-   scrollbar-gutter reserves the bar; Linux/Breeze (and overlay-scrollbars in
-   general) paints no thumb at rest, so the cap notice also says it scrolls. */
+   The side-by-side cap (760px, 900px screens included) holds the znver4
+   run's 60 rows at the 12px floor with room for the classic scrollbar's
+   trigger slop. The stacked run keeps 520px: its flow is ~1100px tall, so
+   the page is past twice the viewport and scrollIntoView's centering would
+   park the sticky bar over the chart's top rows of any taller box (P5,
+   ux-merge's stacked checks). Rows past a capped box scroll, with the cue. */
 #timeline { max-height: 520px; scrollbar-gutter: stable; }
+@media (min-width: 1400px) {
+  #timeline { max-height: min(760px, calc(100vh - 140px)); }
+}
+/* A vertical scroll needs the cue as much as a wide one: down is the clipped
+   edge until the bottom row shows. cue-right still covers the wide case. */
+.scroll-wrap.cue-down::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--surface), transparent);
+}
+/* Scroll cue: an overflowed box gets an edge fade and a "scroll" hint on its
+   clipped edges, since overlay-scroll systems paint no thumb (render.js's
+   updateScrollCue toggles the cue-* classes). */
+.scroll-wrap { position: relative; min-width: 0; }
+.scroll-hint {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  padding: 0 6px;
+  border-radius: var(--radius);
+  background: var(--surface-hover);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  pointer-events: none;
+  opacity: 0;
+}
+.scroll-wrap.cue-right .scroll-hint,
+.scroll-wrap.cue-down .scroll-hint { opacity: 1; }
+.scroll-wrap.cue-down .scroll-hint { right: auto; left: 2px; }
+.scroll-wrap.cue-right.cue-down .scroll-hint { right: 2px; left: auto; }
+.scroll-wrap.cue-down::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24px;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--surface), transparent);
+}
+.scroll-wrap.cue-right::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  pointer-events: none;
+  background: linear-gradient(to left, var(--surface), transparent);
+}
 /* The flow diagram never scrolls: its viewBox shrinks to the column width. */
 /* The flow panel keeps its own height; blank space below Retire was defect 25/35. */
 @media (min-width: 1400px) {

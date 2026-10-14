@@ -66,6 +66,7 @@ const empty = document.getElementById('empty');
 const emptyLabel = document.getElementById('empty-label');
 const themeBtn = document.getElementById('theme-toggle');
 let shownModel = null;
+let noticeBase = ''; // the timeline note's fixed part; renderTimeline appends the visible range
 // the default CPU is znver4, so the box starts with the x86 example; the user presses Run
 asm.value = EXAMPLES.x86_64;
 refreshGutter();
@@ -155,7 +156,8 @@ function show(model) {
       ? "llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits."
       : "llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits.";
     const range = model.iters === 0 ? 'no iterations' : `iterations 0-${model.iters - 1}`;
-    notice.textContent = `Showing ${range} of ${model.total}. scroll down for more rows.`;
+    noticeBase = `Showing ${range} of ${model.total}. Rows past the box: scroll it.`;
+    notice.textContent = noticeBase;
     // the cap details sit collapsed so the chart stays near its heading; a
     // scrollbar-covered chart box keeps the rest of the iteration:mnemonic:line rows reachable
     noticeMore.replaceChildren(
@@ -442,8 +444,14 @@ function renderTimeline(model, host) {
   let cell = Math.max(CELL_MIN, Math.min(CELL, fit));
   if (fit > CELL_MIN && cell * (lastTick + 2) + LEFT + 30 > avail - 2) cell -= 1; // exact fits leave the right edge flush across scrollbars and platforms
   if (fit < CELL_MIN) cell = CELL + 2; // a slab wider than any box: the run needs real overflow to scroll
+  // Rows fit the box the CSS cap actually yields (the same min() the
+  // stylesheet applies): 760px side by side holds the znver4 run's 60 rows
+  // at the 12px floor (740px), and the svg stays under the classic vertical
+  // scrollbar's trigger; stacked keeps the 520px cap and scrolls with the cue.
+  const cap = matchMedia('(min-width: 1400px)').matches ? Math.min(757, innerHeight - 140) : 520;
+  const cellH = Math.max(CELL_MIN, Math.min(CELL, Math.floor((cap - TOP - 4) / model.rows.length)));
   const w = lastTick * cell;
-  const h = model.rows.length * CELL;
+  const h = model.rows.length * cellH;
   // one cell past the last tick: a bar retiring at the cap ends its cell there
   const root = svg('svg', { width: LEFT + w + 2 * cell, height: TOP + h + 4, 'aria-hidden': 'true' });
   // wait-exec and ready-done cannot each reach 3:1 of luminance on one surface;
@@ -473,7 +481,7 @@ function renderTimeline(model, host) {
   }
 
   for (const r of model.rows) {
-    const y = TOP + (r.iter * model.instructions.length + r.instr) * CELL;
+    const y = TOP + (r.iter * model.instructions.length + r.instr) * cellH;
     const spans = [
       [r.dispatched, r.ready, 'wait'],
       [r.ready, r.issued, 'ready'],
@@ -483,12 +491,12 @@ function renderTimeline(model, host) {
     for (const [a, b, stage] of spans) {
       if (b <= a) continue;
       const fill = stage === 'wait' || stage === 'done' ? `url(#hatch-${stage})` : STAGES[stage];
-      const rect = svg('rect', { x: LEFT + a * cell, y: +y.toFixed(3), width: (b - a) * cell, height: CELL - 1, fill });
+      const rect = svg('rect', { x: LEFT + a * cell, y: +y.toFixed(3), width: (b - a) * cell, height: cellH - 1, fill });
       rect.appendChild(svg('title', {})).textContent =
         withLabel(model, r.iter, r.instr, `${stage}: cycles ${a}-${b}`);
       root.appendChild(rect);
     }
-    const text = svg('text', { class: 'row', x: 4, y: y + CELL - 2, 'font-size': FONT });
+    const text = svg('text', { class: 'row', x: 4, y: y + cellH - 2, 'font-size': Math.min(FONT, cellH) });
     text.textContent = instanceLabel(model, r.iter, r.instr);
     // hover the row: its source line in the editor's gutter
     text.style.pointerEvents = 'all';
@@ -498,6 +506,42 @@ function renderTimeline(model, host) {
   }
   timelineCell = cell;
   host.appendChild(root);
+  updateScrollCue(host);
+  // rows past the box's height need a scroll; the note names the range in view
+  if (host.scrollHeight > host.clientHeight + 1 && model.rows.length) {
+    const r = host.getBoundingClientRect();
+    const instrs = model.instructions.length;
+    const ys = [...host.querySelectorAll('svg text.row')].map((t) => t.getBoundingClientRect());
+    const firstIdx = ys.findIndex((b) => b.bottom > r.top);
+    let lastIdx = ys.length - 1;
+    while (lastIdx >= 0 && ys[lastIdx].bottom > r.bottom + 0.5) lastIdx--;
+    if (firstIdx >= 0 && lastIdx >= firstIdx) {
+      notice.textContent = noticeBase + ` Box shows ${Math.floor(firstIdx / instrs)}-${Math.floor(lastIdx / instrs)}.`;
+    }
+  }
+}
+
+// Overlay-scroll systems (Linux/Breeze, macOS) paint no scrollbar thumb at
+// rest, so a box wider than its content gets an edge fade and a "scroll"
+// hint on its clipped edge. The cue hides at the edge and when nothing
+// overflows.
+function updateScrollCue(box) {
+  const wrap = box.closest('.scroll-wrap');
+  if (!wrap) return;
+  const refresh = () => {
+    const overX = box.scrollWidth > box.clientWidth + 1;
+    const overY = box.scrollHeight > box.clientHeight + 1;
+    // 16px of slack: with scrollbar-gutter plus a classic 15px bar (Linux),
+    // Chromium's max scrollLeft stops that far short of scrollWidth - clientWidth
+    wrap.classList.toggle('cue-right', overX && box.scrollLeft + box.clientWidth < box.scrollWidth - 16);
+    wrap.classList.toggle('cue-down', overY && box.scrollTop + box.clientHeight < box.scrollHeight - 17);
+  };
+  if (!box.dataset.cue) {
+    box.dataset.cue = '1';
+    box.addEventListener('scroll', refresh);
+    new ResizeObserver(refresh).observe(box);
+  }
+  refresh();
 }
 
 function renderHeatmap(model, host) {
@@ -583,6 +627,7 @@ function renderHeatmap(model, host) {
     });
   });
   host.appendChild(root);
+  updateScrollCue(host);
 }
 
 // Flow diagram, laid out like a CPU block diagram (WikiChip, the vendor

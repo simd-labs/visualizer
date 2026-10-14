@@ -123,7 +123,8 @@ test('heatmap cells print values', async ({ page }) => {
 });
 
 // The timeline scrolls in its own box: at 100 iterations the SVG is about
-// 850px tall, but the box caps at 520px instead of stretching the page.
+// 730px tall (rows fit toward the 12px floor), but the box caps at 520px
+// instead of stretching the page.
 test('timeline box is capped and scrolls at 100 iterations', async ({ page }) => {
   await page.goto('/');
   await runExample(page);

@@ -261,8 +261,9 @@ test('znver4-i100: the notice is visible and names the shown range', async ({ pa
   const errors = await open(page, 'picker', 'znver4-i100.json');
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
-  await expect(page.locator('#notice')).toHaveText(
-    'Showing iterations 0-9 of 100. scroll down for more rows.'
+  // the row range append is round-2's; the rest of the note is stable text
+  await expect(page.locator('#notice')).toContainText(
+    'Showing iterations 0-9 of 100. Rows past the box: scroll it.'
   );
   // the cap details sit collapsed below the one-line note
   await expect(page.locator('#notice-more')).toBeVisible();
@@ -279,7 +280,7 @@ test('znver4-cap18: the notice is visible and names the shown range', async ({ p
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    'Showing iterations 0-3 of 10. scroll down for more rows.'
+    'Showing iterations 0-3 of 10. Rows past the box: scroll it.'
   );
   await expect(page.locator('#notice-more')).toContainText(
     "llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
@@ -357,7 +358,7 @@ test('skylake-idivq: a cap that cuts the first row shows a message, not a broken
     'No instruction retired within the cycle cap, so there is no timeline to draw. Raise the cycle limit when producing the JSON.'
   );
   await expect(page.locator('#notice')).toHaveText(
-    'Showing no iterations of 3. scroll down for more rows.'
+    'Showing no iterations of 3. Rows past the box: scroll it.'
   );
   // the cap details sit collapsed below the one-line note
   await expect(page.locator('#notice-more')).toContainText(
