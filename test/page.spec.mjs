@@ -591,12 +591,18 @@ test('flow diagram: tokens land on their events units at cycle 2, slider moves t
   const hl = page.locator('#timeline line.flow-cur');
   await expect(hl).toHaveCount(1);
   await expect(page.locator('#timeline line.flow-halo')).toHaveCount(1);
+  // the run's horizontal cell, from the axis grid's tick spacing (the chart
+  // fits the box when 8px a column holds every cycle)
+  const cell = await page.evaluate(() => {
+    const g = [...document.querySelectorAll('#timeline svg line.grid')];
+    return g.length > 1 ? (+g.at(-1).getAttribute('x1') - +g[0].getAttribute('x1')) / (g.length - 1) / 5 : 14;
+  });
   const x2 = await hl.getAttribute('x1');
-  expect(+x2).toBeCloseTo(LEFT + 2 * CELL - CELL / 2);
+  expect(+x2).toBeCloseTo(LEFT + 2 * cell - cell / 2);
   await page.locator('#flow-cycle').fill('9');
   await page.locator('#flow-cycle').dispatchEvent('input');
   const x9 = await page.locator('#timeline line.flow-cur').getAttribute('x1');
-  expect(+x9).toBeCloseTo(LEFT + 9 * CELL - CELL / 2);
+  expect(+x9).toBeCloseTo(LEFT + 9 * cell - cell / 2);
   expect(+x9).not.toBe(+x2);
 
   // aria-live line states the cycle and units
@@ -1311,7 +1317,7 @@ test('flow diagram: the wheel over it scrolls the page', async ({ page }) => {
 
 test('the timeline box scrolls sideways when its cycles are wider than the column', async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 900 });
-  await open(page, 'drop', 'znver4-i100.json');
+  await open(page, 'drop', 'neoverse-v2.json'); // 30 ticks: wider than a 1400px box at the 12px floor
   await expect(page.locator('#out')).toBeVisible();
   const tl = page.locator('#timeline');
   const dims = await tl.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth, ox: getComputedStyle(el).overflowX }));

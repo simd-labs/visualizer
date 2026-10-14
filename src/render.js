@@ -130,6 +130,7 @@ function show(model) {
   out.hidden = false;
   shownModel = model;
   readPalette();
+  // draw after unhiding: the timeline sizes its columns from the box's laid-out width
   renderTimeline(model, document.getElementById('timeline'));
   renderHeatmap(model, document.getElementById('heatmap'));
   renderFlow(model);
@@ -274,7 +275,13 @@ initMca({
   },
 });
 
+const HEADER = 48; // .header height: the sticky cycle bar parks under it
+
 const CELL = 14; // fits a 12px label, the smallest text size on the page
+// Shrinking a cycle column below the 12px label is unreadable, so the fit
+// floors at 12px; a run wider than the box at 12px scrolls inside the box.
+const CELL_MIN = 12;
+let timelineCell = CELL; // the drawn run's horizontal px per cycle (renderTimeline)
 const HCELL = 32; // heatmap cell: wide enough to print the pressure value inside
 const VGAP = 1; // heatmap vertical gap; horizontal cells are joined
 const LEFT = 200; // timeline gutter for the iteration:mnemonic:line row labels
@@ -384,10 +391,18 @@ function renderTimeline(model, host) {
   const maxCycle = Math.max(...model.rows.map((r) => r.retired));
   // the last axis tick covers the last cycle (the next tick would pass maxCycle)
   const lastTick = Math.ceil(maxCycle / 5) * 5;
-  const w = lastTick * CELL;
+  // Fit the run to the box; cell stays between the 12px label's floor and the
+  // full 14px column. A run that cannot fit even at the floor keeps a wider
+  // slab, so its box gets real overflow to scroll (its old behavior).
+  const avail = host.clientWidth > 0 ? host.clientWidth : host.closest('.panel').clientWidth - 34; // panel: 16px padding and 1px border each side; reads 0 while the panel is unshown
+  const fit = avail > 0 ? Math.floor((avail - LEFT - 30) / (lastTick + 2)) : CELL;
+  let cell = Math.max(CELL_MIN, Math.min(CELL, fit));
+  if (fit > CELL_MIN && cell * (lastTick + 2) + LEFT + 30 > avail - 2) cell -= 1; // exact fits leave the right edge flush across scrollbars and platforms
+  if (fit < CELL_MIN) cell = CELL + 2; // a slab wider than any box: the run needs real overflow to scroll
+  const w = lastTick * cell;
   const h = model.rows.length * CELL;
   // one cell past the last tick: a bar retiring at the cap ends its cell there
-  const root = svg('svg', { width: LEFT + w + 2 * CELL, height: TOP + h + 4, 'aria-hidden': 'true' });
+  const root = svg('svg', { width: LEFT + w + 2 * cell, height: TOP + h + 4, 'aria-hidden': 'true' });
   // wait-exec and ready-done cannot each reach 3:1 of luminance on one surface;
   // they also differ by fill pattern: stripes on wait and done, solid fills on
   // ready and exec, with the stripe painted in the panel's surface color. The
@@ -407,7 +422,7 @@ function renderTimeline(model, host) {
   // touches the box's right edge
   const ticks = [...new Set([...Array(Math.floor(maxCycle / 5) + 1).keys()].map((k) => k * 5).concat(lastTick))].sort((a, b) => a - b);
   for (const c of ticks) {
-    const x = LEFT + c * CELL;
+    const x = LEFT + c * cell;
     root.appendChild(svg('line', { class: 'grid', x1: x, x2: x, y1: TOP, y2: TOP + h, stroke: FLOW_COLORS.edge, 'stroke-opacity': 0.5 }));
     const t = svg('text', { class: 'axis', x: x + 2, y: 13, 'font-size': FONT });
     t.textContent = c;
@@ -425,7 +440,7 @@ function renderTimeline(model, host) {
     for (const [a, b, stage] of spans) {
       if (b <= a) continue;
       const fill = stage === 'wait' || stage === 'done' ? `url(#hatch-${stage})` : STAGES[stage];
-      const rect = svg('rect', { x: LEFT + a * CELL, y, width: (b - a) * CELL, height: CELL - 1, fill });
+      const rect = svg('rect', { x: LEFT + a * cell, y, width: (b - a) * cell, height: CELL - 1, fill });
       rect.appendChild(svg('title', {})).textContent =
         withLabel(model, r.iter, r.instr, `${stage}: cycles ${a}-${b}`);
       root.appendChild(rect);
@@ -438,6 +453,7 @@ function renderTimeline(model, host) {
     text.addEventListener('mouseleave', () => highlightLine(null));
     root.appendChild(text);
   }
+  timelineCell = cell;
   host.appendChild(root);
 }
 
@@ -557,6 +573,17 @@ function statusText(model, cycle, tokens) {
     inFlightNames.map((u) => ` Executing (latency), last on ${u}.`).join('')
   );
 }
+
+// The sticky bar parks at the header height, except stacked when the slider
+// (its first row) would not fill the rest of the screen: then it lifts to the
+// viewport bottom, so the slider stays on screen while the timeline scrolls.
+// Pinning keeps the bar's height constant, so no layout shift below it.
+function stickyCycleBarTop() {
+  const bar = document.querySelector('.cycle-bar');
+  const wide = matchMedia('(min-width: 1400px)').matches;
+  bar.style.top = !wide && innerHeight - bar.offsetHeight - HEADER > 0 ? `${innerHeight - bar.offsetHeight - HEADER}px` : '';
+}
+addEventListener('resize', stickyCycleBarTop);
 
 // Wrapped height #flow-status needs at this width for the run's longest
 // status, measured once so the cycle bar keeps a fixed height while stepping.
@@ -693,6 +720,7 @@ function renderFlow(model) {
     status.style.minHeight = '';
     status.closest('.cycle-bar').style.minHeight = '';
     sliderValue.textContent = '';
+    stickyCycleBarTop();
     return;
   }
   notice.hidden = true;
@@ -708,6 +736,7 @@ function renderFlow(model) {
   // Pin the cycle bar to the tallest status of the run, so status wraps in a
   // fixed height and the panels below never move while stepping.
   status.closest('.cycle-bar').style.minHeight = `${flowStatusHeight(model, status)}px`;
+  stickyCycleBarTop();
   slider.oninput = () => setFlowCycle(model, +slider.value); // assigned, not added: each run would stack a listener on the old model
   play.onclick = toggleFlowPlay;
   step.onclick = () => {
@@ -891,15 +920,27 @@ function setFlowCycle(model, cycle) {
   for (const el of document.querySelectorAll('#timeline line.flow-cur, #timeline line.flow-halo')) el.remove();
   const tl = document.querySelector('#timeline svg');
   if (tl?.lastChild) {
-    const x = LEFT + cycle * CELL - CELL / 2;
+    const x = LEFT + cycle * timelineCell - timelineCell / 2;
     const y1 = TOP - 2;
     const y2 = +tl.lastChild.getAttribute('y') + CELL;
     // the cursor is close in luminance to some bars; the halo (page-contrast color) gives it an edge there
     tl.appendChild(svg('line', { class: 'flow-halo', x1: x, x2: x, y1, y2, stroke: FLOW_COLORS.halo, 'stroke-width': 4 }));
     tl.appendChild(svg('line', { class: 'flow-cur', x1: x, x2: x, y1, y2, stroke: FLOW_COLORS.cursor, 'stroke-width': 2 }));
-    // keep the cursor inside the timeline's scroll box while the slider moves
+    // every move keeps the cursor in view: center it in the chart box when it
+    // would leave the visible span; stacked, also scroll the box so the sticky
+    // cycle bar never covers the cursor row
     const box = tl.parentElement;
-    if (x < box.scrollLeft || x > box.scrollLeft + box.clientWidth) box.scrollLeft = x - box.clientWidth / 2;
+    const unstick = () => {
+      const rowTop = tl.getBoundingClientRect().top;
+      const barBottom = document.querySelector('.cycle-bar').getBoundingClientRect().bottom;
+      // scrollTo of both axes is asynchronous: queue the cover fix so the
+      // cursor's own scroll is not cancelled mid-animation
+      if (rowTop < barBottom) box.scrollTop = Math.min(box.scrollTop + barBottom - rowTop, box.scrollHeight - box.clientHeight);
+    };
+    if (x < box.scrollLeft || x > box.scrollLeft + box.clientWidth) {
+      box.scrollLeft = x - box.clientWidth / 2;
+      requestAnimationFrame(unstick);
+    } else unstick();
   }
   drawFlowBlocks(model, cycle); // the boxes resize to this cycle's piles
   const tg = document.querySelector('#flow svg .flow-tokens');

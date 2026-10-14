@@ -38,7 +38,11 @@ test('timeline axis covers the last cycle and bars stay behind the last tick', a
     const svg = document.querySelector('#timeline svg');
     const rects = [...svg.querySelectorAll(':scope > rect')];
     const lastBarX = Math.max(...rects.map((x) => +x.getAttribute('x') + +x.getAttribute('width')));
-    const lastRetired = Math.max(...rects.map((x) => (+x.getAttribute('x') - 200) / 14 + +x.getAttribute('width') / 14)); // LEFT=200, CELL=14
+    const grids = [...svg.querySelectorAll('line.grid')];
+    // the horizontal cell is the grid's tick spacing over 5 cycles; bars of 1
+    // tick would give the wrong scale otherwise
+    const cell = grids.length > 1 ? (+grids.at(-1).getAttribute('x1') - +grids[0].getAttribute('x1')) / (grids.length - 1) / 5 : 14;
+    const lastRetired = Math.max(...rects.map((x) => (+x.getAttribute('x') - 200) / cell + +x.getAttribute('width') / cell)); // LEFT=200
     const ticks = [...svg.querySelectorAll('text.axis')].map((t) => +t.textContent);
     const lastTick = Math.max(...ticks);
     const ctm = svg.getScreenCTM();

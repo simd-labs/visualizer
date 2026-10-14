@@ -296,10 +296,16 @@ input[type="range"] { accent-color: var(--accent); }
   font-family: var(--font-mono);
 }
 #out { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
-/* Wide screens put flow and timeline side by side, so the slider drives both in view. */
-@media (min-width: 1300px) {
-  #out { grid-template-columns: fit-content(62%) minmax(0, 1fr); }
+/* Wide screens put flow and timeline side by side, so the slider drives both
+   in view. 1400px: the flow panel holds the 701px diagram at ~11.2px text
+   (page.spec.mjs's floor) and the timeline box keeps >= 700px for its chart. */
+@media (min-width: 1400px) {
+  #out { grid-template-columns: fit-content(736px) minmax(0, 1fr); }
   #out > .cycle-bar, #out > :nth-child(n + 4) { grid-column: 1 / -1; }
+  /* the timeline chart box stretches to the flow panel's height (align-items
+     is stretch by default, so the row-grid item already fills the row) */
+  #out > .panel:has(> #timeline) { display: flex; flex-direction: column; }
+  #timeline { flex: 1; /* flex items do not shrink below content height without an explicit floor */ min-height: 0; }
 }
 .cycle-bar {
   position: sticky;
@@ -332,14 +338,18 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
    scrollbar-gutter reserves the bar; Linux/Breeze (and overlay-scrollbars in
    general) paints no thumb at rest, so the cap notice also says it scrolls. */
 #timeline { max-height: 520px; scrollbar-gutter: stable; }
+@media (min-width: 1400px) {
+  /* the flex sizing above replaces the cap when the panel is taller */
+  #timeline { max-height: none; }
+}
 /* The flow diagram never scrolls: its viewBox shrinks to the column width. */
 /* The flow panel keeps its own height; blank space below Retire was defect 25/35. */
-@media (min-width: 1300px) {
-  #out > .panel { align-self: start; }
+@media (min-width: 1400px) {
+  #out > .panel:has(> #flow) { align-self: start; }
 }
 #flow svg { display: block; max-width: 100%; height: auto; }
 #flow svg text { font-family: var(--font-mono); }
-@media (max-width: 1299px) {
+@media (max-width: 1399px) {
   #h-flow, #h-timeline { display: inline; margin-right: 1rem; }
   #flow-legend, #legend { display: inline-flex; vertical-align: baseline; }
 }
