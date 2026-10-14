@@ -101,18 +101,18 @@ test('queue boxes hold no empty rows below the last token row at the busy cycle'
         const n = [...svg.querySelectorAll('.flow-token > rect, .flow-marker > rect')]
           .map((t) => t.getBoundingClientRect())
           .filter((t) => t.left >= r.left - 1 && t.right <= r.right + 1 && t.top >= r.top - 1 && t.top < r.bottom).length;
-        const cols = Math.max(1, Math.floor((r.width - 12 + 4) / (tokW + 4)));
+        const cols = Math.max(1, Math.floor((r.width - 12 + 3) / (tokW + 3)));
         out[g.dataset.block] = { h: r.height, n, cols, tokW, tokH };
       }
       return out;
     });
-    // the box's height formula: head 24 + rows * tokH's grid (stackH) + pad 6,
+    // the box's height formula: head 20 + rows * tokH's grid (stackH) + pad 6,
     // with rows from this cycle's token count in the box's columns
     for (const k of ['dispatch', 'waiting', 'ready', 'retire']) {
       const d = data[k];
       const rows = Math.ceil(Math.max(d.n, 1) / d.cols);
-      expect(d.h, `${cpu} ${k} fits its ${d.n} tokens`).toBeGreaterThanOrEqual(24 + (rows * 20 + (rows - 1) * 4) + 6 - 0.01);
-      expect(d.h, `${cpu} ${k} has no extra rows`).toBeLessThanOrEqual(24 + (rows * 20 + (rows - 1) * 4) + 6 + 0.01);
+      expect(d.h, `${cpu} ${k} fits its ${d.n} tokens`).toBeGreaterThanOrEqual(20 + (rows * 18 + (rows - 1) * 3) + 6 - 0.01);
+      expect(d.h, `${cpu} ${k} has no extra rows`).toBeLessThanOrEqual(20 + (rows * 18 + (rows - 1) * 3) + 6 + 0.01);
     }
   }
 });

@@ -58,7 +58,7 @@ test('every input control border is at least 3:1 in both themes', async ({ page 
       const header = cs(document.querySelector('.header')).backgroundImage;
       const pick = (el, bg) => ({ edge: cs(el).borderTopColor, bg: bg });
       return {
-        asm: pick(document.getElementById('asm'), cs(document.getElementById('asm')).backgroundColor),
+        asm: pick(document.querySelector('.asm-wrap'), cs(document.querySelector('.asm-wrap')).backgroundColor),
         cpu: pick(document.getElementById('cpu'), cs(document.getElementById('cpu')).backgroundColor),
         iterations: pick(document.getElementById('iterations'), cs(document.getElementById('iterations')).backgroundColor),
         drop: pick(document.getElementById('drop'), bar),

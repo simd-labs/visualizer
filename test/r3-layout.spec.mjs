@@ -59,7 +59,7 @@ test('timeline caption and chart agree: visible range named, rest reachable by s
   const notice = await page.locator('#notice').textContent();
   expect(notice).toContain('scroll');
   const r = await page.evaluate(() => {
-    const iters = new Set([...document.querySelectorAll('#timeline svg text.row')].map((t) => +/\[(\d+),/.exec(t.textContent)[1]));
+    const iters = new Set([...document.querySelectorAll('#timeline svg text.row')].map((t) => +/^(\d+):/.exec(t.textContent)[1]));
     const box = document.getElementById('timeline');
     return { maxIter: Math.max(...iters), minIter: Math.min(...iters), scrolls: box.scrollHeight > box.clientHeight };
   });

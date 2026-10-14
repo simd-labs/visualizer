@@ -5,6 +5,27 @@ export class TimelineMappingError extends Error {
   }
 }
 
+import { sourceLines } from './source-lines.js';
+
+// The label for instruction instr: its mnemonic, lowercase as llvm-mca prints it.
+function mnemonicOf(instruction) {
+  return instruction.trim().split(/\s+/)[0].toLowerCase();
+}
+
+// Source lines in `source` for the model's instructions, or null when it
+// cannot be trusted (a mismatch, or a JSON drop with no source).
+export function attachSourceLines(model, source) {
+  model.lines = sourceLines(source ?? '', model.instructions);
+}
+
+// The label for instruction instance (iter, instr): iteration:mnemonic:line,
+// or iteration:mnemonic when there is no source line (a JSON drop).
+export function instanceLabel(model, iter, instr) {
+  const line = model.lines?.[instr];
+  const m = mnemonicOf(model.instructions[instr]);
+  return line == null ? `${iter}:${m}` : `${iter}:${m}:${line}`;
+}
+
 // Entry i covers instruction i % n, iteration floor(i / n). llvm-mca's JSON keeps
 // the rows before the first row that has not retired within -timeline-max-cycles,
 // so a cycle cap leaves a prefix. A cap on iterations keeps n x iterations entries.

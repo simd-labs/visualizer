@@ -223,20 +223,51 @@ input[type="range"] { accent-color: var(--accent); }
 .asm-col { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
 .asm-col > label { font-size: 0.8rem; color: var(--text-secondary); }
 #asm-caption { font-size: 0.8rem; color: var(--text-secondary); }
+.asm-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-lg);
+  background: var(--input-bg);
+  box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+.asm-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.asm-wrap:hover { border-color: var(--border-strong); }
+#asm-gutter {
+  flex: none;
+  overflow: hidden;
+  padding: 0.55rem 0;
+  padding-left: 0.55rem;
+  min-width: 2.2em;
+  text-align: right;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  user-select: none;
+  font: 0.9rem/1.45 var(--font-mono);
+  white-space: pre;
+  margin: 0;
+}
+#asm-gutter .hl { color: var(--text); background: var(--accent-soft); }
 #asm {
+  flex: 1 1 auto;
   width: 100%;
   resize: vertical;
   min-height: 7rem;
   padding: 0.55rem 0.75rem;
-  border: 1px solid var(--border-control);
-  border-radius: var(--radius-lg);
-  background: var(--input-bg);
+  border: none;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: transparent;
   color: var(--text);
   font: 0.9rem/1.45 var(--font-mono);
   tab-size: 4;
-  overflow-y: auto; /* so a full box shows a scrollbar, and overflow never looks cut off */
+  overflow: auto; /* scrolls both ways: wrap is off so the gutter keeps one number per line */
   field-sizing: content; /* shrink to short content (Chrome 123+); resize: vertical covers the rest */
 }
+#asm:focus { outline: none; }
 #asm::placeholder { color: var(--text-secondary); }
 .controls { display: flex; flex-direction: column; gap: 0.6rem; min-width: 14rem; }
 .field { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; color: var(--text-secondary); }

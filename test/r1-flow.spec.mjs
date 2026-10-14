@@ -35,9 +35,9 @@ test('unit names: display roles are spelled out, no bare st or AGU anywhere', ()
   }
 });
 
-test('flow legend explains the iteration:instruction token labels', async ({ page }) => {
+test('flow legend explains the iteration:mnemonic:line token labels', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('#flow-legend')).toContainText('iteration:instruction');
+  await expect(page.locator('#flow-legend')).toContainText('iteration:mnemonic:line');
 });
 
 test('flow diagram: queue boxes fit their piles and retire stays in view', async ({ page }) => {
@@ -54,8 +54,10 @@ test('flow diagram: queue boxes fit their piles and retire stays in view', async
     for (const k in cur) pile[k] = Math.max(pile[k], cur[k]);
   }
   // layout constants and queue-height formula from render.js
-  const FLOW = { pad: 6, head: 24, tokH: 20, tg: 4, font: 13, gap: 26, W: 700 };
-  const len = Math.max(...model.rows.map((r) => `${r.iter}:${r.instr}`.length));
+  const FLOW = { pad: 6, head: 20, tokH: 18, tg: 3, font: 12, gap: 24, W: 700 };
+  // labels are iteration:mnemonic after a JSON drop (no source lines)
+  const mnemonic = (s) => s.trim().split(/\s+/)[0].toLowerCase();
+  const len = Math.max(...model.rows.map((r) => `${r.iter}:${mnemonic(model.instructions[r.instr])}`.length));
   const tokW = Math.ceil(len * 0.62 * FLOW.font) + 8;
   const step = tokW + FLOW.tg;
   const colsIn = (w) => Math.max(1, Math.floor((w - 2 * FLOW.pad + FLOW.tg) / step));

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { lookup } from '../src/unit-names.js';
 import { EXAMPLES } from '../src/examples.js';
+import { sourceLines } from '../src/source-lines.js';
 
 // Layout constants from src/render.js; the position checks below depend on them.
 const CELL = 14;
@@ -21,6 +22,11 @@ const unitName = (j, k) => lookup(j.TargetInfo.CPUName, j.TargetInfo.Resources[k
 const unitRef = (j, k) => `${unitName(j, k)} (${label(j.TargetInfo.Resources[k])})`;
 
 // Expected values come from the JSON, not from the page's own code.
+// A label for a JSON drop is iteration:mnemonic; an asm run adds :line.
+const mne = (s) => s.trim().split(/\s+/)[0].toLowerCase();
+export const instLabel = (asm, iter, instr, lines) =>
+  lines ? `${iter}:${mne(asm[instr])}:${lines[instr]}` : `${iter}:${mne(asm[instr])}`;
+
 function expectedRows(j) {
   const r = j.CodeRegions[0];
   const n = r.Instructions.length;
@@ -28,7 +34,8 @@ function expectedRows(j) {
 }
 
 // Rects in render order: row by row, then wait, ready, exec, done when non-empty.
-function expectedRects(j) {
+// `lines` (1-based editor lines per instruction, or null) picks the label form.
+function expectedRects(j, lines = null) {
   const rects = [];
   const asm = j.CodeRegions[0].Instructions;
   for (const { iter, instr, e } of expectedRows(j)) {
@@ -46,7 +53,7 @@ function expectedRects(j) {
         y: String(y),
         width: String((b - a) * CELL),
         stage: STAGES[k],
-        title: `${asm[instr]}\niter ${iter}, ${STAGES[k]}: cycles ${a}-${b}`,
+        title: `${asm[instr]} (${instLabel(asm, iter, instr, lines)})\n${STAGES[k]}: cycles ${a}-${b}`,
       });
     });
   }
@@ -99,9 +106,11 @@ for (const via of ['drop', 'picker']) {
 
       const rows = expectedRows(j);
       expect(rows.length).toBeGreaterThan(0);
-      // [iter,instr] labels, one per row, in order
+      // a JSON drop has no source, so the labels stay iteration:mnemonic
+      const labelOf = (iter, instr) => instLabel(asm, iter, instr, null);
+      // iteration:mnemonic labels, one per row, in order
       const labels = await page.locator('#timeline svg text.row').allTextContents();
-      expect(labels).toEqual(rows.map((r) => `[${r.iter},${r.instr}]`));
+      expect(labels).toEqual(rows.map((r) => labelOf(r.iter, r.instr)));
 
       // every rect's x, width, fill stage, and tooltip
       const rects = expectedRects(j);
@@ -206,16 +215,17 @@ for (const via of ['drop', 'picker']) {
       await open(page, via, `${name}.json`);
       await expect(page.locator('#out')).toBeVisible();
 
-      // the legend names all four stages in order, each with the color its cells use
+      // the legend names all four stages in order (a fifth span names the row
+      // label format; it has no swatch), each with the color its cells use
       const legend = await page.locator('#legend span').evaluateAll((els) =>
-        els.map((s) => [s.textContent, getComputedStyle(s.querySelector('i')).backgroundColor])
+        els.filter((s) => s.querySelector('i')).map((s) => [s.textContent, getComputedStyle(s.querySelector('i')).backgroundColor])
       );
       expect(legend.map((l) => l[0])).toEqual(STAGES);
       const colorOf = Object.fromEntries(legend.map(([s, c]) => [s, c]));
 
       const fills = await page.locator('#timeline svg > rect[fill]').evaluateAll((els) =>
         els.map((r) => {
-          const s = r.querySelector('title').textContent.match(/, (\w+): /)[1];
+          const s = r.querySelector('title').textContent.match(/\n(\w+): cycles /)[1];
           const f = getComputedStyle(r).fill;
           // a hatched stage reports its pattern's base color
           return [s, f.startsWith('url(') ? getComputedStyle(document.querySelector(f.slice(5, -2)).querySelector('rect')).fill : f];
@@ -252,7 +262,7 @@ test('znver4-i100: the notice is visible and names the iteration cap', async ({ 
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    "Showing iterations 0-9 of 100. llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows."
+    "Showing iterations 0-9 of 100. llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
   );
   await expect(page.locator('#timeline svg text.row')).toHaveCount(40);
   expect(errors).toEqual([]);
@@ -263,7 +273,7 @@ test('znver4-cap18: the notice is visible and names the cycle cap', async ({ pag
   await expect(page.locator('#out')).toBeVisible();
   await expect(page.locator('#notice')).toBeVisible();
   await expect(page.locator('#notice')).toHaveText(
-    "Showing iterations 0-3 of 10. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows."
+    "Showing iterations 0-3 of 10. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
   );
   await expect(page.locator('#timeline svg text.row')).toHaveCount(17);
   expect(errors).toEqual([]);
@@ -338,7 +348,7 @@ test('skylake-idivq: a cap that cuts the first row shows a message, not a broken
     'No instruction retired within the cycle cap, so there is no timeline to draw. Raise the cycle limit when producing the JSON.'
   );
   await expect(page.locator('#notice')).toHaveText(
-    "Showing no iterations of 3. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows."
+    "Showing no iterations of 3. llvm-mca's cycle cap (default 80) cut the timeline. The page always asks llvm-mca for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits. The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows."
   );
   expect(await page.locator('svg[width*="Infinity"], svg[height*="Infinity"]').count()).toBe(0);
   expect(errors).toEqual([]);
@@ -398,15 +408,20 @@ async function dropFile(page, name, text) {
 }
 
 // Compare the whole rendered model: every timeline rect and every heatmap cell.
-async function expectModelMatchesFixture(page, jsonName) {
+// When `asmFile` is given, the page ran from that source, so row labels and
+// tooltips carry the editor lines; otherwise (a JSON drop) they do not.
+async function expectModelMatchesFixture(page, jsonName, asmFile = null) {
   const j = fixture(jsonName.replace(/\.json$/, ''));
   const rows = expectedRows(j);
+  const asm = j.CodeRegions[0].Instructions;
+  const lineMap = asmFile ? sourceLines(readFileSync(`test/fixtures/${asmFile}`, 'utf8'), asm) : null;
+  expect(lineMap !== null || !asmFile, `${asmFile} does not map to its JSON`).toBe(true);
   expect(await page.locator('#timeline svg text.row').allTextContents())
-    .toEqual(rows.map((r) => `[${r.iter},${r.instr}]`));
+    .toEqual(rows.map((r) => instLabel(asm, r.iter, r.instr, lineMap)));
   const rects = await page.locator('#timeline svg > rect').evaluateAll((els) =>
     els.map((r) => ({ x: r.getAttribute('x'), y: r.getAttribute('y'), width: r.getAttribute('width') }))
   );
-  expect(rects).toEqual(expectedRects(j).map(({ x, y, width }) => ({ x, y, width })));
+  expect(rects).toEqual(expectedRects(j, lineMap).map(({ x, y, width }) => ({ x, y, width })));
   const cells = await page.locator('#heatmap svg rect[data-cy]').evaluateAll((els) =>
     els.map((r) => ({ cy: r.getAttribute('data-cy'), title: r.querySelector('title').textContent }))
   );
@@ -455,7 +470,7 @@ for (const c of ASM_CASES) {
     await page.locator('#run').click();
     await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
     await expect(page.locator('#error')).toBeHidden();
-    await expectModelMatchesFixture(page, c.json);
+    await expectModelMatchesFixture(page, c.json, c.file);
     expect(errors).toEqual([]);
   });
 
@@ -467,7 +482,7 @@ for (const c of ASM_CASES) {
     await dropFile(page, c.file, readFixture(c.file));
     await expect(page.locator('#asm')).toHaveValue(readFixture(c.file));
     await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
-    await expectModelMatchesFixture(page, c.json);
+    await expectModelMatchesFixture(page, c.json, c.file);
   });
 }
 
@@ -479,7 +494,7 @@ test('picking a .s file fills the paste box and runs', async ({ page }) => {
   await page.locator('#file').setInputFiles('test/fixtures/loop.s');
   await expect(page.locator('#asm')).toHaveValue(readFixture('loop.s'));
   await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
-  await expectModelMatchesFixture(page, 'skylake.json');
+  await expectModelMatchesFixture(page, 'skylake.json', 'loop.s');
 });
 
 test('invalid asm shows llvm-mca\u2019s error, and a later valid run clears it', async ({ page }) => {
@@ -497,7 +512,7 @@ test('invalid asm shows llvm-mca\u2019s error, and a later valid run clears it',
   await page.locator('#run').click();
   await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
   await expect(page.locator('#error')).toBeHidden();
-  await expectModelMatchesFixture(page, 'znver4.json');
+  await expectModelMatchesFixture(page, 'znver4.json', 'loop.s');
 });
 
 // ---------------------------------------------------------------------------
@@ -565,7 +580,7 @@ test('flow diagram: tokens land on their events units at cycle 2, slider moves t
   // executing token sits on its first busy unit's box
   const t31 = tokens.find((t) => t.instr === 3 && t.iter === 0);
   expect(t31.units).toEqual([7]);
-  const tokRect = await page.locator('#flow svg .flow-token', { hasText: '0:3' }).locator('rect');
+  const tokRect = page.locator('#flow svg .flow-token[data-instr="3"][data-iter="0"]').locator('rect');
   const unitRect = await page.locator('#flow svg .flow-unit[data-unit="7"] rect').boundingBox();
   const tokBox = await tokRect.boundingBox();
   // tokens pack from the unit's left pad; a centered check only fits a centered token
@@ -872,15 +887,19 @@ test('the flow text list matches the tokens of the current cycle', async ({ page
   const lines = await page.locator('#flow-list li').allTextContents();
   expect(lines.length).toBe(tokens.length);
   expect(lines.length).toBe(12); // every in-flight instruction at cycle 2
+  // loop.s maps to lines 4..7 (vmovups, vfmadd231ps, addq, jne at iterations=3)
+  const loopLines = sourceLines(readFixture('loop.s'), fixture('znver4').CodeRegions[0].Instructions);
+  const mnes = ['vmovups', 'vfmadd231ps', 'addq', 'jne'];
   for (const t of tokens) {
     const [block, instr, iter] = t.split(':');
-    const li = lines.find((l) => l.startsWith(`${block}: `) && l.includes(` ${iter}:${instr} `));
+    const instLabel2 = `${iter}:${mnes[+instr]}:${loopLines[+instr]}`;
+    const li = lines.find((l) => l.startsWith(`${block}: ${instLabel2} `));
     expect(li, `list line for ${t}`).toBeTruthy();
   }
   // the multi-resource instruction at cycle 1 lists all three of its units
   await page.locator('#flow-cycle').fill('1');
   await page.locator('#flow-cycle').dispatchEvent('input');
-  const line00 = (await page.locator('#flow-list li').allTextContents()).find((l) => l.includes(' 0:0 '));
+  const line00 = (await page.locator('#flow-list li').allTextContents()).find((l) => l.includes(` 0:vmovups:${loopLines[0]} `));
   expect(line00).toContain('Zn4FP45');
   expect(line00).toContain('Zn4LSU');
   expect(line00).toContain('Zn4Load');
@@ -1052,7 +1071,7 @@ test('both themes: every stage pair is >= 3:1, or is told apart by its fill patt
       const stage = {};
       const fill = {};
       for (const r of document.querySelectorAll('#timeline svg > rect[fill]')) {
-        const s = r.querySelector('title').textContent.match(/, (\w+): /)[1];
+        const s = r.querySelector('title').textContent.match(/\n(\w+): cycles /)[1];
         const f = cs(r).fill;
         // a hatched stage measures by its pattern's base color
         stage[s] = f.startsWith('url(') ? cs(document.querySelector(f.slice(5, -2)).querySelector('rect')).fill : f;
@@ -1100,7 +1119,7 @@ test('dark mode: rendered flow element colors meet their contrast ratios', async
     const panel = cs(document.querySelector('#timeline').closest('.panel')).backgroundColor;
     const stage = {};
     for (const r of document.querySelectorAll('#timeline svg > rect[fill]')) {
-      const s = r.querySelector('title').textContent.match(/, (\w+): /)[1];
+      const s = r.querySelector('title').textContent.match(/\n(\w+): cycles /)[1];
       const f = cs(r).fill;
       // a hatched stage measures by its pattern's base color
       stage[s] = f.startsWith('url(') ? cs(document.querySelector(f.slice(5, -2)).querySelector('rect')).fill : f;
@@ -1564,13 +1583,13 @@ for (const cpu of ['znver4', 'neoverse-v2']) {
       }
       return boxes.map((x) => ({ name: x.name, h: x.b.height, gap: x.low === null ? null : x.b.bottom - x.low }));
     });
-    const tokH = 20;
+    const tokH = 18;
     const pad = 6;
     for (const x of slack) {
       // a unit's hollow marker is inset 1px in its slot, hence the 1px slack
       if (x.gap !== null) expect(x.gap, `${x.name} space under its lowest token`).toBeLessThanOrEqual(pad + 1.5);
     }
     // the znver4 and neoverse-v2 examples never fill the ready queue: it stays one row tall
-    expect(slack.find((x) => x.name === 'ready').h).toBeLessThanOrEqual(24 + tokH + pad + 1);
+    expect(slack.find((x) => x.name === 'ready').h).toBeLessThanOrEqual(20 + tokH + pad + 1); // head + one row
   });
 }

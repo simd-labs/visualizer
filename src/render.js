@@ -1,4 +1,4 @@
-import { buildModel, tokenPositionsAt } from './model.js';
+import { buildModel, tokenPositionsAt, instanceLabel, attachSourceLines } from './model.js';
 import { initMca, runMca } from './mca.js';
 import { lookup } from './unit-names.js';
 import { EXAMPLES, exampleFor } from './examples.js';
@@ -8,7 +8,31 @@ const err = document.getElementById('error');
 const out = document.getElementById('out');
 const notice = document.getElementById('notice');
 const asm = document.getElementById('asm');
+const gutter = document.getElementById('asm-gutter');
 const asmCaption = document.getElementById('asm-caption');
+
+// Line numbers left of the editor: one number per line, scrolling with the
+// textarea. wrap is off, so line k of the numbers sits on line k of the text.
+function refreshGutter() {
+  const n = asm.value.split('\n').length;
+  const cur = gutter.childElementCount;
+  if (cur !== n) {
+    gutter.textContent = '';
+    for (let i = 1; i <= n; i++) {
+      const d = document.createElement('div');
+      d.textContent = i;
+      d.dataset.line = i;
+      gutter.appendChild(d);
+    }
+  }
+  gutter.scrollTop = asm.scrollTop;
+}
+function highlightLine(line) {
+  for (const el of gutter.querySelectorAll('.hl')) el.classList.remove('hl');
+  if (line != null) gutter.children[line - 1]?.classList.add('hl');
+}
+asm.addEventListener('input', refreshGutter);
+asm.addEventListener('scroll', () => (gutter.scrollTop = asm.scrollTop));
 const cpu = document.getElementById('cpu');
 const iterations = document.getElementById('iterations');
 const runBtn = document.getElementById('run');
@@ -17,6 +41,7 @@ const themeBtn = document.getElementById('theme-toggle');
 let shownModel = null;
 // the default CPU is znver4, so the box starts with the x86 example; the user presses Run
 asm.value = EXAMPLES.x86_64;
+refreshGutter();
 
 // The caption names the example while the box holds one, unedited. A file
 // load is the user's own asm, so only direct edits and file loads hide it.
@@ -68,9 +93,12 @@ function requestAsm() {
 }
 
 // The model plus the vendor-style name of each resource, for the CPU in the file.
-function modelOf(json) {
+// `source` is the asm text a run came from; a JSON drop passes nothing, so
+// its labels stay iteration:mnemonic.
+function modelOf(json, source) {
   const model = buildModel(json);
   model.units = model.resources.map((r) => lookup(json.TargetInfo.CPUName, r));
+  attachSourceLines(model, source);
   return model;
 }
 
@@ -95,7 +123,7 @@ function show(model) {
       : "llvm-mca's iteration cap (default 10) or cycle cap (default 80) cut the timeline. The file does not say which. The page always asks for every iteration and cycle; a cut like this comes from a JSON file produced with lower limits.";
     const range = model.iters === 0 ? 'no iterations' : `iterations 0-${model.iters - 1}`;
     notice.textContent =
-      `Showing ${range} of ${model.total}. ${cap} The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later [iter,instr] rows.`;
+      `Showing ${range} of ${model.total}. ${cap} The rest are not in the data. Rows past the box's height are still reachable: the chart box has a scrollbar, scroll it for the later iteration:mnemonic:line rows.`;
   }
   err.hidden = true;
   empty.hidden = true;
@@ -134,7 +162,7 @@ async function runAsm() {
     const r = await runMca(asm.value, args);
     if (gen !== loadGen) return;
     if (r.exit !== 0 || r.stdout === '') throw new Error(r.stderr.trim() || `llvm-mca exited with ${r.exit}`);
-    show(modelOf(JSON.parse(r.stdout)));
+    show(modelOf(JSON.parse(r.stdout), asm.value));
   } catch (e) {
     if (gen !== loadGen) return;
     showError(e);
@@ -159,6 +187,7 @@ async function loadSource(f) {
     return;
   }
   asm.value = text;
+  refreshGutter();
   refreshAsmCaption();
   requestAsm();
 }
@@ -177,12 +206,14 @@ runBtn.addEventListener('click', () => requestAsm());
 const selectedExample = () => exampleFor(cpu.selectedOptions[0]?.dataset.triple ?? 'x86_64');
 document.getElementById('example').addEventListener('click', () => {
   asm.value = selectedExample();
+  refreshGutter();
   refreshAsmCaption();
   requestAsm();
 });
 // A CPU change swaps in its architecture's example, unless the box holds the user's own asm.
 cpu.addEventListener('change', () => {
   if (asm.value.trim() === '' || Object.values(EXAMPLES).includes(asm.value)) asm.value = selectedExample();
+  refreshGutter();
   refreshAsmCaption();
 });
 asm.addEventListener('input', () => {
@@ -246,7 +277,7 @@ initMca({
 const CELL = 14; // fits a 12px label, the smallest text size on the page
 const HCELL = 32; // heatmap cell: wide enough to print the pressure value inside
 const VGAP = 1; // heatmap vertical gap; horizontal cells are joined
-const LEFT = 200; // timeline gutter for the [iter,instr] labels
+const LEFT = 200; // timeline gutter for the iteration:mnemonic:line row labels
 const TOP = 16; // timeline space for cycle labels
 const HEAD = 90; // heatmap space for rotated resource names
 const FONT = 12; // timeline and heatmap label size
@@ -277,6 +308,12 @@ for (const stage of Object.keys(STAGES)) {
   swatch.className = `swatch-${stage}`; // style.css: color per theme, plus the timeline's hatch on wait and done
   const item = document.createElement('span');
   item.append(swatch, stage);
+  legend.append(item);
+}
+{
+  // row labels carry the same format the flow legend defines
+  const item = document.createElement('span');
+  item.textContent = 'rows: iteration:mnemonic:line (iteration 0 is the first pass through the loop, line is 1-based in the editor)';
   legend.append(item);
 }
 
@@ -333,6 +370,7 @@ function svg(tag, attrs) {
 // llvm-mca's "Zn4FP45.\x00" names print as "Zn4FP45.0", the text output's form
 const label = (name) => name.replace(/[\u0000-\u001f]/g, (c) => c.charCodeAt(0));
 // a unit's vendor-style name, and the same with llvm-mca's name for tooltips and tables
+const withLabel = (model, iter, instr, rest) => `${model.instructions[instr]} (${instanceLabel(model, iter, instr)})\n${rest}`;
 const unitName = (model, u) => model.units[u].name;
 const unitRef = (model, u) => `${model.units[u].name} (${label(model.resources[u])})`;
 const rowName = (model, i) => (i === model.instructions.length ? 'total/iter' : model.instructions[i]);
@@ -389,11 +427,15 @@ function renderTimeline(model, host) {
       const fill = stage === 'wait' || stage === 'done' ? `url(#hatch-${stage})` : STAGES[stage];
       const rect = svg('rect', { x: LEFT + a * CELL, y, width: (b - a) * CELL, height: CELL - 1, fill });
       rect.appendChild(svg('title', {})).textContent =
-        `${model.instructions[r.instr]}\niter ${r.iter}, ${stage}: cycles ${a}-${b}`;
+        withLabel(model, r.iter, r.instr, `${stage}: cycles ${a}-${b}`);
       root.appendChild(rect);
     }
     const text = svg('text', { class: 'row', x: 4, y: y + CELL - 3, 'font-size': FONT });
-    text.textContent = `[${r.iter},${r.instr}]`;
+    text.textContent = instanceLabel(model, r.iter, r.instr);
+    // hover the row: its source line in the editor's gutter
+    text.style.pointerEvents = 'all';
+    text.addEventListener('mouseenter', () => highlightLine(model.lines?.[r.instr]));
+    text.addEventListener('mouseleave', () => highlightLine(null));
     root.appendChild(text);
   }
   host.appendChild(root);
@@ -485,7 +527,7 @@ function renderHeatmap(model, host) {
 // right. The SVG has a viewBox, so CSS shrinks it to the column width: W fits
 // the 800px layout's column, so the 12px and 13px text stays at least 11px at
 // 800px and at full size at 1400px.
-const FLOW = { W: 700, gap: 26, pad: 6, head: 24, name: 20, tokH: 20, tg: 4, font: 13, title: 14, small: 12, line: 14, band: 18 };
+const FLOW = { W: 700, gap: 24, pad: 6, head: 20, name: 18, tokH: 18, tg: 3, font: 12, title: 14, small: 12, line: 13, band: 16 };
 // unit kinds: the band word for units without a role line, and the legend's words
 const KIND = { int: 'integer', branch: 'branch', slow: 'slow (divider)', vec: 'FP/vector', mem: 'memory' };
 const CH = 0.62; // monospace advance per em; shortcut: estimates label widths, measure them if a font is wider
@@ -599,7 +641,7 @@ function maxOccupancy(model) {
   const pile = { dispatch: 1, waiting: 1, ready: 1, execute: 1, retire: 1, noUnit: 0 };
   const byUnit = new Map();
   const { maxCycle } = model.cycleIndex;
-  const len = Math.max(...model.rows.map((r) => `${r.iter}:${r.instr}`.length));
+  const len = Math.max(...model.rows.map((r) => instanceLabel(model, r.iter, r.instr).length));
   const tokW = Math.ceil(len * CH * FLOW.font) + 8;
   let height = 0;
   for (let c = 0; c <= maxCycle; c++) {
@@ -908,9 +950,9 @@ function setFlowCycle(model, cycle) {
         const mg = svg('g', { class: 'flow-marker', 'data-instr': t.instr, 'data-iter': t.iter });
         mg.appendChild(svg('rect', { x: mx + 1, y: my + 1, width: tokW - 2, height: tokH - 2, rx: 3, fill: FLOW_COLORS.hollow, stroke: FLOW_COLORS.token, 'stroke-width': 2 }));
         const mt = svg('text', { x: mx + tokW / 2, y: my + tokH / 2, 'font-size': font, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: FLOW_COLORS.text });
-        mt.textContent = `${t.iter}:${t.instr}`;
+        mt.textContent = instanceLabel(model, t.iter, t.instr);
         mg.appendChild(mt);
-        mg.appendChild(svg('title', {})).textContent = `${model.instructions[t.instr]}\niter ${t.iter}, on ${t.units.map((x) => unitRef(model, x)).join(', ')}`;
+        mg.appendChild(svg('title', {})).textContent = withLabel(model, t.iter, t.instr, `on ${t.units.map((x) => unitRef(model, x)).join(', ')}`);
         tg.appendChild(mg);
       }
     }
@@ -930,13 +972,17 @@ function setFlowCycle(model, cycle) {
     if (inLatency) Object.assign(rectAttrs, { fill: FLOW_COLORS.hollow, 'stroke-dasharray': '2 2', opacity: 0.6 });
     g.appendChild(svg('rect', rectAttrs));
     const lt = svg('text', { x: x + tokW / 2, y: y + tokH / 2, 'font-size': font, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: inLatency ? FLOW_COLORS.text : FLOW_COLORS.tokenText });
-    lt.textContent = `${t.iter}:${t.instr}`;
+    lt.textContent = instanceLabel(model, t.iter, t.instr);
     g.appendChild(lt);
-    g.appendChild(svg('title', {})).textContent = inLatency
-      ? `${model.instructions[t.instr]}\niter ${t.iter}, executing (latency), last on ${unitRef(model, t.lastUnits[0])}`
+    const state = inLatency
+      ? `executing (latency), last on ${unitRef(model, t.lastUnits[0])}`
       : t.units.length
-        ? `${model.instructions[t.instr]}\niter ${t.iter}, ${block}, on ${t.units.map((u) => unitRef(model, u)).join(', ')}`
-        : `${model.instructions[t.instr]}\niter ${t.iter}, ${block}`;
+        ? `${block}, on ${t.units.map((u) => unitRef(model, u)).join(', ')}`
+        : `${block}`;
+    g.appendChild(svg('title', {})).textContent = withLabel(model, t.iter, t.instr, state);
+    // hover: the token's source line in the editor's gutter
+    g.addEventListener('mouseenter', () => highlightLine(model.lines?.[t.instr]));
+    g.addEventListener('mouseleave', () => highlightLine(null));
     tg.appendChild(g);
   }
   document.getElementById('flow-status').textContent = statusText(model, cycle, tokens);
@@ -950,7 +996,7 @@ function setFlowCycle(model, cycle) {
         : t.lastUnits.length > 0
           ? `executing (latency), last on ${t.lastUnits.map((u) => unitRef(model, u)).join(', ')}`
           : t.stage;
-    li.textContent = `${t.stage}: ${t.iter}:${t.instr} ${model.instructions[t.instr]} — ${state}`;
+    li.textContent = `${t.stage}: ${instanceLabel(model, t.iter, t.instr)} ${model.instructions[t.instr]} — ${state}`;
     ul.appendChild(li);
   }
   const host = document.getElementById('flow-list');

@@ -33,7 +33,10 @@
   <section id="run-form" class="input-bar" aria-label="Input">
     <div class="asm-col">
       <label for="asm">Assembly</label>
-      <textarea id="asm" rows="10" spellcheck="false" placeholder="loop:&#10;  movups (%rsi,%rax,4), %xmm0&#10;  mulps %xmm1, %xmm0&#10;  addq $4, %rax&#10;  jne loop"></textarea>
+      <div class="asm-wrap">
+        <pre id="asm-gutter" aria-hidden="true"></pre>
+        <textarea id="asm" rows="10" spellcheck="false" wrap="off" placeholder="loop:&#10;  movups (%rsi,%rax,4), %xmm0&#10;  mulps %xmm1, %xmm0&#10;  addq $4, %rax&#10;  jne loop"></textarea>
+      </div>
       <p id="asm-caption" hidden></p>
     </div>
     <div class="controls">
@@ -62,7 +65,7 @@
       <section class="panel" aria-labelledby="h-flow">
         <h2 id="h-flow">CPU flow</h2>
         <p id="flow-notice" hidden></p>
-        <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in, labelled iteration:instruction</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
+        <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in, labelled iteration:mnemonic:line (iteration 0 is the first pass through the loop, line is 1-based in the editor)</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
         <div id="flow"></div>
       </section>
       <section class="panel" aria-labelledby="h-timeline">
