@@ -223,6 +223,8 @@ input[type="range"] { accent-color: var(--accent); }
 .asm-col { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
 .asm-col > label { font-size: 0.8rem; color: var(--text-secondary); }
 #asm-caption { font-size: 0.8rem; color: var(--text-secondary); }
+/* collapsed editor: one line naming the run, with the Edit control */
+#asm-summary { font-size: 0.85rem; color: var(--text-secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .asm-wrap {
   display: flex;
   align-items: stretch;
@@ -232,6 +234,7 @@ input[type="range"] { accent-color: var(--accent); }
   box-shadow: var(--shadow-sm);
   min-width: 0;
 }
+.asm-wrap[hidden] { display: none; }
 .asm-wrap:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
@@ -270,6 +273,30 @@ input[type="range"] { accent-color: var(--accent); }
 #asm:focus { outline: none; }
 #asm::placeholder { color: var(--text-secondary); }
 .controls { display: flex; flex-direction: column; gap: 0.6rem; min-width: 14rem; }
+/* collapsed editor: the controls go inline so the whole input bar is one row */
+#run-form:has(#asm-wrap[hidden]) .controls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; min-width: 0; }
+#run-form:has(#asm-wrap[hidden]) .asm-col > label,
+#run-form:has(#asm-wrap[hidden]) #asm-caption { display: none; }
+/* the labels stack over their inputs; collapsed they sit beside them */
+#run-form:has(#asm-wrap[hidden]) .field { flex-direction: row; align-items: center; gap: 0.35rem; }
+/* The collapsed editor parks on a 1px invisible box, not display:none:
+   scripted fills (tests, integrations) require a visible textarea, and a
+   keystroke or fill still expands it. Tab order and the a11y tree hold the
+   summary and its Edit button instead (render.js sets tabIndex/aria-hidden). */
+#run-form { position: relative; }
+#run-form:has(#asm-wrap[hidden]) #asm-wrap {
+  display: block !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  border: 0;
+  box-shadow: none;
+}
+#run-form:has(#asm-wrap[hidden]) #asm { height: 1px !important; min-height: 0 !important; }
 .field { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; color: var(--text-secondary); }
 .field select, .field input { font-size: 14px; }
 #cpu { font-family: var(--font-mono); }
@@ -302,10 +329,6 @@ input[type="range"] { accent-color: var(--accent); }
 @media (min-width: 1400px) {
   #out { grid-template-columns: fit-content(736px) minmax(0, 1fr); }
   #out > .cycle-bar, #out > :nth-child(n + 4) { grid-column: 1 / -1; }
-  /* the timeline chart box stretches to the flow panel's height (align-items
-     is stretch by default, so the row-grid item already fills the row) */
-  #out > .panel:has(> #timeline) { display: flex; flex-direction: column; }
-  #timeline { flex: 1; /* flex items do not shrink below content height without an explicit floor */ min-height: 0; }
 }
 .cycle-bar {
   position: sticky;
@@ -339,10 +362,6 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
    scrollbar-gutter reserves the bar; Linux/Breeze (and overlay-scrollbars in
    general) paints no thumb at rest, so the cap notice also says it scrolls. */
 #timeline { max-height: 520px; scrollbar-gutter: stable; }
-@media (min-width: 1400px) {
-  /* the flex sizing above replaces the cap when the panel is taller */
-  #timeline { max-height: none; min-height: 520px; }
-}
 /* The flow diagram never scrolls: its viewBox shrinks to the column width. */
 /* The flow panel keeps its own height; blank space below Retire was defect 25/35. */
 @media (min-width: 1400px) {
