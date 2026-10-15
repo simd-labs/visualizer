@@ -59,6 +59,28 @@ test('the sub-label in a display never names a second unit kind', () => {
   }
 });
 
+// The generated sub-label shows at most three short role words; more roles
+// are "+N" at the end and the full list lives in the rule's tooltip text.
+// Splits on both separators so a revert to the old " / "-joined long labels
+// fails the count too (mutation check).
+test('no generated sub-label shows more than three roles', () => {
+  for (const r of names.rules.filter((r) => r.family.startsWith('probe-'))) {
+    const m = r.display.match(/\(([^()]*)\)$/);
+    if (!m || m[1] === 'unknown') continue;
+    const shown = m[1].split(/, | \/ /);
+    assert.ok(shown.length <= 3, `${r.label}: ${shown.length} visible roles in ${JSON.stringify(r.display)}`);
+    const plus = / \+(\d+)$/.exec(shown[shown.length - 1]);
+    if (plus) {
+      assert.equal(shown.length, 3, `${r.label}: +N without three shown roles in ${JSON.stringify(r.display)}`);
+      const all = r.full.split(' / ');
+      assert.equal(all.length, 3 + +plus[1], `${r.label}: +${plus[1]} but full has ${all.length} roles`);
+      assert.deepEqual(all.slice(0, 3), [...shown.slice(0, 2), shown[2].replace(/ \+\d+$/, '')], `${r.label}: full does not start with the shown roles`);
+    } else {
+      assert.equal(r.full, undefined, `${r.label}: a full list with nothing hidden`);
+    }
+  }
+});
+
 test('instances, groups and the fallback', () => {
   assert.equal(lookup('neoverse-v2', 'V2UnitL01.\x01').name, 'L1');
   assert.equal(lookup('znver4', 'Zn4FP45.\x00').name, 'FP4');

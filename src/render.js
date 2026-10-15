@@ -932,7 +932,8 @@ function drawFlowBlocks(model) {
         c.lines.forEach((l, i) => {
           ugr.appendChild(svg('text', { class: 'role', x: pad, y: nameH + i * lineH + 9, 'font-size': small, fill: FLOW_COLORS.muted })).textContent = l;
         });
-        ugr.appendChild(svg('title', {})).textContent = `${c.n.display}\n${label(name)}`;
+        // the tooltip lists every role; the box's sub-label caps at three
+        ugr.appendChild(svg('title', {})).textContent = `${c.n.full ? `${c.n.name} (${c.n.full})` : c.n.display}\n${label(name)}`;
         g.appendChild(ugr);
       });
     }

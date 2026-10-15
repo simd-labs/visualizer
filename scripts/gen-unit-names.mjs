@@ -35,53 +35,53 @@ const CLASSES = {
   'x86_64-unknown-linux-gnu': [
     ['alu', 'ALU', 'addl %ecx, %eax\n'],
     ['shift', 'shift', 'shll $1, %eax\n'],
-    ['imul', 'int multiply', 'imull %ecx, %eax\n'],
-    ['idiv', 'int division', 'idivl %ecx\n'],
+    ['imul', 'mul', 'imull %ecx, %eax\n'],
+    ['idiv', 'div', 'idivl %ecx\n'],
     ['branch', 'branch', 'loop:\njne loop\n'],
     ['load', 'load', 'movl (%rcx), %eax\n'],
     ['store', 'store', 'movl %eax, (%rcx)\n'],
     ['agu', 'AGU', 'leal (%rcx,%rax,4), %eax\n'],
     ['fpadd', 'FP add', 'addps %xmm1, %xmm0\n'],
-    ['fpmul', 'FP multiply', 'mulps %xmm1, %xmm0\n'],
+    ['fpmul', 'FP mul', 'mulps %xmm1, %xmm0\n'],
     ['fma', 'FMA', 'vfmadd231ps %xmm2, %xmm1, %xmm0\n'],
-    ['fpdiv', 'FP division', 'divps %xmm1, %xmm0\nsqrtps %xmm0, %xmm1\n'],
-    ['shuffle', 'vector shuffle', 'pshufd $1, %xmm0, %xmm1\n'],
-    ['vecint', 'vector integer', 'paddd %xmm1, %xmm0\n'],
-    ['cvt', 'conversion', 'cvtdq2ps %xmm0, %xmm1\n'],
+    ['fpdiv', 'FP div', 'divps %xmm1, %xmm0\nsqrtps %xmm0, %xmm1\n'],
+    ['shuffle', 'shuffle', 'pshufd $1, %xmm0, %xmm1\n'],
+    ['vecint', 'vec int', 'paddd %xmm1, %xmm0\n'],
+    ['cvt', 'cvt', 'cvtdq2ps %xmm0, %xmm1\n'],
   ],
   // No separate AGU class: AArch64 and RISC-V sched models fold addressing
   // into the load/store units.
   'aarch64-unknown-linux-gnu': [
     ['alu', 'ALU', 'add w0, w0, w1\n'],
     ['shift', 'shift', 'lsl w0, w0, #1\n'],
-    ['imul', 'int multiply', 'mul w0, w0, w1\n'],
-    ['idiv', 'int division', 'sdiv w0, w0, w1\n'],
+    ['imul', 'mul', 'mul w0, w0, w1\n'],
+    ['idiv', 'div', 'sdiv w0, w0, w1\n'],
     ['branch', 'branch', 'loop:\ncbnz w0, loop\n'],
     ['load', 'load', 'ldr w0, [x1]\n'],
     ['store', 'store', 'str w0, [x1]\n'],
     ['fpadd', 'FP add', 'fadd v0.4s, v0.4s, v1.4s\n'],
-    ['fpmul', 'FP multiply', 'fmul v0.4s, v0.4s, v1.4s\n'],
+    ['fpmul', 'FP mul', 'fmul v0.4s, v0.4s, v1.4s\n'],
     ['fma', 'FMA', 'fmla v0.4s, v1.4s, v2.4s\n'],
-    ['fpdiv', 'FP division', 'fdiv v0.4s, v0.4s, v1.4s\nfsqrt v0.4s, v0.4s\n'],
-    ['shuffle', 'vector shuffle', 'zip1 v0.16b, v0.16b, v1.16b\n'],
-    ['vecint', 'vector integer', 'add v0.4s, v0.4s, v1.4s\n'],
-    ['cvt', 'conversion', 'fcvtzs w0, s0\n'],
+    ['fpdiv', 'FP div', 'fdiv v0.4s, v0.4s, v1.4s\nfsqrt v0.4s, v0.4s\n'],
+    ['shuffle', 'shuffle', 'zip1 v0.16b, v0.16b, v1.16b\n'],
+    ['vecint', 'vec int', 'add v0.4s, v0.4s, v1.4s\n'],
+    ['cvt', 'cvt', 'fcvtzs w0, s0\n'],
   ],
   'riscv64-unknown-linux-gnu': [
     ['alu', 'ALU', 'add a0, a0, a1\n'],
     ['shift', 'shift', 'slliw a0, a0, 1\n'],
-    ['imul', 'int multiply', 'mulw a0, a0, a1\n'],
-    ['idiv', 'int division', 'divw a0, a0, a1\n'],
+    ['imul', 'mul', 'mulw a0, a0, a1\n'],
+    ['idiv', 'div', 'divw a0, a0, a1\n'],
     ['branch', 'branch', 'loop:\nbnez a0, loop\n'],
     ['load', 'load', 'ld a0, 0(a1)\n'],
     ['store', 'store', 'sd a0, 0(a1)\n'],
     ['fpadd', 'FP add', 'fadd.d fa0, fa0, fa1\n'],
-    ['fpmul', 'FP multiply', 'fmul.d fa0, fa0, fa1\n'],
+    ['fpmul', 'FP mul', 'fmul.d fa0, fa0, fa1\n'],
     ['fma', 'FMA', 'fmadd.d fa0, fa0, fa1, fa2\n'],
-    ['fpdiv', 'FP division', 'fdiv.d fa0, fa0, fa1\nfsqrt.d fa0, fa0\n'],
-    ['shuffle', 'vector shuffle', 'vrgather.vv v0, v0, v1\n'],
-    ['vecint', 'vector integer', 'vadd.vv v0, v0, v1\n'],
-    ['cvt', 'conversion', 'fcvt.d.w fa0, a0\n'],
+    ['fpdiv', 'FP div', 'fdiv.d fa0, fa0, fa1\nfsqrt.d fa0, fa0\n'],
+    ['shuffle', 'shuffle', 'vrgather.vv v0, v0, v1\n'],
+    ['vecint', 'vec int', 'vadd.vv v0, v0, v1\n'],
+    ['cvt', 'cvt', 'fcvt.d.w fa0, a0\n'],
   ],
 };
 
@@ -202,11 +202,24 @@ for (const g of ordered) {
     const mine = g.cpus.filter((c) => !covered(c, b));
     if (!mine.length) continue;
     const words = use.get(b);
-    const display = words.length ? `${heads.get(b)} (${words.join(' / ')})` : `${b} (unknown)`;
+    // The visible sub-label caps at three short role words, +N counts the
+    // rest; full carries every role for the tooltip.
+    const show = words.slice(0, 3).join(', ');
+    const display = words.length ? `${heads.get(b)} (${show}${words.length > 3 ? ` +${words.length - 3}` : ''})` : `${b} (unknown)`;
     let label = `${family}~${b.replace(/[^A-Za-z0-9_-]/g, '_')}`;
     for (let i = 2; usedLabels.has(label); i++) label = `${family}~${b.replace(/[^A-Za-z0-9_-]/g, '_')}_${i}`;
     usedLabels.add(label);
-    rules.push({ label, family, cpus: mine, match: `^${b.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&')}$`, display, cluster: clusterOf(words), port: portOf(b), source });
+    rules.push({
+      label,
+      family,
+      cpus: mine,
+      match: `^${b.replace(/[$()*+.?[\\\]^{|}]/g, '\\$&')}$`,
+      display,
+      ...(words.length > 3 ? { full: words.join(' / ') } : {}),
+      cluster: clusterOf(words),
+      port: portOf(b),
+      source,
+    });
   }
 }
 
@@ -234,7 +247,7 @@ function clusterOf(words) {
   if (!words.length) return 'other';
   if (words.includes('branch')) return 'branch';
   const mem = words.some((w) => /load|store|AGU/.test(w));
-  const vec = words.some((w) => /FP|vector|FMA|conversion/.test(w));
+  const vec = words.some((w) => /FP|vec|FMA|cvt|shuffle/.test(w));
   if (mem) return 'mem';
   if (vec) return 'vec';
   return 'int';

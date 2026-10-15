@@ -2486,7 +2486,8 @@
     "fujitsu-monaka"
    ],
    "match": "^A64FXIPEAGA$",
-   "display": "XIPEAGA (ALU / int multiply / load / store)",
+   "display": "XIPEAGA (ALU, mul, load +1)",
+   "full": "ALU / mul / load / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -2503,7 +2504,8 @@
     "fujitsu-monaka"
    ],
    "match": "^A64FXIPEAGB$",
-   "display": "XIPEAGB (ALU / int multiply / load / store)",
+   "display": "XIPEAGB (ALU, mul, load +1)",
+   "full": "ALU / mul / load / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -2520,7 +2522,7 @@
     "fujitsu-monaka"
    ],
    "match": "^A64FXIPEXA$",
-   "display": "XIPEXA (ALU / shift / int multiply)",
+   "display": "XIPEXA (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2537,7 +2539,8 @@
     "fujitsu-monaka"
    ],
    "match": "^A64FXIPEXB$",
-   "display": "XIPEXB (ALU / shift / int multiply / int division)",
+   "display": "XIPEXB (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2554,7 +2557,8 @@
     "fujitsu-monaka"
    ],
    "match": "^A64FXIPFLA$",
-   "display": "XIPFLA (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "XIPFLA (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2571,7 +2575,8 @@
     "fujitsu-monaka"
    ],
    "match": "^A64FXIPFLB$",
-   "display": "XIPFLB (FP add / FP multiply / FMA / vector integer / conversion)",
+   "display": "XIPFLB (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2622,7 +2627,7 @@
     "ampere1a"
    ],
    "match": "^Ampere1UnitB$",
-   "display": "B (ALU / shift)",
+   "display": "B (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2639,7 +2644,7 @@
     "ampere1a"
    ],
    "match": "^Ampere1UnitBS$",
-   "display": "BS (int multiply / int division)",
+   "display": "BS (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2690,7 +2695,8 @@
     "ampere1a"
    ],
    "match": "^Ampere1UnitX$",
-   "display": "X (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "X (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2707,7 +2713,8 @@
     "ampere1a"
    ],
    "match": "^Ampere1UnitY$",
-   "display": "Y (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "Y (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2724,7 +2731,7 @@
     "ampere1a"
    ],
    "match": "^Ampere1UnitZ$",
-   "display": "Z (conversion)",
+   "display": "Z (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2756,7 +2763,7 @@
     "ampere1b"
    ],
    "match": "^Ampere1BUnitB$",
-   "display": "B (ALU / shift)",
+   "display": "B (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2772,7 +2779,7 @@
     "ampere1b"
    ],
    "match": "^Ampere1BUnitBS$",
-   "display": "BS (int multiply / int division)",
+   "display": "BS (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2820,7 +2827,8 @@
     "ampere1b"
    ],
    "match": "^Ampere1BUnitX$",
-   "display": "X (int division / FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "X (div, FP add, FP mul +5)",
+   "full": "div / FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2836,7 +2844,8 @@
     "ampere1b"
    ],
    "match": "^Ampere1BUnitY$",
-   "display": "Y (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "Y (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2852,7 +2861,7 @@
     "ampere1b"
    ],
    "match": "^Ampere1BUnitZ$",
-   "display": "Z (conversion)",
+   "display": "Z (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -2928,7 +2937,7 @@
     "neoverse-n3"
    ],
    "match": "^N3UnitL01$",
-   "display": "1 (load / store)",
+   "display": "1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -2947,7 +2956,7 @@
     "neoverse-n3"
    ],
    "match": "^N3UnitM0$",
-   "display": "M 0 (int multiply / int division)",
+   "display": "M 0 (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2966,7 +2975,7 @@
     "neoverse-n3"
    ],
    "match": "^N3UnitM1$",
-   "display": "M 1 (int multiply)",
+   "display": "M 1 (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -2985,7 +2994,7 @@
     "neoverse-n3"
    ],
    "match": "^N3UnitS$",
-   "display": "S (ALU / shift)",
+   "display": "S (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3004,7 +3013,8 @@
     "neoverse-n3"
    ],
    "match": "^N3UnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -3023,7 +3033,8 @@
     "neoverse-n3"
    ],
    "match": "^N3UnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 1 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -3064,7 +3075,7 @@
     "cyclone"
    ],
    "match": "^CyUnitB$",
-   "display": "B (int multiply / int division / branch)",
+   "display": "B (mul, div, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -3105,7 +3116,7 @@
     "cyclone"
    ],
    "match": "^CyUnitBR$",
-   "display": "BR (int multiply)",
+   "display": "BR (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3187,7 +3198,8 @@
     "cyclone"
    ],
    "match": "^CyUnitI$",
-   "display": "I (ALU / shift / int multiply / int division / branch)",
+   "display": "I (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -3228,7 +3240,7 @@
     "cyclone"
    ],
    "match": "^CyUnitID$",
-   "display": "ID (int division)",
+   "display": "ID (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3269,7 +3281,7 @@
     "cyclone"
    ],
    "match": "^CyUnitIM$",
-   "display": "IM (int multiply)",
+   "display": "IM (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3310,7 +3322,7 @@
     "cyclone"
    ],
    "match": "^CyUnitIS$",
-   "display": "IS (ALU / shift)",
+   "display": "IS (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3351,7 +3363,7 @@
     "cyclone"
    ],
    "match": "^CyUnitIntDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3392,7 +3404,7 @@
     "cyclone"
    ],
    "match": "^CyUnitLS$",
-   "display": "LS (load / store / conversion)",
+   "display": "LS (load, store, cvt)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -3433,7 +3445,8 @@
     "cyclone"
    ],
    "match": "^CyUnitV$",
-   "display": "V (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -3641,7 +3654,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitLS0$",
-   "display": "LS 0 (load / store)",
+   "display": "LS 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -3658,7 +3671,8 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitM0$",
-   "display": "M 0 (ALU / shift / int multiply / int division)",
+   "display": "M 0 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3675,7 +3689,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitM1$",
-   "display": "M 1 (ALU / shift / int multiply)",
+   "display": "M 1 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3692,7 +3706,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitS0$",
-   "display": "S 0 (ALU / shift)",
+   "display": "S 0 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3709,7 +3723,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitS1$",
-   "display": "S 1 (ALU / shift)",
+   "display": "S 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3726,7 +3740,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitS2$",
-   "display": "S 2 (ALU / shift)",
+   "display": "S 2 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3743,7 +3757,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitS3$",
-   "display": "S 3 (ALU / shift)",
+   "display": "S 3 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3760,7 +3774,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitS4$",
-   "display": "S 4 (ALU / shift)",
+   "display": "S 4 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3777,7 +3791,7 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitS5$",
-   "display": "S 5 (ALU / shift)",
+   "display": "S 5 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3811,7 +3825,8 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -3828,7 +3843,8 @@
     "neoverse-v3ae"
    ],
    "match": "^V3AEUnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "V 1 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -3844,7 +3860,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitALU0$",
-   "display": "ALU 0 (ALU / shift)",
+   "display": "ALU 0 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3860,7 +3876,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitALU1$",
-   "display": "ALU 1 (ALU / shift)",
+   "display": "ALU 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3892,7 +3908,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3924,7 +3940,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitLdSt$",
-   "display": "St (load / store)",
+   "display": "St (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -3940,7 +3956,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitMAC$",
-   "display": "MAC (int multiply)",
+   "display": "MAC (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -3972,7 +3988,8 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitVALU0$",
-   "display": "VALU 0 (FP add / vector shuffle / vector integer / conversion)",
+   "display": "VALU 0 (FP add, shuffle, vec int +1)",
+   "full": "FP add / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -3988,7 +4005,8 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitVALU1$",
-   "display": "VALU 1 (FP add / vector shuffle / vector integer / conversion)",
+   "display": "VALU 1 (FP add, shuffle, vec int +1)",
+   "full": "FP add / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4004,7 +4022,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitVMAC0$",
-   "display": "VMAC 0 (FP multiply / FMA)",
+   "display": "VMAC 0 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4020,7 +4038,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitVMAC1$",
-   "display": "VMAC 1 (FP multiply / FMA)",
+   "display": "VMAC 1 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4036,7 +4054,7 @@
     "c1-nano"
    ],
    "match": "^C1NanoUnitVMC$",
-   "display": "VMC (FP division)",
+   "display": "VMC (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4132,7 +4150,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitLS0$",
-   "display": "LS 0 (load / store)",
+   "display": "LS 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -4148,7 +4166,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitLS1$",
-   "display": "LS 1 (load / store)",
+   "display": "LS 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -4164,7 +4182,8 @@
     "c1-premium"
    ],
    "match": "^C1PUnitM0$",
-   "display": "M 0 (ALU / shift / int multiply / int division)",
+   "display": "M 0 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4180,7 +4199,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitM1$",
-   "display": "M 1 (ALU / shift)",
+   "display": "M 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4196,7 +4215,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitS0$",
-   "display": "S 0 (ALU / shift / int multiply)",
+   "display": "S 0 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4212,7 +4231,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitS1$",
-   "display": "S 1 (ALU / shift)",
+   "display": "S 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4228,7 +4247,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitS2$",
-   "display": "S 2 (ALU / shift / int multiply)",
+   "display": "S 2 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4244,7 +4263,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitS3$",
-   "display": "S 3 (ALU / shift)",
+   "display": "S 3 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4260,7 +4279,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitS4$",
-   "display": "S 4 (ALU / shift / int multiply)",
+   "display": "S 4 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4276,7 +4295,7 @@
     "c1-premium"
    ],
    "match": "^C1PUnitS5$",
-   "display": "S 5 (ALU / shift)",
+   "display": "S 5 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4292,7 +4311,8 @@
     "c1-premium"
    ],
    "match": "^C1PUnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4308,7 +4328,8 @@
     "c1-premium"
    ],
    "match": "^C1PUnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 1 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4628,7 +4649,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitLS0$",
-   "display": "LS 0 (load / store)",
+   "display": "LS 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -4644,7 +4665,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitLS1$",
-   "display": "LS 1 (load / store)",
+   "display": "LS 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -4660,7 +4681,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitM0$",
-   "display": "M 0 (ALU / shift / int multiply / int division)",
+   "display": "M 0 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4676,7 +4698,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitM1$",
-   "display": "M 1 (ALU / shift)",
+   "display": "M 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4692,7 +4714,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitS0$",
-   "display": "S 0 (ALU / shift / int multiply)",
+   "display": "S 0 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4708,7 +4730,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitS1$",
-   "display": "S 1 (ALU / shift)",
+   "display": "S 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4724,7 +4746,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitS2$",
-   "display": "S 2 (ALU / shift / int multiply)",
+   "display": "S 2 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4740,7 +4762,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitS3$",
-   "display": "S 3 (ALU / shift)",
+   "display": "S 3 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4756,7 +4778,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitS4$",
-   "display": "S 4 (ALU / shift / int multiply)",
+   "display": "S 4 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4772,7 +4794,7 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitS5$",
-   "display": "S 5 (ALU / shift)",
+   "display": "S 5 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -4788,7 +4810,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4804,7 +4827,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 1 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4820,7 +4844,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitV2$",
-   "display": "V 2 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 2 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4836,7 +4861,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitV3$",
-   "display": "V 3 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 3 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4852,7 +4878,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitV4$",
-   "display": "V 4 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 4 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4868,7 +4895,8 @@
     "c1-ultra"
    ],
    "match": "^C1UUnitV5$",
-   "display": "V 5 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 5 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -4963,7 +4991,7 @@
     "cortex-a78c"
    ],
    "match": "^N2UnitL01$",
-   "display": "1 (load / store)",
+   "display": "1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -4982,7 +5010,7 @@
     "cortex-a78c"
    ],
    "match": "^N2UnitM0$",
-   "display": "M 0 (int multiply / int division)",
+   "display": "M 0 (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5001,7 +5029,7 @@
     "cortex-a78c"
    ],
    "match": "^N2UnitM1$",
-   "display": "M 1 (int multiply)",
+   "display": "M 1 (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5020,7 +5048,7 @@
     "cortex-a78c"
    ],
    "match": "^N2UnitS$",
-   "display": "S (ALU / shift)",
+   "display": "S (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5039,7 +5067,8 @@
     "cortex-a78c"
    ],
    "match": "^N2UnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5058,7 +5087,8 @@
     "cortex-a78c"
    ],
    "match": "^N2UnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 1 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5074,7 +5104,7 @@
     "cortex-a320"
    ],
    "match": "^CortexA320UnitALU$",
-   "display": "ALU (ALU / shift)",
+   "display": "ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5106,7 +5136,7 @@
     "cortex-a320"
    ],
    "match": "^CortexA320UnitDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5122,7 +5152,7 @@
     "cortex-a320"
    ],
    "match": "^CortexA320UnitLdSt$",
-   "display": "St (load / store)",
+   "display": "St (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -5138,7 +5168,7 @@
     "cortex-a320"
    ],
    "match": "^CortexA320UnitMAC$",
-   "display": "MAC (int multiply)",
+   "display": "MAC (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5170,7 +5200,8 @@
     "cortex-a320"
    ],
    "match": "^CortexA320UnitVALU$",
-   "display": "VALU (FP add / FP multiply / vector shuffle / vector integer / conversion)",
+   "display": "VALU (FP add, FP mul, shuffle +2)",
+   "full": "FP add / FP mul / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5202,7 +5233,7 @@
     "cortex-a320"
    ],
    "match": "^CortexA320UnitVMC$",
-   "display": "VMC (FP division)",
+   "display": "VMC (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5223,7 +5254,7 @@
     "neoverse-e1"
    ],
    "match": "^A53UnitALU$",
-   "display": "ALU (ALU / shift)",
+   "display": "ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5265,7 +5296,7 @@
     "neoverse-e1"
    ],
    "match": "^A53UnitDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5286,7 +5317,8 @@
     "neoverse-e1"
    ],
    "match": "^A53UnitFPALU$",
-   "display": "FPALU (FP add / FP multiply / vector shuffle / vector integer / conversion)",
+   "display": "FPALU (FP add, FP mul, shuffle +2)",
+   "full": "FP add / FP mul / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5307,7 +5339,7 @@
     "neoverse-e1"
    ],
    "match": "^A53UnitFPMDS$",
-   "display": "FPMDS (FMA / FP division)",
+   "display": "FPMDS (FMA, FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5328,7 +5360,7 @@
     "neoverse-e1"
    ],
    "match": "^A53UnitLdSt$",
-   "display": "St (load / store)",
+   "display": "St (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -5349,7 +5381,7 @@
     "neoverse-e1"
    ],
    "match": "^A53UnitMAC$",
-   "display": "MAC (int multiply)",
+   "display": "MAC (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5387,7 +5419,7 @@
     "generic"
    ],
    "match": "^CortexA510UnitALU12$",
-   "display": "ALU 12 (ALU / shift)",
+   "display": "ALU 12 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5425,7 +5457,7 @@
     "generic"
    ],
    "match": "^CortexA510UnitDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5463,7 +5495,7 @@
     "generic"
    ],
    "match": "^CortexA510UnitLdSt$",
-   "display": "St (load / store)",
+   "display": "St (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -5482,7 +5514,7 @@
     "generic"
    ],
    "match": "^CortexA510UnitMAC$",
-   "display": "MAC (int multiply)",
+   "display": "MAC (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5520,7 +5552,8 @@
     "generic"
    ],
    "match": "^CortexA510UnitVALU0$",
-   "display": "VALU 0 (FP add / FP multiply / vector shuffle / vector integer / conversion)",
+   "display": "VALU 0 (FP add, FP mul, shuffle +2)",
+   "full": "FP add / FP mul / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5539,7 +5572,8 @@
     "generic"
    ],
    "match": "^CortexA510UnitVALU1$",
-   "display": "VALU 1 (FP add / FP multiply / vector shuffle / vector integer / conversion)",
+   "display": "VALU 1 (FP add, FP mul, shuffle +2)",
+   "full": "FP add / FP mul / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5577,7 +5611,7 @@
     "generic"
    ],
    "match": "^CortexA510UnitVMC$",
-   "display": "VMC (FP division)",
+   "display": "VMC (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5594,7 +5628,7 @@
     "cortex-r82ae"
    ],
    "match": "^CortexA55UnitALU$",
-   "display": "ALU (ALU / shift)",
+   "display": "ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5628,7 +5662,7 @@
     "cortex-r82ae"
    ],
    "match": "^CortexA55UnitDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5645,7 +5679,8 @@
     "cortex-r82ae"
    ],
    "match": "^CortexA55UnitFPALU$",
-   "display": "FPALU (FP add / FP multiply / vector shuffle / vector integer / conversion)",
+   "display": "FPALU (FP add, FP mul, shuffle +2)",
+   "full": "FP add / FP mul / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5662,7 +5697,7 @@
     "cortex-r82ae"
    ],
    "match": "^CortexA55UnitFPDIV$",
-   "display": "FPDIV (FP division)",
+   "display": "FPDIV (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5713,7 +5748,7 @@
     "cortex-r82ae"
    ],
    "match": "^CortexA55UnitMAC$",
-   "display": "MAC (int multiply)",
+   "display": "MAC (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5768,7 +5803,7 @@
     "cortex-a75"
    ],
    "match": "^A57UnitI$",
-   "display": "I (ALU / shift)",
+   "display": "I (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5787,7 +5822,7 @@
     "cortex-a75"
    ],
    "match": "^A57UnitL$",
-   "display": "L (load / conversion)",
+   "display": "L (load, cvt)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -5806,7 +5841,7 @@
     "cortex-a75"
    ],
    "match": "^A57UnitM$",
-   "display": "M (int multiply / int division)",
+   "display": "M (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5844,7 +5879,8 @@
     "cortex-a75"
    ],
    "match": "^A57UnitW$",
-   "display": "W (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "W (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5863,7 +5899,8 @@
     "cortex-a75"
    ],
    "match": "^A57UnitX$",
-   "display": "X (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "X (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5911,7 +5948,7 @@
     "cortex-a76ae"
    ],
    "match": "^N1UnitL$",
-   "display": "L (load / store)",
+   "display": "L (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -5927,7 +5964,7 @@
     "cortex-a76ae"
    ],
    "match": "^N1UnitM$",
-   "display": "M (int multiply / int division)",
+   "display": "M (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5943,7 +5980,7 @@
     "cortex-a76ae"
    ],
    "match": "^N1UnitS$",
-   "display": "S (ALU / shift)",
+   "display": "S (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -5959,7 +5996,8 @@
     "cortex-a76ae"
    ],
    "match": "^N1UnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -5975,7 +6013,8 @@
     "cortex-a76ae"
    ],
    "match": "^N1UnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 1 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6055,7 +6094,7 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitL01$",
-   "display": "1 (load / store)",
+   "display": "1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -6071,7 +6110,7 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitM0$",
-   "display": "M 0 (int multiply / int division)",
+   "display": "M 0 (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6087,7 +6126,7 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitM1$",
-   "display": "M 1 (int multiply)",
+   "display": "M 1 (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6103,7 +6142,7 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitS$",
-   "display": "S (ALU / shift)",
+   "display": "S (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6119,7 +6158,8 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6135,7 +6175,8 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 1 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6151,7 +6192,8 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitV2$",
-   "display": "V 2 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "V 2 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6167,7 +6209,8 @@
     "neoverse-512tvb"
    ],
    "match": "^V1UnitV3$",
-   "display": "V 3 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 3 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6252,7 +6295,7 @@
     "hip12"
    ],
    "match": "^V2UnitL01$",
-   "display": "1 (load / store)",
+   "display": "1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -6269,7 +6312,8 @@
     "hip12"
    ],
    "match": "^V2UnitM0$",
-   "display": "M 0 (ALU / shift / int multiply / int division)",
+   "display": "M 0 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6286,7 +6330,7 @@
     "hip12"
    ],
    "match": "^V2UnitM1$",
-   "display": "M 1 (ALU / shift / int multiply)",
+   "display": "M 1 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6303,7 +6347,7 @@
     "hip12"
    ],
    "match": "^V2UnitS0$",
-   "display": "S 0 (ALU / shift)",
+   "display": "S 0 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6320,7 +6364,7 @@
     "hip12"
    ],
    "match": "^V2UnitS1$",
-   "display": "S 1 (ALU / shift)",
+   "display": "S 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6337,7 +6381,7 @@
     "hip12"
    ],
    "match": "^V2UnitS2$",
-   "display": "S 2 (ALU / shift)",
+   "display": "S 2 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6354,7 +6398,7 @@
     "hip12"
    ],
    "match": "^V2UnitS3$",
-   "display": "S 3 (ALU / shift)",
+   "display": "S 3 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6371,7 +6415,8 @@
     "hip12"
    ],
    "match": "^V2UnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6388,7 +6433,8 @@
     "hip12"
    ],
    "match": "^V2UnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 1 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6405,7 +6451,8 @@
     "hip12"
    ],
    "match": "^V2UnitV2$",
-   "display": "V 2 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "V 2 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6422,7 +6469,8 @@
     "hip12"
    ],
    "match": "^V2UnitV3$",
-   "display": "V 3 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 3 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6517,7 +6565,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitLS0$",
-   "display": "LS 0 (load / store)",
+   "display": "LS 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -6536,7 +6584,8 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitM0$",
-   "display": "M 0 (ALU / shift / int multiply / int division)",
+   "display": "M 0 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6555,7 +6604,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitM1$",
-   "display": "M 1 (ALU / shift / int multiply)",
+   "display": "M 1 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6574,7 +6623,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitS0$",
-   "display": "S 0 (ALU / shift)",
+   "display": "S 0 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6593,7 +6642,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitS1$",
-   "display": "S 1 (ALU / shift)",
+   "display": "S 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6612,7 +6661,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitS2$",
-   "display": "S 2 (ALU / shift)",
+   "display": "S 2 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6631,7 +6680,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitS3$",
-   "display": "S 3 (ALU / shift)",
+   "display": "S 3 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6650,7 +6699,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitS4$",
-   "display": "S 4 (ALU / shift)",
+   "display": "S 4 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6669,7 +6718,7 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitS5$",
-   "display": "S 5 (ALU / shift)",
+   "display": "S 5 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6707,7 +6756,8 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitV0$",
-   "display": "V 0 (FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "V 0 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6726,7 +6776,8 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitV1$",
-   "display": "V 1 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "V 1 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6745,7 +6796,8 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitV2$",
-   "display": "V 2 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 2 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6764,7 +6816,8 @@
     "neoverse-v3"
    ],
    "match": "^V3UnitV3$",
-   "display": "V 3 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "V 3 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6780,7 +6833,7 @@
     "exynos-m3"
    ],
    "match": "^M3PipeF0$",
-   "display": "Pipe F 0 (FP division / conversion)",
+   "display": "Pipe F 0 (FP div, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6796,7 +6849,7 @@
     "exynos-m3"
    ],
    "match": "^M3PipeF1$",
-   "display": "Pipe F 1 (FP division)",
+   "display": "Pipe F 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6812,7 +6865,7 @@
     "exynos-m3"
    ],
    "match": "^M3PipeF2$",
-   "display": "Pipe F 2 (FP division)",
+   "display": "Pipe F 2 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6860,7 +6913,8 @@
     "exynos-m3"
    ],
    "match": "^M3UnitC$",
-   "display": "C (ALU / shift / int multiply / int division / branch)",
+   "display": "C (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -6876,7 +6930,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitD$",
-   "display": "D (int division)",
+   "display": "D (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -6940,7 +6994,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFCVT0$",
-   "display": "FCVT 0 (conversion)",
+   "display": "FCVT 0 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6972,7 +7026,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFDIV0$",
-   "display": "FDIV 0 (FP division)",
+   "display": "FDIV 0 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -6988,7 +7042,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFDIV1$",
-   "display": "FDIV 1 (FP division)",
+   "display": "FDIV 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7004,7 +7058,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFMAC0$",
-   "display": "FMAC 0 (FP multiply / FMA)",
+   "display": "FMAC 0 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7020,7 +7074,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFMAC1$",
-   "display": "FMAC 1 (FP multiply / FMA)",
+   "display": "FMAC 1 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7036,7 +7090,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFMAC2$",
-   "display": "FMAC 2 (FP multiply / FMA)",
+   "display": "FMAC 2 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7052,7 +7106,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitFSQR$",
-   "display": "FSQR (FP division)",
+   "display": "FSQR (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7116,7 +7170,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitNALU0$",
-   "display": "NALU 0 (vector integer)",
+   "display": "NALU 0 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7132,7 +7186,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitNALU1$",
-   "display": "NALU 1 (vector integer)",
+   "display": "NALU 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7148,7 +7202,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitNALU2$",
-   "display": "NALU 2 (vector integer)",
+   "display": "NALU 2 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7228,7 +7282,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitNSHF0$",
-   "display": "NSHF 0 (vector shuffle)",
+   "display": "NSHF 0 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7244,7 +7298,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitNSHF1$",
-   "display": "NSHF 1 (vector shuffle)",
+   "display": "NSHF 1 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7260,7 +7314,7 @@
     "exynos-m3"
    ],
    "match": "^M3UnitNSHF2$",
-   "display": "NSHF 2 (vector shuffle)",
+   "display": "NSHF 2 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7340,7 +7394,7 @@
     "exynos-m4"
    ],
    "match": "^M4PipeF0$",
-   "display": "Pipe F 0 (conversion)",
+   "display": "Pipe F 0 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7436,7 +7490,8 @@
     "exynos-m4"
    ],
    "match": "^M4UnitC$",
-   "display": "C (ALU / shift / int multiply / int division / branch)",
+   "display": "C (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -7452,7 +7507,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitD$",
-   "display": "D (int division)",
+   "display": "D (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -7532,7 +7587,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitFCVT0$",
-   "display": "FCVT 0 (conversion)",
+   "display": "FCVT 0 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7580,7 +7635,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitFDIV1$",
-   "display": "FDIV 1 (FP division)",
+   "display": "FDIV 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7596,7 +7651,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitFMAC0$",
-   "display": "FMAC 0 (FP multiply / FMA)",
+   "display": "FMAC 0 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7612,7 +7667,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitFMAC1$",
-   "display": "FMAC 1 (FP multiply / FMA)",
+   "display": "FMAC 1 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7628,7 +7683,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitFMAC2$",
-   "display": "FMAC 2 (FP multiply / FMA)",
+   "display": "FMAC 2 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7660,7 +7715,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitFSQR1$",
-   "display": "FSQR 1 (FP division)",
+   "display": "FSQR 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7740,7 +7795,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitNALU0$",
-   "display": "NALU 0 (vector integer)",
+   "display": "NALU 0 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7756,7 +7811,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitNALU1$",
-   "display": "NALU 1 (vector integer)",
+   "display": "NALU 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7772,7 +7827,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitNALU2$",
-   "display": "NALU 2 (vector integer)",
+   "display": "NALU 2 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7884,7 +7939,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitNSHF0$",
-   "display": "NSHF 0 (vector shuffle)",
+   "display": "NSHF 0 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7900,7 +7955,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitNSHF1$",
-   "display": "NSHF 1 (vector shuffle)",
+   "display": "NSHF 1 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -7964,7 +8019,7 @@
     "exynos-m4"
    ],
    "match": "^M4UnitS0$",
-   "display": "S 0 (store / conversion)",
+   "display": "S 0 (store, cvt)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -8092,7 +8147,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitC$",
-   "display": "C (int multiply / int division / branch)",
+   "display": "C (mul, div, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -8108,7 +8163,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitD$",
-   "display": "D (int division)",
+   "display": "D (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -8124,7 +8179,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitE$",
-   "display": "E (ALU / shift)",
+   "display": "E (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -8204,7 +8259,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFCVT0$",
-   "display": "FCVT 0 (conversion)",
+   "display": "FCVT 0 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8220,7 +8275,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFCVT1$",
-   "display": "FCVT 1 (conversion)",
+   "display": "FCVT 1 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8252,7 +8307,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFDIV1$",
-   "display": "FDIV 1 (FP division)",
+   "display": "FDIV 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8268,7 +8323,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFMAC0$",
-   "display": "FMAC 0 (FP multiply / FMA)",
+   "display": "FMAC 0 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8284,7 +8339,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFMAC1$",
-   "display": "FMAC 1 (FP multiply / FMA)",
+   "display": "FMAC 1 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8300,7 +8355,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFMAC2$",
-   "display": "FMAC 2 (FP multiply / FMA)",
+   "display": "FMAC 2 (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8332,7 +8387,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitFSQR1$",
-   "display": "FSQR 1 (FP division)",
+   "display": "FSQR 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8412,7 +8467,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitNALU0$",
-   "display": "NALU 0 (vector integer)",
+   "display": "NALU 0 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8428,7 +8483,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitNALU1$",
-   "display": "NALU 1 (vector integer)",
+   "display": "NALU 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8444,7 +8499,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitNALU2$",
-   "display": "NALU 2 (vector integer)",
+   "display": "NALU 2 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8604,7 +8659,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitNSHF0$",
-   "display": "NSHF 0 (vector shuffle)",
+   "display": "NSHF 0 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8620,7 +8675,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitNSHF1$",
-   "display": "NSHF 1 (vector shuffle)",
+   "display": "NSHF 1 (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8684,7 +8739,7 @@
     "exynos-m5"
    ],
    "match": "^M5UnitS0$",
-   "display": "S 0 (store / conversion)",
+   "display": "S 0 (store, cvt)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -8819,7 +8874,7 @@
     "saphira"
    ],
    "match": "^FalkorUnitVTOG$",
-   "display": "VTOG (conversion)",
+   "display": "VTOG (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8836,7 +8891,8 @@
     "saphira"
    ],
    "match": "^FalkorUnitVX$",
-   "display": "VX (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "VX (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8853,7 +8909,8 @@
     "saphira"
    ],
    "match": "^FalkorUnitVY$",
-   "display": "VY (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "VY (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -8870,7 +8927,8 @@
     "saphira"
    ],
    "match": "^FalkorUnitX$",
-   "display": "X (ALU / shift / int multiply / int division)",
+   "display": "X (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -8887,7 +8945,7 @@
     "saphira"
    ],
    "match": "^FalkorUnitY$",
-   "display": "Y (ALU / shift)",
+   "display": "Y (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -8904,7 +8962,8 @@
     "saphira"
    ],
    "match": "^FalkorUnitZ$",
-   "display": "Z (ALU / shift / int division / branch)",
+   "display": "Z (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -8920,7 +8979,7 @@
     "kryo"
    ],
    "match": "^KryoUnitLSA$",
-   "display": "LSA (load / store)",
+   "display": "LSA (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -8936,7 +8995,7 @@
     "kryo"
    ],
    "match": "^KryoUnitLSB$",
-   "display": "LSB (load / store)",
+   "display": "LSB (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -8952,7 +9011,8 @@
     "kryo"
    ],
    "match": "^KryoUnitXA$",
-   "display": "XA (ALU / shift / int multiply / int division / branch / FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "XA (ALU, shift, mul +9)",
+   "full": "ALU / shift / mul / div / branch / FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -8968,7 +9028,8 @@
     "kryo"
    ],
    "match": "^KryoUnitXB$",
-   "display": "XB (ALU / shift / int multiply / branch / FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "XB (ALU, shift, mul +7)",
+   "full": "ALU / shift / mul / branch / FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -8984,7 +9045,8 @@
     "kryo"
    ],
    "match": "^KryoUnitYA$",
-   "display": "YA (ALU / int division / branch / store / FP add / FP division / vector integer)",
+   "display": "YA (ALU, div, branch +4)",
+   "full": "ALU / div / branch / store / FP add / FP div / vec int",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9000,7 +9062,8 @@
     "kryo"
    ],
    "match": "^KryoUnitYB$",
-   "display": "YB (ALU / int division / branch / store / FP add / FP division / vector integer)",
+   "display": "YB (ALU, div, branch +4)",
+   "full": "ALU / div / branch / store / FP add / FP div / vec int",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9085,7 +9148,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitM0$",
-   "display": "M 0 (int multiply / int division)",
+   "display": "M 0 (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9102,7 +9165,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitM1$",
-   "display": "M 1 (int multiply / int division)",
+   "display": "M 1 (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9119,7 +9182,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitS$",
-   "display": "S (ALU / shift)",
+   "display": "S (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9153,7 +9216,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitV0$",
-   "display": "V 0 (conversion)",
+   "display": "V 0 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9170,7 +9233,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitV1$",
-   "display": "V 1 (FP division)",
+   "display": "V 1 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9187,7 +9250,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitV2$",
-   "display": "V 2 (FP division)",
+   "display": "V 2 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9204,7 +9267,7 @@
     "rigel"
    ],
    "match": "^OlympusUnitV3$",
-   "display": "V 3 (conversion)",
+   "display": "V 3 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9221,7 +9284,8 @@
     "rigel"
    ],
    "match": "^OlympusUnitV45$",
-   "display": "5 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "5 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9237,7 +9301,7 @@
     "oryon-1"
    ],
    "match": "^ORYONFP0I4$",
-   "display": "ORYONFP0 I 4 (conversion)",
+   "display": "ORYONFP0 I 4 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9253,7 +9317,7 @@
     "oryon-1"
    ],
    "match": "^ORYONFP1I5$",
-   "display": "ORYONFP1 I 5 (conversion)",
+   "display": "ORYONFP1 I 5 (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9301,7 +9365,7 @@
     "oryon-1"
    ],
    "match": "^ORYONP0$",
-   "display": "ORYONP 0 (ALU / shift / branch)",
+   "display": "ORYONP 0 (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9317,7 +9381,7 @@
     "oryon-1"
    ],
    "match": "^ORYONP1$",
-   "display": "ORYONP 1 (ALU / shift / branch)",
+   "display": "ORYONP 1 (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9333,7 +9397,7 @@
     "oryon-1"
    ],
    "match": "^ORYONP2$",
-   "display": "ORYONP 2 (ALU / shift / int division)",
+   "display": "ORYONP 2 (ALU, shift, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9349,7 +9413,7 @@
     "oryon-1"
    ],
    "match": "^ORYONP3$",
-   "display": "ORYONP 3 (ALU / shift)",
+   "display": "ORYONP 3 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9365,7 +9429,7 @@
     "oryon-1"
    ],
    "match": "^ORYONP4$",
-   "display": "ORYONP 4 (ALU / shift / int multiply)",
+   "display": "ORYONP 4 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9381,7 +9445,7 @@
     "oryon-1"
    ],
    "match": "^ORYONP5$",
-   "display": "ORYONP 5 (ALU / shift / int multiply)",
+   "display": "ORYONP 5 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9493,7 +9557,8 @@
     "oryon-1"
    ],
    "match": "^ORYONP12FP0$",
-   "display": "ORYONP12 FP 0 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "ORYONP12 FP 0 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9509,7 +9574,8 @@
     "oryon-1"
    ],
    "match": "^ORYONP13FP1$",
-   "display": "ORYONP13 FP 1 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "ORYONP13 FP 1 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9525,7 +9591,8 @@
     "oryon-1"
    ],
    "match": "^ORYONP14FP2$",
-   "display": "ORYONP14 FP 2 (FP add / FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "ORYONP14 FP 2 (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9541,7 +9608,8 @@
     "oryon-1"
    ],
    "match": "^ORYONP15FP3$",
-   "display": "ORYONP15 FP 3 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "ORYONP15 FP 3 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9592,7 +9660,7 @@
     "thunderxt88"
    ],
    "match": "^THXT8XUnitALU$",
-   "display": "THXT8 XUnit ALU (ALU / shift)",
+   "display": "THXT8 XUnit ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9630,7 +9698,7 @@
     "thunderxt88"
    ],
    "match": "^THXT8XUnitDiv$",
-   "display": "THXT8 XUnit Div (int division)",
+   "display": "THXT8 XUnit Div (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9649,7 +9717,8 @@
     "thunderxt88"
    ],
    "match": "^THXT8XUnitFPALU$",
-   "display": "THXT8 XUnit FPALU (FP add / FP multiply / vector shuffle / vector integer / conversion)",
+   "display": "THXT8 XUnit FPALU (FP add, FP mul, shuffle +2)",
+   "full": "FP add / FP mul / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9668,7 +9737,7 @@
     "thunderxt88"
    ],
    "match": "^THXT8XUnitFPMDS$",
-   "display": "THXT8 XUnit FPMDS (FMA / FP division)",
+   "display": "THXT8 XUnit FPMDS (FMA, FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9687,7 +9756,7 @@
     "thunderxt88"
    ],
    "match": "^THXT8XUnitLdSt$",
-   "display": "THXT8 XUnit Ld St (load / store)",
+   "display": "THXT8 XUnit Ld St (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9706,7 +9775,7 @@
     "thunderxt88"
    ],
    "match": "^THXT8XUnitMAC$",
-   "display": "THXT8 XUnit MAC (int multiply)",
+   "display": "THXT8 XUnit MAC (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -9722,7 +9791,8 @@
     "thunderx2t99"
    ],
    "match": "^THX2T99P0$",
-   "display": "THX2 T99 P 0 (ALU / shift / int multiply / store / FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "THX2 T99 P 0 (ALU, shift, mul +8)",
+   "full": "ALU / shift / mul / store / FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9738,7 +9808,8 @@
     "thunderx2t99"
    ],
    "match": "^THX2T99P1$",
-   "display": "THX2 T99 P 1 (ALU / shift / int multiply / int division / store / FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "THX2 T99 P 1 (ALU, shift, mul +9)",
+   "full": "ALU / shift / mul / div / store / FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9754,7 +9825,8 @@
     "thunderx2t99"
    ],
    "match": "^THX2T99P2$",
-   "display": "THX2 T99 P 2 (ALU / shift / int multiply / branch / store)",
+   "display": "THX2 T99 P 2 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / branch / store",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9786,7 +9858,7 @@
     "thunderx2t99"
    ],
    "match": "^THX2T99P4$",
-   "display": "THX2 T99 P 4 (load / store)",
+   "display": "THX2 T99 P 4 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9802,7 +9874,7 @@
     "thunderx2t99"
    ],
    "match": "^THX2T99P5$",
-   "display": "THX2 T99 P 5 (load / store)",
+   "display": "THX2 T99 P 5 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9818,7 +9890,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P0$",
-   "display": "THX3 T110 P 0 (ALU / shift / int multiply / store)",
+   "display": "THX3 T110 P 0 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9834,7 +9907,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P1$",
-   "display": "THX3 T110 P 1 (ALU / shift / int multiply / int division / store)",
+   "display": "THX3 T110 P 1 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9850,7 +9924,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P2$",
-   "display": "THX3 T110 P 2 (ALU / shift / int multiply / branch / store)",
+   "display": "THX3 T110 P 2 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / branch / store",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9866,7 +9941,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P3$",
-   "display": "THX3 T110 P 3 (ALU / shift / int multiply / branch / store)",
+   "display": "THX3 T110 P 3 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / branch / store",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -9882,7 +9958,7 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P4$",
-   "display": "THX3 T110 P 4 (load / store)",
+   "display": "THX3 T110 P 4 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9898,7 +9974,7 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P5$",
-   "display": "THX3 T110 P 5 (load / store)",
+   "display": "THX3 T110 P 5 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -9914,7 +9990,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P6FP0$",
-   "display": "THX3 T110 P6 FP 0 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "THX3 T110 P6 FP 0 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9930,7 +10007,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P7FP1$",
-   "display": "THX3 T110 P7 FP 1 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "THX3 T110 P7 FP 1 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9946,7 +10024,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P8FP2$",
-   "display": "THX3 T110 P8 FP 2 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "THX3 T110 P8 FP 2 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9962,7 +10041,8 @@
     "thunderx3t110"
    ],
    "match": "^THX3T110P9FP3$",
-   "display": "THX3 T110 P9 FP 3 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "THX3 T110 P9 FP 3 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -9994,7 +10074,7 @@
     "tsv110"
    ],
    "match": "^TSV110UnitAB$",
-   "display": "AB (ALU / shift / branch)",
+   "display": "AB (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -10010,7 +10090,7 @@
     "tsv110"
    ],
    "match": "^TSV110UnitALU$",
-   "display": "ALU (ALU / shift)",
+   "display": "ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10026,7 +10106,8 @@
     "tsv110"
    ],
    "match": "^TSV110UnitFSU1$",
-   "display": "FSU 1 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer / conversion)",
+   "display": "FSU 1 (FP add, FP mul, FMA +4)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10042,7 +10123,8 @@
     "tsv110"
    ],
    "match": "^TSV110UnitFSU2$",
-   "display": "FSU 2 (FP add / FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "FSU 2 (FP add, FP mul, FMA +3)",
+   "full": "FP add / FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10058,7 +10140,7 @@
     "tsv110"
    ],
    "match": "^TSV110UnitLd0St$",
-   "display": "St (load / store)",
+   "display": "St (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -10090,7 +10172,7 @@
     "tsv110"
    ],
    "match": "^TSV110UnitMDU$",
-   "display": "MDU (int multiply / int division)",
+   "display": "MDU (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10108,7 +10190,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45ALU$",
-   "display": "ALU (ALU / shift / branch)",
+   "display": "ALU (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -10144,7 +10226,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45FDIV$",
-   "display": "FDIV (FP division)",
+   "display": "FDIV (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10162,7 +10244,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45FMAC$",
-   "display": "FMAC (FP add / FP multiply / FMA)",
+   "display": "FMAC (FP add, FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10180,7 +10262,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45FMISC$",
-   "display": "FMISC (conversion)",
+   "display": "FMISC (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10216,7 +10298,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45LSU$",
-   "display": "LSU (load / store)",
+   "display": "LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -10234,7 +10316,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45MDU$",
-   "display": "MDU (int multiply / int division)",
+   "display": "MDU (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10252,7 +10334,7 @@
     "andes-nx45"
    ],
    "match": "^Andes45VALU$",
-   "display": "VALU (vector integer)",
+   "display": "VALU (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10397,7 +10479,8 @@
     "spacemit-x60"
    ],
    "match": "^SMX60_FP$",
-   "display": "SMX60_FP (FP add / FP multiply / FMA / FP division)",
+   "display": "SMX60_FP (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10416,7 +10499,8 @@
     "spacemit-x60"
    ],
    "match": "^SMX60_IEUA$",
-   "display": "SMX60_IEUA (ALU / shift / branch / conversion)",
+   "display": "SMX60_IEUA (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / cvt",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -10435,7 +10519,7 @@
     "spacemit-x60"
    ],
    "match": "^SMX60_IEUB$",
-   "display": "SMX60_IEUB (ALU / shift / conversion)",
+   "display": "SMX60_IEUB (ALU, shift, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10454,7 +10538,7 @@
     "spacemit-x60"
    ],
    "match": "^SMX60_LS$",
-   "display": "SMX60_LS (load / store)",
+   "display": "SMX60_LS (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -10492,7 +10576,7 @@
     "spacemit-x60"
    ],
    "match": "^SMX60_VIEU$",
-   "display": "SMX60_VIEU (vector integer)",
+   "display": "SMX60_VIEU (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10527,7 +10611,7 @@
     "mips-p8700"
    ],
    "match": "^p8700AGQ$",
-   "display": "P 8700 AGQ (branch / load / store)",
+   "display": "P 8700 AGQ (branch, load, store)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -10543,7 +10627,7 @@
     "mips-p8700"
    ],
    "match": "^p8700ALQ$",
-   "display": "P 8700 ALQ (ALU / shift)",
+   "display": "P 8700 ALQ (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10559,7 +10643,7 @@
     "mips-p8700"
    ],
    "match": "^p8700FPQ$",
-   "display": "P 8700 FPQ (FP add / FP division / conversion)",
+   "display": "P 8700 FPQ (FP add, FP div, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10575,7 +10659,8 @@
     "mips-p8700"
    ],
    "match": "^p8700FpuApu$",
-   "display": "P 8700 Fpu Apu (FP add / FP multiply / FMA / FP division / conversion)",
+   "display": "P 8700 Fpu Apu (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / FP div / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10591,7 +10676,7 @@
     "mips-p8700"
    ],
    "match": "^p8700FpuLong$",
-   "display": "P 8700 Fpu Long (FP multiply / FMA)",
+   "display": "P 8700 Fpu Long (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10607,7 +10692,7 @@
     "mips-p8700"
    ],
    "match": "^p8700GpDiv$",
-   "display": "P 8700 Gp Div (int division)",
+   "display": "P 8700 Gp Div (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10623,7 +10708,7 @@
     "mips-p8700"
    ],
    "match": "^p8700GpMul$",
-   "display": "P 8700 Gp Mul (int multiply)",
+   "display": "P 8700 Gp Mul (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10639,7 +10724,7 @@
     "mips-p8700"
    ],
    "match": "^p8700IssueAL2$",
-   "display": "P 8700 Issue AL 2 (ALU / shift)",
+   "display": "P 8700 Issue AL 2 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10671,7 +10756,7 @@
     "mips-p8700"
    ],
    "match": "^p8700IssueFPUL$",
-   "display": "P 8700 Issue FPUL (FP add / FP division / conversion)",
+   "display": "P 8700 Issue FPUL (FP add, FP div, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10703,7 +10788,7 @@
     "mips-p8700"
    ],
    "match": "^p8700IssueLSU$",
-   "display": "P 8700 Issue LSU (load / store)",
+   "display": "P 8700 Issue LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -10723,7 +10808,7 @@
     "sifive-u54"
    ],
    "match": "^RocketUnitALU$",
-   "display": "ALU (ALU / shift)",
+   "display": "ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10763,7 +10848,8 @@
     "sifive-u54"
    ],
    "match": "^RocketUnitFPALU$",
-   "display": "FPALU (FP add / FP multiply / FMA / conversion)",
+   "display": "FPALU (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10783,7 +10869,7 @@
     "sifive-u54"
    ],
    "match": "^RocketUnitFPDivSqrt$",
-   "display": "FP Div Sqrt (FP division)",
+   "display": "FP Div Sqrt (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10843,7 +10929,7 @@
     "sifive-u54"
    ],
    "match": "^RocketUnitMem$",
-   "display": "M (load / store)",
+   "display": "M (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -10860,7 +10946,7 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400Div$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10877,7 +10963,8 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400FEXQ0$",
-   "display": "EXQ 0 (FP add / FP multiply / FMA / FP division)",
+   "display": "EXQ 0 (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10894,7 +10981,7 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400FloatDiv$",
-   "display": "V (FP division)",
+   "display": "V (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -10911,7 +10998,7 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400IEXQ0$",
-   "display": "EXQ 0 (ALU / shift / branch)",
+   "display": "EXQ 0 (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -10928,7 +11015,7 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400IEXQ1$",
-   "display": "EXQ 1 (ALU / shift)",
+   "display": "EXQ 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -10945,7 +11032,8 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400IEXQ2$",
-   "display": "EXQ 2 (ALU / shift / int multiply / int division / conversion)",
+   "display": "EXQ 2 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11013,7 +11101,7 @@
     "sifive-p470"
    ],
    "match": "^SiFiveP400VEXQ0$",
-   "display": "EXQ 0 (vector integer)",
+   "display": "EXQ 0 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11080,7 +11168,7 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500Div$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11096,7 +11184,7 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500FEXQ0$",
-   "display": "EXQ 0 (FP add / FP multiply / FMA)",
+   "display": "EXQ 0 (FP add, FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11112,7 +11200,8 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500FEXQ1$",
-   "display": "EXQ 1 (FP add / FP multiply / FMA / FP division)",
+   "display": "EXQ 1 (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11128,7 +11217,7 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500FloatDiv$",
-   "display": "V (FP division)",
+   "display": "V (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11144,7 +11233,7 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500IEXQ0$",
-   "display": "EXQ 0 (ALU / shift / branch)",
+   "display": "EXQ 0 (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -11160,7 +11249,7 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500IEXQ1$",
-   "display": "EXQ 1 (ALU / shift)",
+   "display": "EXQ 1 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11176,7 +11265,8 @@
     "sifive-p550"
    ],
    "match": "^SiFiveP500IEXQ2$",
-   "display": "EXQ 2 (ALU / shift / int multiply / int division / conversion)",
+   "display": "EXQ 2 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11224,7 +11314,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800Div$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11240,7 +11330,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800FEXQ0$",
-   "display": "EXQ 0 (FP add / FP multiply / FMA)",
+   "display": "EXQ 0 (FP add, FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11256,7 +11346,8 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800FEXQ1$",
-   "display": "EXQ 1 (FP add / FP multiply / FMA / FP division)",
+   "display": "EXQ 1 (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11272,7 +11363,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800FloatDiv$",
-   "display": "V (FP division)",
+   "display": "V (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11288,7 +11379,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800IEXQ0$",
-   "display": "EXQ 0 (ALU / shift)",
+   "display": "EXQ 0 (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11304,7 +11395,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800IEXQ1$",
-   "display": "EXQ 1 (ALU / shift / int multiply)",
+   "display": "EXQ 1 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11320,7 +11411,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800IEXQ2$",
-   "display": "EXQ 2 (ALU / shift / int division)",
+   "display": "EXQ 2 (ALU, shift, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11336,7 +11427,8 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800IEXQ3$",
-   "display": "EXQ 3 (ALU / shift / int multiply / conversion)",
+   "display": "EXQ 3 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11400,7 +11492,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800LDST$",
-   "display": "DST (load / store)",
+   "display": "DST (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -11432,7 +11524,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800VEXQ0$",
-   "display": "EXQ 0 (vector integer)",
+   "display": "EXQ 0 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11448,7 +11540,7 @@
     "sifive-p870-d"
    ],
    "match": "^SiFiveP800VEXQ1$",
-   "display": "EXQ 1 (vector integer)",
+   "display": "EXQ 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11512,7 +11604,7 @@
     "sifive-x280"
    ],
    "match": "^VLEN512SiFive7FDiv$",
-   "display": "V (FP division)",
+   "display": "V (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11528,7 +11620,7 @@
     "sifive-x280"
    ],
    "match": "^VLEN512SiFive7IDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11544,7 +11636,8 @@
     "sifive-x280"
    ],
    "match": "^VLEN512SiFive7PipeA$",
-   "display": "Pipe A (ALU / shift / load / store)",
+   "display": "Pipe A (ALU, shift, load +1)",
+   "full": "ALU / shift / load / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -11560,7 +11653,8 @@
     "sifive-x280"
    ],
    "match": "^VLEN512SiFive7PipeB$",
-   "display": "Pipe B (ALU / shift / int multiply / int division / branch / FP add / FP multiply / FMA / FP division / conversion)",
+   "display": "Pipe B (ALU, shift, mul +7)",
+   "full": "ALU / shift / mul / div / branch / FP add / FP mul / FMA / FP div / cvt",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -11576,7 +11670,7 @@
     "sifive-x280"
    ],
    "match": "^VLEN512SiFive7VA1$",
-   "display": "VA 1 (vector integer)",
+   "display": "VA 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11592,7 +11686,7 @@
     "sifive-x280"
    ],
    "match": "^VLEN512SiFive7VCQ$",
-   "display": "VCQ (vector integer)",
+   "display": "VCQ (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11640,7 +11734,7 @@
     "sifive-x180"
    ],
    "match": "^VLEN128X100SiFive7FDiv$",
-   "display": "VLEN128 X100 Si Five 7F Div (FP division)",
+   "display": "VLEN128 X100 Si Five 7F Div (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11656,7 +11750,7 @@
     "sifive-x180"
    ],
    "match": "^VLEN128X100SiFive7IDiv$",
-   "display": "VLEN128 X100 Si Five 7I Div (int division)",
+   "display": "VLEN128 X100 Si Five 7I Div (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11672,7 +11766,8 @@
     "sifive-x180"
    ],
    "match": "^VLEN128X100SiFive7PipeA$",
-   "display": "VLEN128 X100 Si Five 7Pipe A (ALU / shift / load / store)",
+   "display": "VLEN128 X100 Si Five 7Pipe A (ALU, shift, load +1)",
+   "full": "ALU / shift / load / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -11688,7 +11783,8 @@
     "sifive-x180"
    ],
    "match": "^VLEN128X100SiFive7PipeB$",
-   "display": "VLEN128 X100 Si Five 7Pipe B (ALU / shift / int multiply / int division / branch / FP add / FP multiply / FMA / FP division / conversion)",
+   "display": "VLEN128 X100 Si Five 7Pipe B (ALU, shift, mul +7)",
+   "full": "ALU / shift / mul / div / branch / FP add / FP mul / FMA / FP div / cvt",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -11704,7 +11800,7 @@
     "sifive-x180"
    ],
    "match": "^VLEN128X100SiFive7VA1$",
-   "display": "VLEN128 X100 Si Five 7VA 1 (vector integer)",
+   "display": "VLEN128 X100 Si Five 7VA 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11720,7 +11816,7 @@
     "sifive-x180"
    ],
    "match": "^VLEN128X100SiFive7VCQ$",
-   "display": "VLEN128 X100 Si Five 7VCQ (vector integer)",
+   "display": "VLEN128 X100 Si Five 7VCQ (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11768,7 +11864,7 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7FDiv$",
-   "display": "VLEN1024 X300 Si Five 7F Div (FP division)",
+   "display": "VLEN1024 X300 Si Five 7F Div (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11784,7 +11880,7 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7IDiv$",
-   "display": "VLEN1024 X300 Si Five 7I Div (int division)",
+   "display": "VLEN1024 X300 Si Five 7I Div (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11800,7 +11896,8 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7PipeA$",
-   "display": "VLEN1024 X300 Si Five 7Pipe A (ALU / shift / load / store)",
+   "display": "VLEN1024 X300 Si Five 7Pipe A (ALU, shift, load +1)",
+   "full": "ALU / shift / load / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -11816,7 +11913,8 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7PipeB$",
-   "display": "VLEN1024 X300 Si Five 7Pipe B (ALU / shift / int multiply / int division / branch / FP add / FP multiply / FMA / FP division / conversion)",
+   "display": "VLEN1024 X300 Si Five 7Pipe B (ALU, shift, mul +7)",
+   "full": "ALU / shift / mul / div / branch / FP add / FP mul / FMA / FP div / cvt",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -11832,7 +11930,7 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7VA1$",
-   "display": "VLEN1024 X300 Si Five 7VA 1 (vector integer)",
+   "display": "VLEN1024 X300 Si Five 7VA 1 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11848,7 +11946,7 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7VA2$",
-   "display": "VLEN1024 X300 Si Five 7VA 2 (vector integer)",
+   "display": "VLEN1024 X300 Si Five 7VA 2 (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11864,7 +11962,7 @@
     "sifive-x390"
    ],
    "match": "^VLEN1024X300SiFive7VCQ$",
-   "display": "VLEN1024 X300 Si Five 7VCQ (vector integer)",
+   "display": "VLEN1024 X300 Si Five 7VCQ (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11928,7 +12026,7 @@
     "spacemit-x100"
    ],
    "match": "^SMTX100_FQ0$",
-   "display": "SMTX100_FQ 0 (FP division)",
+   "display": "SMTX100_FQ 0 (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11944,7 +12042,8 @@
     "spacemit-x100"
    ],
    "match": "^SMTX100_FQ1$",
-   "display": "SMTX100_FQ 1 (FP add / FP multiply / FMA / conversion)",
+   "display": "SMTX100_FQ 1 (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -11960,7 +12059,7 @@
     "spacemit-x100"
    ],
    "match": "^SMTX100_IQ0$",
-   "display": "SMTX100_IQ 0 (int division)",
+   "display": "SMTX100_IQ 0 (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11976,7 +12075,7 @@
     "spacemit-x100"
    ],
    "match": "^SMTX100_IQ1$",
-   "display": "SMTX100_IQ 1 (ALU / shift / int multiply)",
+   "display": "SMTX100_IQ 1 (ALU, shift, mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -11992,7 +12091,7 @@
     "spacemit-x100"
    ],
    "match": "^SMTX100_LSQ$",
-   "display": "SMTX100_LSQ (load / store)",
+   "display": "SMTX100_LSQ (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12008,7 +12107,7 @@
     "syntacore-scr3-rv64"
    ],
    "match": "^SCR3RV64_ALU$",
-   "display": "SCR3 RV64_ALU (ALU / shift)",
+   "display": "SCR3 RV64_ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12040,7 +12139,7 @@
     "syntacore-scr3-rv64"
    ],
    "match": "^SCR3RV64_DIV$",
-   "display": "SCR3 RV64_DIV (int division)",
+   "display": "SCR3 RV64_DIV (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12056,7 +12155,7 @@
     "syntacore-scr3-rv64"
    ],
    "match": "^SCR3RV64_LSU$",
-   "display": "SCR3 RV64_LSU (load / store)",
+   "display": "SCR3 RV64_LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12072,7 +12171,7 @@
     "syntacore-scr3-rv64"
    ],
    "match": "^SCR3RV64_MUL$",
-   "display": "SCR3 RV64_MUL (int multiply)",
+   "display": "SCR3 RV64_MUL (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12088,7 +12187,7 @@
     "syntacore-scr4-rv64"
    ],
    "match": "^SCR4RV64_ALU$",
-   "display": "SCR4 RV64_ALU (ALU / shift)",
+   "display": "SCR4 RV64_ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12120,7 +12219,7 @@
     "syntacore-scr4-rv64"
    ],
    "match": "^SCR4RV64_DIV$",
-   "display": "SCR4 RV64_DIV (int division)",
+   "display": "SCR4 RV64_DIV (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12136,7 +12235,7 @@
     "syntacore-scr4-rv64"
    ],
    "match": "^SCR4RV64_FDU$",
-   "display": "SCR4 RV64_FDU (FP division)",
+   "display": "SCR4 RV64_FDU (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12152,7 +12251,8 @@
     "syntacore-scr4-rv64"
    ],
    "match": "^SCR4RV64_FPU$",
-   "display": "SCR4 RV64_FPU (FP add / FP multiply / FMA / conversion)",
+   "display": "SCR4 RV64_FPU (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12168,7 +12268,7 @@
     "syntacore-scr4-rv64"
    ],
    "match": "^SCR4RV64_LSU$",
-   "display": "SCR4 RV64_LSU (load / store)",
+   "display": "SCR4 RV64_LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12184,7 +12284,7 @@
     "syntacore-scr4-rv64"
    ],
    "match": "^SCR4RV64_MUL$",
-   "display": "SCR4 RV64_MUL (int multiply)",
+   "display": "SCR4 RV64_MUL (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12200,7 +12300,7 @@
     "syntacore-scr5-rv64"
    ],
    "match": "^SCR5RV64_ALU$",
-   "display": "SCR5 RV64_ALU (ALU / shift)",
+   "display": "SCR5 RV64_ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12232,7 +12332,7 @@
     "syntacore-scr5-rv64"
    ],
    "match": "^SCR5RV64_DIV$",
-   "display": "SCR5 RV64_DIV (int division)",
+   "display": "SCR5 RV64_DIV (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12248,7 +12348,7 @@
     "syntacore-scr5-rv64"
    ],
    "match": "^SCR5RV64_FDU$",
-   "display": "SCR5 RV64_FDU (FP division)",
+   "display": "SCR5 RV64_FDU (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12264,7 +12364,8 @@
     "syntacore-scr5-rv64"
    ],
    "match": "^SCR5RV64_FPU$",
-   "display": "SCR5 RV64_FPU (FP add / FP multiply / FMA / conversion)",
+   "display": "SCR5 RV64_FPU (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12280,7 +12381,7 @@
     "syntacore-scr5-rv64"
    ],
    "match": "^SCR5RV64_LSU$",
-   "display": "SCR5 RV64_LSU (load / store)",
+   "display": "SCR5 RV64_LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12296,7 +12397,7 @@
     "syntacore-scr5-rv64"
    ],
    "match": "^SCR5RV64_MUL$",
-   "display": "SCR5 RV64_MUL (int multiply)",
+   "display": "SCR5 RV64_MUL (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12312,7 +12413,8 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_ALU_DIV_IS$",
-   "display": "SCR7_ALU_DIV_IS (ALU / shift / int division / branch)",
+   "display": "SCR7_ALU_DIV_IS (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -12328,7 +12430,8 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_ALU_MUL_IS$",
-   "display": "SCR7_ALU_MUL_IS (ALU / shift / int multiply / branch)",
+   "display": "SCR7_ALU_MUL_IS (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -12344,7 +12447,7 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_DIV$",
-   "display": "SCR7_DIV (int division)",
+   "display": "SCR7_DIV (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12360,7 +12463,7 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_FALU$",
-   "display": "SCR7_FALU (FP add / conversion)",
+   "display": "SCR7_FALU (FP add, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12376,7 +12479,7 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_FDIVSQRT$",
-   "display": "SCR7_FDIVSQRT (FP division)",
+   "display": "SCR7_FDIVSQRT (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12392,7 +12495,7 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_FMA$",
-   "display": "SCR7_FMA (FP multiply / FMA)",
+   "display": "SCR7_FMA (FP mul, FMA)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12408,7 +12511,8 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_FPU_IS$",
-   "display": "SCR7_FPU_IS (FP add / FP multiply / FMA / FP division / conversion)",
+   "display": "SCR7_FPU_IS (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / FP div / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12424,7 +12528,7 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_LSU$",
-   "display": "SCR7_LSU (load / store)",
+   "display": "SCR7_LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12440,7 +12544,7 @@
     "syntacore-scr7"
    ],
    "match": "^SCR7_MUL$",
-   "display": "SCR7_MUL (int multiply)",
+   "display": "SCR7_MUL (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12456,7 +12560,8 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonFPA$",
-   "display": "FPA (FP add / FP multiply / FMA / FP division)",
+   "display": "FPA (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12472,7 +12577,8 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonFPB$",
-   "display": "FPB (FP add / FP multiply / FMA / FP division)",
+   "display": "FPB (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12488,7 +12594,7 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonFXA$",
-   "display": "FXA (int multiply / int division)",
+   "display": "FXA (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12504,7 +12610,7 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonFXB$",
-   "display": "FXB (conversion)",
+   "display": "FXB (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12536,7 +12642,7 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonFXD$",
-   "display": "FXD (ALU / shift / vector integer)",
+   "display": "FXD (ALU, shift, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12552,7 +12658,7 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonLS$",
-   "display": "LS (load / store)",
+   "display": "LS (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12568,7 +12674,7 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonVA$",
-   "display": "VA (vector integer)",
+   "display": "VA (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12584,7 +12690,7 @@
     "tt-ascalon-x"
    ],
    "match": "^AscalonVB$",
-   "display": "VB (vector integer)",
+   "display": "VB (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12600,7 +12706,7 @@
     "xiangshan-nanhu"
    ],
    "match": "^XS2ALU$",
-   "display": "XS2 ALU (ALU / shift)",
+   "display": "XS2 ALU (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12616,7 +12722,8 @@
     "xiangshan-nanhu"
    ],
    "match": "^XS2FMAC$",
-   "display": "XS2 FMAC (FP add / FP multiply / FMA / conversion)",
+   "display": "XS2 FMAC (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12632,7 +12739,7 @@
     "xiangshan-nanhu"
    ],
    "match": "^XS2FMISC$",
-   "display": "XS2 FMISC (FP division)",
+   "display": "XS2 FMISC (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12664,7 +12771,7 @@
     "xiangshan-nanhu"
    ],
    "match": "^XS2MDU$",
-   "display": "XS2 MDU (int multiply / int division)",
+   "display": "XS2 MDU (mul, div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12730,7 +12837,8 @@
     "xt-c920v2"
    ],
    "match": "^GenericOOOFMulDiv$",
-   "display": "V (FP add / FP multiply / FMA / FP division / conversion)",
+   "display": "V (FP add, FP mul, FMA +2)",
+   "full": "FP add / FP mul / FMA / FP div / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12747,7 +12855,7 @@
     "xt-c920v2"
    ],
    "match": "^GenericOOOFloat$",
-   "display": "T (FP add / conversion)",
+   "display": "T (FP add, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -12764,7 +12872,7 @@
     "xt-c920v2"
    ],
    "match": "^GenericOOOInt$",
-   "display": "T (ALU / shift)",
+   "display": "T (ALU, shift)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12781,7 +12889,7 @@
     "xt-c920v2"
    ],
    "match": "^GenericOOOLSU$",
-   "display": "OOOLSU (load / store)",
+   "display": "OOOLSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -12798,7 +12906,8 @@
     "xt-c920v2"
    ],
    "match": "^GenericOOOMulDiv$",
-   "display": "V (ALU / shift / int multiply / int division)",
+   "display": "V (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": null,
    "source": {
@@ -12817,7 +12926,8 @@
     "wildcatlake"
    ],
    "match": "^ADLPPort00$",
-   "display": "Port 00 (ALU / shift / int division / branch / FP multiply / FMA / FP division / vector integer / conversion)",
+   "display": "Port 00 (ALU, shift, div +6)",
+   "full": "ALU / shift / div / branch / FP mul / FMA / FP div / vec int / cvt",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -12836,7 +12946,8 @@
     "wildcatlake"
    ],
    "match": "^ADLPPort01$",
-   "display": "Port 01 (ALU / int multiply / int division / AGU / FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "Port 01 (ALU, mul, div +7)",
+   "full": "ALU / mul / div / AGU / FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -12912,7 +13023,8 @@
     "wildcatlake"
    ],
    "match": "^ADLPPort05$",
-   "display": "Port 05 (ALU / int division / FP add / vector shuffle / vector integer)",
+   "display": "Port 05 (ALU, div, FP add +2)",
+   "full": "ALU / div / FP add / shuffle / vec int",
    "cluster": "vec",
    "port": 5,
    "source": {
@@ -12931,7 +13043,8 @@
     "wildcatlake"
    ],
    "match": "^ADLPPort06$",
-   "display": "Port 06 (ALU / shift / int division / branch)",
+   "display": "Port 06 (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": 6,
    "source": {
@@ -13026,7 +13139,7 @@
     "wildcatlake"
    ],
    "match": "^ADLPPort11$",
-   "display": "Port 11 (ALU / int division)",
+   "display": "Port 11 (ALU, div)",
    "cluster": "int",
    "port": 11,
    "source": {
@@ -13062,7 +13175,8 @@
     "bonnell"
    ],
    "match": "^AtomPort0$",
-   "display": "Port 0 (ALU / shift / int multiply / int division / load / store / FP multiply / FP division / vector shuffle / vector integer / conversion)",
+   "display": "Port 0 (ALU, shift, mul +8)",
+   "full": "ALU / shift / mul / div / load / store / FP mul / FP div / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": 0,
    "source": {
@@ -13079,7 +13193,8 @@
     "bonnell"
    ],
    "match": "^AtomPort1$",
-   "display": "Port 1 (ALU / int division / branch / AGU / FP add / FP division / vector integer / conversion)",
+   "display": "Port 1 (ALU, div, branch +5)",
+   "full": "ALU / div / branch / AGU / FP add / FP div / vec int / cvt",
    "cluster": "branch",
    "port": 1,
    "source": {
@@ -13102,7 +13217,7 @@
     "tremont"
    ],
    "match": "^SLMDivider$",
-   "display": "R (int division)",
+   "display": "R (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -13125,7 +13240,7 @@
     "tremont"
    ],
    "match": "^SLMFPDivider$",
-   "display": "R (FP division)",
+   "display": "R (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13148,7 +13263,7 @@
     "tremont"
    ],
    "match": "^SLMFPMultiplier$",
-   "display": "R (FP multiply)",
+   "display": "R (FP mul)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13171,7 +13286,8 @@
     "tremont"
    ],
    "match": "^SLM_FPC_RSV0$",
-   "display": "SLM_FPC_RSV 0 (FP multiply / FP division / vector shuffle / vector integer / conversion)",
+   "display": "SLM_FPC_RSV 0 (FP mul, FP div, shuffle +2)",
+   "full": "FP mul / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13194,7 +13310,7 @@
     "tremont"
    ],
    "match": "^SLM_FPC_RSV1$",
-   "display": "SLM_FPC_RSV 1 (FP add / vector integer)",
+   "display": "SLM_FPC_RSV 1 (FP add, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13217,7 +13333,8 @@
     "tremont"
    ],
    "match": "^SLM_IEC_RSV0$",
-   "display": "SLM_IEC_RSV 0 (ALU / shift / int division / store)",
+   "display": "SLM_IEC_RSV 0 (ALU, shift, div +1)",
+   "full": "ALU / shift / div / store",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -13240,7 +13357,8 @@
     "tremont"
    ],
    "match": "^SLM_IEC_RSV1$",
-   "display": "SLM_IEC_RSV 1 (ALU / int multiply / int division / branch / store / AGU)",
+   "display": "SLM_IEC_RSV 1 (ALU, mul, div +3)",
+   "full": "ALU / mul / div / branch / store / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -13263,7 +13381,7 @@
     "tremont"
    ],
    "match": "^SLM_MEC_RSV$",
-   "display": "SLM_MEC_RSV (load / store)",
+   "display": "SLM_MEC_RSV (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -13281,7 +13399,7 @@
     "bdver3"
    ],
    "match": "^PdAGLU01$",
-   "display": "AGLU 01 (load / store)",
+   "display": "AGLU 01 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -13335,7 +13453,7 @@
     "bdver3"
    ],
    "match": "^PdDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -13353,7 +13471,7 @@
     "bdver3"
    ],
    "match": "^PdEX0$",
-   "display": "EX 0 (ALU / shift / AGU)",
+   "display": "EX 0 (ALU, shift, AGU)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -13371,7 +13489,8 @@
     "bdver3"
    ],
    "match": "^PdEX1$",
-   "display": "EX 1 (ALU / shift / int multiply / int division / branch / AGU)",
+   "display": "EX 1 (ALU, shift, mul +3)",
+   "full": "ALU / shift / mul / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -13389,7 +13508,7 @@
     "bdver3"
    ],
    "match": "^PdFPCVT$",
-   "display": "FPCVT (conversion)",
+   "display": "FPCVT (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13407,7 +13526,8 @@
     "bdver3"
    ],
    "match": "^PdFPFMA$",
-   "display": "FPFMA (FP add / FP multiply / FMA / FP division)",
+   "display": "FPFMA (FP add, FP mul, FMA +1)",
+   "full": "FP add / FP mul / FMA / FP div",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13425,7 +13545,7 @@
     "bdver3"
    ],
    "match": "^PdFPMAL$",
-   "display": "FPMAL (vector integer)",
+   "display": "FPMAL (vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13461,7 +13581,7 @@
     "bdver3"
    ],
    "match": "^PdFPSTO$",
-   "display": "FPSTO (conversion)",
+   "display": "FPSTO (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13479,7 +13599,7 @@
     "bdver3"
    ],
    "match": "^PdFPU0$",
-   "display": "FPU 0 (FP add / FMA / conversion)",
+   "display": "FPU 0 (FP add, FMA, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13497,7 +13617,8 @@
     "bdver3"
    ],
    "match": "^PdFPU1$",
-   "display": "FPU 1 (FP multiply / FMA / FP division / vector shuffle)",
+   "display": "FPU 1 (FP mul, FMA, FP div +1)",
+   "full": "FP mul / FMA / FP div / shuffle",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13515,7 +13636,7 @@
     "bdver3"
    ],
    "match": "^PdFPU2$",
-   "display": "FPU 2 (FMA / vector integer)",
+   "display": "FPU 2 (FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13533,7 +13654,7 @@
     "bdver3"
    ],
    "match": "^PdFPU3$",
-   "display": "FPU 3 (FMA / vector integer)",
+   "display": "FPU 3 (FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13551,7 +13672,7 @@
     "bdver3"
    ],
    "match": "^PdFPXBR$",
-   "display": "FPXBR (vector shuffle)",
+   "display": "FPXBR (shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13587,7 +13708,7 @@
     "bdver3"
    ],
    "match": "^PdMul$",
-   "display": "L (int multiply)",
+   "display": "L (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -13622,7 +13743,7 @@
     "znver1"
    ],
    "match": "^ZnAGU0$",
-   "display": "AGU 0 (load / store)",
+   "display": "AGU 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -13639,7 +13760,7 @@
     "znver1"
    ],
    "match": "^ZnAGU1$",
-   "display": "AGU 1 (load / store)",
+   "display": "AGU 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -13656,7 +13777,8 @@
     "znver1"
    ],
    "match": "^ZnALU0$",
-   "display": "ALU 0 (ALU / shift / branch / AGU)",
+   "display": "ALU 0 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -13673,7 +13795,8 @@
     "znver1"
    ],
    "match": "^ZnALU1$",
-   "display": "ALU 1 (ALU / shift / int multiply / branch / AGU)",
+   "display": "ALU 1 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -13690,7 +13813,8 @@
     "znver1"
    ],
    "match": "^ZnALU2$",
-   "display": "ALU 2 (ALU / shift / int division / branch / AGU)",
+   "display": "ALU 2 (ALU, shift, div +2)",
+   "full": "ALU / shift / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -13707,7 +13831,8 @@
     "znver1"
    ],
    "match": "^ZnALU3$",
-   "display": "ALU 3 (ALU / shift / branch / AGU)",
+   "display": "ALU 3 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -13724,7 +13849,7 @@
     "znver1"
    ],
    "match": "^ZnDivider$",
-   "display": "R (int division)",
+   "display": "R (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -13741,7 +13866,7 @@
     "znver1"
    ],
    "match": "^ZnFPU0$",
-   "display": "FPU 0 (FP multiply / FMA / vector integer)",
+   "display": "FPU 0 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13758,7 +13883,8 @@
     "znver1"
    ],
    "match": "^ZnFPU1$",
-   "display": "FPU 1 (FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "FPU 1 (FP mul, FMA, shuffle +1)",
+   "full": "FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13775,7 +13901,7 @@
     "znver1"
    ],
    "match": "^ZnFPU2$",
-   "display": "FPU 2 (FP add / vector shuffle)",
+   "display": "FPU 2 (FP add, shuffle)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13792,7 +13918,8 @@
     "znver1"
    ],
    "match": "^ZnFPU3$",
-   "display": "FPU 3 (FP add / FP division / vector integer / conversion)",
+   "display": "FPU 3 (FP add, FP div, vec int +1)",
+   "full": "FP add / FP div / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13809,7 +13936,7 @@
     "znver1"
    ],
    "match": "^ZnMultiplier$",
-   "display": "R (int multiply)",
+   "display": "R (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -13827,7 +13954,7 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWDivider$",
-   "display": "R (int division)",
+   "display": "R (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -13845,7 +13972,7 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWFPDivider$",
-   "display": "R (FP division)",
+   "display": "R (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -13863,7 +13990,8 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWPort0$",
-   "display": "Port 0 (ALU / shift / int division / branch / FP multiply / FMA / FP division)",
+   "display": "Port 0 (ALU, shift, div +4)",
+   "full": "ALU / shift / div / branch / FP mul / FMA / FP div",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -13881,7 +14009,8 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWPort1$",
-   "display": "Port 1 (ALU / int multiply / AGU / FP add / FP multiply / FMA / vector integer / conversion)",
+   "display": "Port 1 (ALU, mul, AGU +5)",
+   "full": "ALU / mul / AGU / FP add / FP mul / FMA / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -13899,7 +14028,7 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWPort2$",
-   "display": "Port 2 (load / store)",
+   "display": "Port 2 (load, store)",
    "cluster": "mem",
    "port": 2,
    "source": {
@@ -13917,7 +14046,7 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWPort3$",
-   "display": "Port 3 (load / store)",
+   "display": "Port 3 (load, store)",
    "cluster": "mem",
    "port": 3,
    "source": {
@@ -13953,7 +14082,8 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWPort5$",
-   "display": "Port 5 (ALU / AGU / vector shuffle / vector integer)",
+   "display": "Port 5 (ALU, AGU, shuffle +1)",
+   "full": "ALU / AGU / shuffle / vec int",
    "cluster": "mem",
    "port": 5,
    "source": {
@@ -13971,7 +14101,7 @@
     "core_5th_gen_avx_tsx"
    ],
    "match": "^BWPort6$",
-   "display": "Port 6 (ALU / shift / branch)",
+   "display": "Port 6 (ALU, shift, branch)",
    "cluster": "branch",
    "port": 6,
    "source": {
@@ -14005,7 +14135,7 @@
     "btver2"
    ],
    "match": "^JALU0$",
-   "display": "JALU 0 (ALU / shift / branch)",
+   "display": "JALU 0 (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14021,7 +14151,8 @@
     "btver2"
    ],
    "match": "^JALU1$",
-   "display": "JALU 1 (ALU / shift / int multiply / int division / branch / AGU)",
+   "display": "JALU 1 (ALU, shift, mul +3)",
+   "full": "ALU / shift / mul / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14037,7 +14168,7 @@
     "btver2"
    ],
    "match": "^JDiv$",
-   "display": "V (int division)",
+   "display": "V (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -14069,7 +14200,7 @@
     "btver2"
    ],
    "match": "^JFPM$",
-   "display": "JFPM (FP multiply / FP division)",
+   "display": "JFPM (FP mul, FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14085,7 +14216,7 @@
     "btver2"
    ],
    "match": "^JFPU0$",
-   "display": "JFPU 0 (FP add / vector shuffle / vector integer)",
+   "display": "JFPU 0 (FP add, shuffle, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14101,7 +14232,8 @@
     "btver2"
    ],
    "match": "^JFPU1$",
-   "display": "JFPU 1 (FP multiply / FP division / vector shuffle / vector integer / conversion)",
+   "display": "JFPU 1 (FP mul, FP div, shuffle +2)",
+   "full": "FP mul / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14133,7 +14265,7 @@
     "btver2"
    ],
    "match": "^JMul$",
-   "display": "L (int multiply)",
+   "display": "L (mul)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -14149,7 +14281,7 @@
     "btver2"
    ],
    "match": "^JSAGU$",
-   "display": "JSAGU (store / AGU)",
+   "display": "JSAGU (store, AGU)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14165,7 +14297,7 @@
     "btver2"
    ],
    "match": "^JSTC$",
-   "display": "JSTC (conversion)",
+   "display": "JSTC (cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14181,7 +14313,7 @@
     "btver2"
    ],
    "match": "^JVALU0$",
-   "display": "JVALU 0 (vector shuffle / vector integer)",
+   "display": "JVALU 0 (shuffle, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14197,7 +14329,7 @@
     "btver2"
    ],
    "match": "^JVALU1$",
-   "display": "JVALU 1 (vector shuffle / vector integer)",
+   "display": "JVALU 1 (shuffle, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14230,7 +14362,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4AGU0$",
-   "display": "GU 0 (load / store)",
+   "display": "GU 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14247,7 +14379,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4AGU1$",
-   "display": "GU 1 (load / store)",
+   "display": "GU 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14264,7 +14396,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4AGU2$",
-   "display": "GU 2 (load / store)",
+   "display": "GU 2 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14281,7 +14413,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4ALU0$",
-   "display": "LU 0 (ALU / shift / branch)",
+   "display": "LU 0 (ALU, shift, branch)",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14298,7 +14430,8 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4ALU1$",
-   "display": "LU 1 (ALU / shift / int multiply / branch)",
+   "display": "LU 1 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / branch",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14315,7 +14448,8 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4ALU2$",
-   "display": "LU 2 (ALU / shift / int division / branch / AGU)",
+   "display": "LU 2 (ALU, shift, div +2)",
+   "full": "ALU / shift / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14332,7 +14466,8 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4ALU3$",
-   "display": "LU 3 (ALU / shift / branch / AGU)",
+   "display": "LU 3 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14349,7 +14484,8 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4FPU0$",
-   "display": "PU 0 (FP multiply / FMA / vector shuffle / vector integer)",
+   "display": "PU 0 (FP mul, FMA, shuffle +1)",
+   "full": "FP mul / FMA / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14366,7 +14502,8 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4FPU1$",
-   "display": "PU 1 (FP add / FP division / vector shuffle / vector integer / conversion)",
+   "display": "PU 1 (FP add, FP div, shuffle +2)",
+   "full": "FP add / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14383,7 +14520,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4FPU2$",
-   "display": "PU 2 (FP multiply / FMA / vector integer)",
+   "display": "PU 2 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14400,7 +14537,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4FPU3$",
-   "display": "PU 3 (FP add / vector integer)",
+   "display": "PU 3 (FP add, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14417,7 +14554,7 @@
     "c86-4g-m6"
    ],
    "match": "^C4GM4LSU$",
-   "display": "SU (load / store)",
+   "display": "SU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14467,7 +14604,7 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7AGU0$",
-   "display": "GU 0 (load / store)",
+   "display": "GU 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14483,7 +14620,7 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7AGU1$",
-   "display": "GU 1 (load / store)",
+   "display": "GU 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14499,7 +14636,7 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7AGU2$",
-   "display": "GU 2 (load / store)",
+   "display": "GU 2 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14515,7 +14652,8 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7ALU0$",
-   "display": "LU 0 (ALU / shift / branch / AGU)",
+   "display": "LU 0 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14531,7 +14669,8 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7ALU1$",
-   "display": "LU 1 (ALU / shift / int multiply / branch / AGU)",
+   "display": "LU 1 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14547,7 +14686,8 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7ALU2$",
-   "display": "LU 2 (ALU / shift / branch / AGU)",
+   "display": "LU 2 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14563,7 +14703,8 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7ALU3$",
-   "display": "LU 3 (ALU / shift / int division / branch / AGU)",
+   "display": "LU 3 (ALU, shift, div +2)",
+   "full": "ALU / shift / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14595,7 +14736,7 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7FPU0$",
-   "display": "PU 0 (FP multiply / FMA / vector integer)",
+   "display": "PU 0 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14611,7 +14752,8 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7FPU1$",
-   "display": "PU 1 (FP add / FP division / vector shuffle / vector integer / conversion)",
+   "display": "PU 1 (FP add, FP div, shuffle +2)",
+   "full": "FP add / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14627,7 +14769,7 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7FPU2$",
-   "display": "PU 2 (FP multiply / FMA / vector integer)",
+   "display": "PU 2 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14643,7 +14785,8 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7FPU3$",
-   "display": "PU 3 (FP add / FP division / vector shuffle / vector integer / conversion)",
+   "display": "PU 3 (FP add, FP div, shuffle +2)",
+   "full": "FP add / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14659,7 +14802,7 @@
     "c86-4g-m7"
    ],
    "match": "^C4GM7LSU$",
-   "display": "SU (load / store)",
+   "display": "SU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14707,7 +14850,7 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8AGU0$",
-   "display": "GU 0 (load / store)",
+   "display": "GU 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14723,7 +14866,7 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8AGU1$",
-   "display": "GU 1 (load / store)",
+   "display": "GU 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14739,7 +14882,7 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8AGU2$",
-   "display": "GU 2 (load / store)",
+   "display": "GU 2 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -14755,7 +14898,8 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8ALU0$",
-   "display": "LU 0 (ALU / shift / branch / AGU)",
+   "display": "LU 0 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14771,7 +14915,8 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8ALU1$",
-   "display": "LU 1 (ALU / shift / int multiply / branch / AGU)",
+   "display": "LU 1 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14787,7 +14932,8 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8ALU2$",
-   "display": "LU 2 (ALU / shift / branch / AGU)",
+   "display": "LU 2 (ALU, shift, branch +1)",
+   "full": "ALU / shift / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14803,7 +14949,8 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8ALU3$",
-   "display": "LU 3 (ALU / shift / int division / branch / AGU)",
+   "display": "LU 3 (ALU, shift, div +2)",
+   "full": "ALU / shift / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -14851,7 +14998,7 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8FPU0$",
-   "display": "PU 0 (FP multiply / FMA / vector integer)",
+   "display": "PU 0 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14867,7 +15014,8 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8FPU1$",
-   "display": "PU 1 (FP add / FP division / vector shuffle / vector integer / conversion)",
+   "display": "PU 1 (FP add, FP div, shuffle +2)",
+   "full": "FP add / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14883,7 +15031,7 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8FPU2$",
-   "display": "PU 2 (FP multiply / FMA / vector integer)",
+   "display": "PU 2 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14899,7 +15047,8 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8FPU3$",
-   "display": "PU 3 (FP add / FP division / vector shuffle / vector integer / conversion)",
+   "display": "PU 3 (FP add, FP div, shuffle +2)",
+   "full": "FP add / FP div / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -14931,7 +15080,7 @@
     "c86-4g-m8"
    ],
    "match": "^C4GM8LSU$",
-   "display": "SU (load / store)",
+   "display": "SU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -15007,7 +15156,7 @@
     "x86-64-v4"
    ],
    "match": "^SKXFPDivider$",
-   "display": "R (FP division)",
+   "display": "R (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -15029,7 +15178,8 @@
     "x86-64-v4"
    ],
    "match": "^SKXPort0$",
-   "display": "Port 0 (ALU / shift / int division / branch / FP add / FP multiply / FMA / FP division / vector integer / conversion)",
+   "display": "Port 0 (ALU, shift, div +7)",
+   "full": "ALU / shift / div / branch / FP add / FP mul / FMA / FP div / vec int / cvt",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -15051,7 +15201,8 @@
     "x86-64-v4"
    ],
    "match": "^SKXPort1$",
-   "display": "Port 1 (ALU / int multiply / int division / AGU / FP add / FP multiply / FMA / vector integer / conversion)",
+   "display": "Port 1 (ALU, mul, div +6)",
+   "full": "ALU / mul / div / AGU / FP add / FP mul / FMA / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -15073,7 +15224,7 @@
     "x86-64-v4"
    ],
    "match": "^SKXPort2$",
-   "display": "Port 2 (load / store)",
+   "display": "Port 2 (load, store)",
    "cluster": "mem",
    "port": 2,
    "source": {
@@ -15095,7 +15246,7 @@
     "x86-64-v4"
    ],
    "match": "^SKXPort3$",
-   "display": "Port 3 (load / store)",
+   "display": "Port 3 (load, store)",
    "cluster": "mem",
    "port": 3,
    "source": {
@@ -15139,7 +15290,8 @@
     "x86-64-v4"
    ],
    "match": "^SKXPort5$",
-   "display": "Port 5 (ALU / int division / AGU / vector shuffle / vector integer)",
+   "display": "Port 5 (ALU, div, AGU +2)",
+   "full": "ALU / div / AGU / shuffle / vec int",
    "cluster": "mem",
    "port": 5,
    "source": {
@@ -15161,7 +15313,8 @@
     "x86-64-v4"
    ],
    "match": "^SKXPort6$",
-   "display": "Port 6 (ALU / shift / int division / branch)",
+   "display": "Port 6 (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": 6,
    "source": {
@@ -15217,7 +15370,7 @@
     "yonah"
    ],
    "match": "^SBDivider$",
-   "display": "R (int division)",
+   "display": "R (div)",
    "cluster": "int",
    "port": null,
    "source": {
@@ -15251,7 +15404,7 @@
     "yonah"
    ],
    "match": "^SBFPDivider$",
-   "display": "R (FP division)",
+   "display": "R (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -15285,7 +15438,8 @@
     "yonah"
    ],
    "match": "^SBPort0$",
-   "display": "Port 0 (ALU / shift / int division / AGU / FP multiply / FMA / FP division)",
+   "display": "Port 0 (ALU, shift, div +4)",
+   "full": "ALU / shift / div / AGU / FP mul / FMA / FP div",
    "cluster": "mem",
    "port": 0,
    "source": {
@@ -15319,7 +15473,8 @@
     "yonah"
    ],
    "match": "^SBPort1$",
-   "display": "Port 1 (ALU / int multiply / AGU / FP add / FMA / vector shuffle / vector integer / conversion)",
+   "display": "Port 1 (ALU, mul, AGU +5)",
+   "full": "ALU / mul / AGU / FP add / FMA / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -15387,7 +15542,8 @@
     "yonah"
    ],
    "match": "^SBPort5$",
-   "display": "Port 5 (ALU / shift / branch / vector shuffle / vector integer)",
+   "display": "Port 5 (ALU, shift, branch +2)",
+   "full": "ALU / shift / branch / shuffle / vec int",
    "cluster": "branch",
    "port": 5,
    "source": {
@@ -15421,7 +15577,7 @@
     "yonah"
    ],
    "match": "^SBPort23$",
-   "display": "Port 23 (load / store)",
+   "display": "Port 23 (load, store)",
    "cluster": "mem",
    "port": 23,
    "source": {
@@ -15467,7 +15623,7 @@
     "x86-64-v3"
    ],
    "match": "^HWFPDivider$",
-   "display": "R (FP division)",
+   "display": "R (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -15490,7 +15646,8 @@
     "x86-64-v3"
    ],
    "match": "^HWPort0$",
-   "display": "Port 0 (ALU / shift / int division / branch / FP multiply / FMA / FP division)",
+   "display": "Port 0 (ALU, shift, div +4)",
+   "full": "ALU / shift / div / branch / FP mul / FMA / FP div",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -15513,7 +15670,8 @@
     "x86-64-v3"
    ],
    "match": "^HWPort1$",
-   "display": "Port 1 (ALU / int multiply / int division / AGU / FP add / FP multiply / FMA / vector integer / conversion)",
+   "display": "Port 1 (ALU, mul, div +6)",
+   "full": "ALU / mul / div / AGU / FP add / FP mul / FMA / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -15536,7 +15694,7 @@
     "x86-64-v3"
    ],
    "match": "^HWPort2$",
-   "display": "Port 2 (load / store)",
+   "display": "Port 2 (load, store)",
    "cluster": "mem",
    "port": 2,
    "source": {
@@ -15559,7 +15717,7 @@
     "x86-64-v3"
    ],
    "match": "^HWPort3$",
-   "display": "Port 3 (load / store)",
+   "display": "Port 3 (load, store)",
    "cluster": "mem",
    "port": 3,
    "source": {
@@ -15605,7 +15763,8 @@
     "x86-64-v3"
    ],
    "match": "^HWPort5$",
-   "display": "Port 5 (ALU / int division / AGU / vector shuffle / vector integer)",
+   "display": "Port 5 (ALU, div, AGU +2)",
+   "full": "ALU / div / AGU / shuffle / vec int",
    "cluster": "mem",
    "port": 5,
    "source": {
@@ -15628,7 +15787,8 @@
     "x86-64-v3"
    ],
    "match": "^HWPort6$",
-   "display": "Port 6 (ALU / shift / int division / branch)",
+   "display": "Port 6 (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": 6,
    "source": {
@@ -15668,7 +15828,8 @@
     "graniterapids_d"
    ],
    "match": "^SPRPort00$",
-   "display": "Port 00 (ALU / shift / int division / branch / FP multiply / FMA / FP division / vector integer / conversion)",
+   "display": "Port 00 (ALU, shift, div +6)",
+   "full": "ALU / shift / div / branch / FP mul / FMA / FP div / vec int / cvt",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -15685,7 +15846,8 @@
     "graniterapids_d"
    ],
    "match": "^SPRPort01$",
-   "display": "Port 01 (ALU / int multiply / int division / AGU / FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "Port 01 (ALU, mul, div +7)",
+   "full": "ALU / mul / div / AGU / FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -15753,7 +15915,8 @@
     "graniterapids_d"
    ],
    "match": "^SPRPort05$",
-   "display": "Port 05 (ALU / int division / FP add / vector shuffle / vector integer)",
+   "display": "Port 05 (ALU, div, FP add +2)",
+   "full": "ALU / div / FP add / shuffle / vec int",
    "cluster": "vec",
    "port": 5,
    "source": {
@@ -15770,7 +15933,8 @@
     "graniterapids_d"
    ],
    "match": "^SPRPort06$",
-   "display": "Port 06 (ALU / shift / int division / branch)",
+   "display": "Port 06 (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": 6,
    "source": {
@@ -15855,7 +16019,7 @@
     "graniterapids_d"
    ],
    "match": "^SPRPort11$",
-   "display": "Port 11 (ALU / int division)",
+   "display": "Port 11 (ALU, div)",
    "cluster": "int",
    "port": 11,
    "source": {
@@ -15906,7 +16070,7 @@
     "icelake_server"
    ],
    "match": "^ICXFPDivider$",
-   "display": "R (FP division)",
+   "display": "R (FP div)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -15923,7 +16087,8 @@
     "icelake_server"
    ],
    "match": "^ICXPort0$",
-   "display": "Port 0 (ALU / shift / int division / branch / FP add / FP multiply / FMA / FP division / vector integer / conversion)",
+   "display": "Port 0 (ALU, shift, div +7)",
+   "full": "ALU / shift / div / branch / FP add / FP mul / FMA / FP div / vec int / cvt",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -15940,7 +16105,8 @@
     "icelake_server"
    ],
    "match": "^ICXPort1$",
-   "display": "Port 1 (ALU / int multiply / int division / AGU / FP add / FP multiply / FMA / vector shuffle / vector integer / conversion)",
+   "display": "Port 1 (ALU, mul, div +7)",
+   "full": "ALU / mul / div / AGU / FP add / FP mul / FMA / shuffle / vec int / cvt",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -16008,7 +16174,8 @@
     "icelake_server"
    ],
    "match": "^ICXPort5$",
-   "display": "Port 5 (ALU / int division / AGU / vector shuffle / vector integer)",
+   "display": "Port 5 (ALU, div, AGU +2)",
+   "full": "ALU / div / AGU / shuffle / vec int",
    "cluster": "mem",
    "port": 5,
    "source": {
@@ -16025,7 +16192,8 @@
     "icelake_server"
    ],
    "match": "^ICXPort6$",
-   "display": "Port 6 (ALU / shift / int division / branch)",
+   "display": "Port 6 (ALU, shift, div +1)",
+   "full": "ALU / shift / div / branch",
    "cluster": "branch",
    "port": 6,
    "source": {
@@ -16092,7 +16260,7 @@
     "lunarlake"
    ],
    "match": "^LNLPPort00$",
-   "display": "Port 00 (int division / branch)",
+   "display": "Port 00 (div, branch)",
    "cluster": "branch",
    "port": 0,
    "source": {
@@ -16108,7 +16276,8 @@
     "lunarlake"
    ],
    "match": "^LNLPPort01$",
-   "display": "Port 01 (ALU / shift / int multiply / int division / AGU)",
+   "display": "Port 01 (ALU, shift, mul +2)",
+   "full": "ALU / shift / mul / div / AGU",
    "cluster": "mem",
    "port": 1,
    "source": {
@@ -16124,7 +16293,7 @@
     "lunarlake"
    ],
    "match": "^LNLPPort02$",
-   "display": "Port 02 (int division / branch)",
+   "display": "Port 02 (div, branch)",
    "cluster": "branch",
    "port": 2,
    "source": {
@@ -16140,7 +16309,8 @@
     "lunarlake"
    ],
    "match": "^LNLPPort03$",
-   "display": "Port 03 (ALU / shift / int multiply / int division)",
+   "display": "Port 03 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": 3,
    "source": {
@@ -16156,7 +16326,7 @@
     "lunarlake"
    ],
    "match": "^LNLPPort04$",
-   "display": "Port 04 (int division / branch)",
+   "display": "Port 04 (div, branch)",
    "cluster": "branch",
    "port": 4,
    "source": {
@@ -16172,7 +16342,8 @@
     "lunarlake"
    ],
    "match": "^LNLPPort05$",
-   "display": "Port 05 (ALU / shift / int multiply / int division)",
+   "display": "Port 05 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / div",
    "cluster": "int",
    "port": 5,
    "source": {
@@ -16332,7 +16503,8 @@
     "lunarlake"
    ],
    "match": "^LNLPVPort00$",
-   "display": "Port 00 (FP multiply / FMA / FP division / vector integer / conversion)",
+   "display": "Port 00 (FP mul, FMA, FP div +2)",
+   "full": "FP mul / FMA / FP div / vec int / cvt",
    "cluster": "vec",
    "port": 0,
    "source": {
@@ -16348,7 +16520,8 @@
     "lunarlake"
    ],
    "match": "^LNLPVPort01$",
-   "display": "Port 01 (FP multiply / FMA / FP division / vector integer / conversion)",
+   "display": "Port 01 (FP mul, FMA, FP div +2)",
+   "full": "FP mul / FMA / FP div / vec int / cvt",
    "cluster": "vec",
    "port": 1,
    "source": {
@@ -16364,7 +16537,7 @@
     "lunarlake"
    ],
    "match": "^LNLPVPort02$",
-   "display": "Port 02 (FP add / vector shuffle / vector integer)",
+   "display": "Port 02 (FP add, shuffle, vec int)",
    "cluster": "vec",
    "port": 2,
    "source": {
@@ -16380,7 +16553,7 @@
     "lunarlake"
    ],
    "match": "^LNLPVPort03$",
-   "display": "Port 03 (FP add / vector shuffle / vector integer)",
+   "display": "Port 03 (FP add, shuffle, vec int)",
    "cluster": "vec",
    "port": 3,
    "source": {
@@ -16396,7 +16569,7 @@
     "znver6"
    ],
    "match": "^Zn4AGU0$",
-   "display": "AGU 0 (load / store)",
+   "display": "AGU 0 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -16412,7 +16585,7 @@
     "znver6"
    ],
    "match": "^Zn4AGU1$",
-   "display": "AGU 1 (load / store)",
+   "display": "AGU 1 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -16428,7 +16601,7 @@
     "znver6"
    ],
    "match": "^Zn4AGU2$",
-   "display": "AGU 2 (load / store)",
+   "display": "AGU 2 (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -16444,7 +16617,8 @@
     "znver6"
    ],
    "match": "^Zn4ALU0$",
-   "display": "ALU 0 (ALU / int division / branch / AGU)",
+   "display": "ALU 0 (ALU, div, branch +1)",
+   "full": "ALU / div / branch / AGU",
    "cluster": "branch",
    "port": null,
    "source": {
@@ -16460,7 +16634,8 @@
     "znver6"
    ],
    "match": "^Zn4ALU1$",
-   "display": "ALU 1 (ALU / shift / int multiply / AGU)",
+   "display": "ALU 1 (ALU, shift, mul +1)",
+   "full": "ALU / shift / mul / AGU",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -16476,7 +16651,7 @@
     "znver6"
    ],
    "match": "^Zn4ALU2$",
-   "display": "ALU 2 (ALU / shift / AGU)",
+   "display": "ALU 2 (ALU, shift, AGU)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -16492,7 +16667,7 @@
     "znver6"
    ],
    "match": "^Zn4ALU3$",
-   "display": "ALU 3 (ALU / AGU)",
+   "display": "ALU 3 (ALU, AGU)",
    "cluster": "mem",
    "port": null,
    "source": {
@@ -16524,7 +16699,7 @@
     "znver6"
    ],
    "match": "^Zn4FP0$",
-   "display": "FP 0 (FP multiply / FMA / vector integer)",
+   "display": "FP 0 (FP mul, FMA, vec int)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -16540,7 +16715,8 @@
     "znver6"
    ],
    "match": "^Zn4FP1$",
-   "display": "FP 1 (FP multiply / FMA / FP division / vector shuffle / vector integer)",
+   "display": "FP 1 (FP mul, FMA, FP div +2)",
+   "full": "FP mul / FMA / FP div / shuffle / vec int",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -16556,7 +16732,8 @@
     "znver6"
    ],
    "match": "^Zn4FP2$",
-   "display": "FP 2 (FP add / vector shuffle / vector integer / conversion)",
+   "display": "FP 2 (FP add, shuffle, vec int +1)",
+   "full": "FP add / shuffle / vec int / cvt",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -16572,7 +16749,7 @@
     "znver6"
    ],
    "match": "^Zn4FP3$",
-   "display": "FP 3 (FP add / vector integer / conversion)",
+   "display": "FP 3 (FP add, vec int, cvt)",
    "cluster": "vec",
    "port": null,
    "source": {
@@ -16620,7 +16797,7 @@
     "znver6"
    ],
    "match": "^Zn4LSU$",
-   "display": "LSU (load / store)",
+   "display": "LSU (load, store)",
    "cluster": "mem",
    "port": null,
    "source": {

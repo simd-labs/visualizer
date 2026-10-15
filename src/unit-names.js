@@ -5,9 +5,10 @@ import data from './unit-names.json' with { type: 'json' };
 const rules = data.rules.map((r) => ({ ...r, re: new RegExp(r.match) }));
 const ruleFor = (cpu, base) => rules.find((r) => (r.cpus.includes(cpu) || r.cpus.includes('*')) && r.re.test(base));
 
-// Display-role abbreviations spelled out, so no bare "st" or "AGU" reaches
-// the page. FP, FMA and LSU stay: fp/fma are the ISA term and LSU expands
-// inline in the JSON ("LSU: load/store unit").
+// Hand-rule display-role abbreviations spelled out, so no bare "st" or "AGU"
+// reaches the page from them; probe rules already use the short role words and
+// stay as they are. FP, FMA and LSU stay: fp/fma are the ISA term and LSU
+// expands inline in the JSON ("LSU: load/store unit").
 const WORDS = [
   [/\bAGU\b/g, 'address generation unit'],
   [/\bALU\b/g, 'arithmetic logic unit'],
@@ -39,7 +40,9 @@ function named(cpu, base) {
   const rule = ruleFor(cpu, base);
   if (rule.label !== 'fallback') {
     const [, head, role = ''] = base.replace(rule.re, rule.display).match(/^(.*?)(?: \((.*)\))?$/);
-    return { head, role: spellOut(role), cluster: rule.cluster, port: rule.port ?? null, fallback: false };
+    const out = { head, role: rule.family.startsWith('probe-') ? role : spellOut(role), cluster: rule.cluster, port: rule.port ?? null, fallback: false };
+    if (rule.full) out.full = rule.full; // every role, for the tooltip when the sub-label caps at three
+    return out;
   }
   // the /.*(\.\d+)?$/ expansion: a group like "Zn4AGU01" is named after its units AGU0 and AGU1
   const [, stem, digits] = base.match(/^(.*?)(\d{2,})$/) ?? [];
@@ -60,5 +63,7 @@ export function lookup(cpu, raw) {
     const alt = name.match(/^(\D+)(\d+)\/(?:\1)?(\d+)$/); // "L0/L1", "FP4/5"
     name = alt && k < 2 ? alt[1] + alt[2 + k] : `${name} ${k}`;
   }
-  return { name, role: u.role, display: u.role ? `${name} (${u.role})` : name, cluster: u.cluster, port: u.port, fallback: u.fallback };
+  const out = { name, role: u.role, display: u.role ? `${name} (${u.role})` : name, cluster: u.cluster, port: u.port, fallback: u.fallback };
+  if (u.full) out.full = u.full;
+  return out;
 }
