@@ -153,6 +153,17 @@ test.describe('M3 editor and screen fit', () => {
     });
   }
 
+  for (const [w, h] of [[1920, 1080], [800, 900]]) {
+    test(`${w}x${h}: no cycle bar control moves between cycles`, async ({ page }) => {
+      await runAt(page, w, h);
+      const records = await eachCycle(
+        page,
+        `return [...document.querySelectorAll('.cycle-bar > *:not(#flow-status)')].map((el) => { const r = el.getBoundingClientRect(); return [r.x, r.y, r.width, r.height].map((v) => v.toFixed(2)).join(','); });`
+      );
+      records.forEach((r, c) => expect(r, `cycle ${c}`).toEqual(records[0]));
+    });
+  }
+
   for (const [w, h] of [[1920, 1080], [1600, 900], [1366, 768], [960, 1080], [800, 900]]) {
     test(`${w}x${h}: no sideways page scroll`, async ({ page }) => {
       await runAt(page, w, h);

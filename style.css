@@ -311,6 +311,7 @@ input[type="range"] { accent-color: var(--accent); }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  align-content: flex-start; /* the pinned min-height must not stretch the rows: the controls stay put when the status gets shorter */
   gap: 0.4rem 0.75rem;
   padding: 0.5rem 0.75rem;
   background: var(--surface);
@@ -320,8 +321,8 @@ input[type="range"] { accent-color: var(--accent); }
 }
 .cycle-bar .btn { height: 2rem; }
 .cycle-bar label { font-size: 0.85rem; color: var(--text-secondary); }
-#flow-cycle { flex: 1 1 12rem; min-width: 8rem; }
-#flow-cycle-value { min-width: 6em; font-size: 0.85rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+#flow-cycle { flex: 1 1 8rem; min-width: 8rem; }
+#flow-cycle-value { min-width: 7.1em; /* shortcut: fits "cycle 999 of 999", widen if runs pass 999 cycles */ font-size: 0.85rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 #flow-speed { width: 7rem; }
 #flow-speed-value { min-width: 5.5em; font-size: 0.85rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 /* the status wraps into a fixed height set per run (see maxOccupancy), so the
