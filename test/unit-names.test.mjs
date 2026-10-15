@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { lookup } from '../src/unit-names.js';
 
 const names = JSON.parse(readFileSync(new URL('../src/unit-names.json', import.meta.url), 'utf8'));
@@ -67,4 +68,47 @@ test('instances, groups and the fallback', () => {
   // an unknown name is humanized, never shown raw
   assert.deepEqual(lookup('znver4', 'ZN4Store0'), { name: 'Store 0', role: '', display: 'Store 0', cluster: 'mem', port: null, fallback: true });
   assert.equal(lookup('haswell', 'HWPort0').name, 'Port 0');
+});
+
+// A generic title ("Port 0", "Unit B", "Pipe A", a bare number) carries no
+// information; the generated names keep such titles only when the parenthesised
+// role follows. Display "Port 5 (ALU)" is fine, "Port 5" is not. A unit no
+// probe touches shows "(unknown)" instead of a role.
+const GENERIC_TITLE = [/^Port \d+$/, /^Port \d{2,}$/, /^P \d+$/, /^Unit [A-Z]\d*$/, /^[A-Z]?$/, /^Pipe [A-Z0-9]$/, /^\d+$/, /^.*Unit[A-Z]\d*$/, /^.*Port\d+$/, /^.*Pipe[A-Z0-9]?$/];
+
+test('no display name is generic without a role or an unknown mark', () => {
+  for (const r of names.rules) {
+    if (r.label === 'fallback') continue;
+    const m = r.display.match(/^(.*?)\s*\((.*)\)$/);
+    const [title, role] = m ? [m[1], m[2]] : [r.display, ''];
+    if (GENERIC_TITLE.some((g) => g.test(title))) {
+      assert.ok(role, `${r.label}: ${JSON.stringify(r.display)} is a generic name with no role`);
+    }
+  }
+});
+
+// Every CPU the page offers: run one probe through stock llvm-mca and check
+// that each resource in its JSON resolves to a table entry, never the humanize
+// fallback. Mutation check: revert one generated rule's display to its raw
+// name (no parens) and both this and the generic-title test fail.
+test('every page CPU has an entry for every unit its probe JSON shows', (t) => {
+  const cpus = JSON.parse(readFileSync(new URL('../cpus.json', import.meta.url), 'utf8'));
+  const MCA = process.env.MCA || 'llvm-mca-23';
+  const probe = {
+    'x86_64-unknown-linux-gnu': 'addl %ecx, %eax\n',
+    'aarch64-unknown-linux-gnu': 'add x0, x0, x0\n',
+    'riscv64-unknown-linux-gnu': 'add a0, a0, a1\n',
+  };
+  for (const [triple, list] of Object.entries(cpus)) {
+    for (const cpu of list) {
+      const r = spawnSync(MCA, [`--mtriple=${triple}`, `-mcpu=${cpu}`, '-json', '-'], { input: probe[triple], encoding: 'utf8', maxBuffer: 64 << 20 });
+      if (r.error?.code === 'ENOENT') return t.skip(`${MCA} not installed`);
+      assert.equal(r.status, 0, `${triple}/${cpu}: ${MCA} failed: ${r.stderr?.slice(-200)}`);
+      const j = JSON.parse(r.stdout);
+      for (const raw of j.TargetInfo.Resources) {
+        const u = lookup(cpu, raw);
+        assert.equal(u.fallback, false, `${triple}/${cpu}: ${JSON.stringify(raw)} fell back to "${u.name}"`);
+      }
+    }
+  }
 });
