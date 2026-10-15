@@ -551,9 +551,9 @@ test('flow diagram: tokens land on their events units at cycle 2, slider moves t
   await page.locator('#run').click();
   await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
 
-  // blocks: dispatch, two scheduler queues, one box per execution unit, retire
+  // blocks: dispatch, the ready queue, scheduler slots and one box per execution unit, retire
   const blocks = await page.locator('#flow svg .flow-block').evaluateAll((els) => els.map((g) => g.dataset.block));
-  expect(blocks).toEqual(['dispatch', 'waiting', 'ready', 'execute', 'retire']);
+  expect(blocks).toEqual(['dispatch', 'ready', 'execute', 'retire']);
   const nUnits = fixture('znver4').TargetInfo.Resources.length;
   await expect(page.locator('#flow svg .flow-unit')).toHaveCount(nUnits);
   // unit names must be legible (7px was not) and fit inside their box
@@ -847,7 +847,7 @@ test('flow tokens stay inside their blocks for a 100-iteration run', async ({ pa
       const out = [];
       for (const g of document.querySelectorAll('#flow svg .flow-token')) {
         const t = g.querySelector('rect').getBoundingClientRect();
-        const b = blocks[g.dataset.block];
+        const b = blocks[g.dataset.block === 'waiting' ? 'execute' : g.dataset.block]; // scheduler slots sit in the execute block
         if (t.left < b.left - 1 || t.right > b.right + 1 || t.top < b.top - 1 || t.bottom > b.bottom + 1) {
           out.push(g.dataset.instr + ':' + g.dataset.iter);
         }

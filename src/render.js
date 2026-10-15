@@ -1,4 +1,4 @@
-import { buildModel, tokenPositionsAt, instanceLabel, attachSourceLines } from './model.js';
+import { buildModel, tokenPositionsAt, instanceLabel, attachSourceLines, schedulerSlots, unitGroup } from './model.js';
 import { initMca, runMca } from './mca.js';
 import { lookup } from './unit-names.js';
 import { EXAMPLES, exampleFor } from './examples.js';
@@ -375,7 +375,7 @@ function repaint() {
   renderTimeline(shownModel, document.getElementById('timeline'));
   renderHeatmap(shownModel, document.getElementById('heatmap'));
   if (currentFlowModel) {
-    drawFlowBlocks(currentFlowModel, +document.getElementById('flow-cycle').value);
+    drawFlowBlocks(currentFlowModel);
     setFlowCycle(currentFlowModel, +document.getElementById('flow-cycle').value);
   }
 }
@@ -643,9 +643,9 @@ const KIND = { int: 'integer', branch: 'branch', slow: 'slow (divider)', vec: 'F
 const CH = 0.62; // monospace advance per em; shortcut: estimates label widths, measure them if a font is wider
 let flowCycleMax = 0;
 let currentFlowModel = null;
-// Maximum token pile and per-unit pile over the whole run: the blocks and
-// unit boxes are sized from it so no token is drawn outside its block.
-let flowShape = { pile: {}, byUnit: new Map(), tokW: 30, height: 0 };
+// Maximum token pile and per-unit pile over the whole run, plus the
+// scheduler slots: the boxes are sized from them once per run.
+let flowShape = { pile: {}, byUnit: new Map(), tokW: 30, sched: null };
 let flowLayout = null; // block and unit boxes from drawFlowBlocks, read by setFlowCycle
 
 // Mirror of the status text setFlowCycle writes; walking the run with this
@@ -685,95 +685,27 @@ function flowStatusHeight(model, statusEl) {
   return max;
 }
 
-// The vertical layout of the flow diagram for one cycle's counts: where the
-// bottom of the diagram lands. Shared by maxOccupancy (to reserve the tallest
-// cycle's height for the SVG, so the content below never moves while the
-// user steps) and drawFlowBlocks (for painting), so the reserved height and
-// the painted height can never disagree.
-function flowHeight(counts, unitCounts, modelUnits, pile, tokW) {
-  const { W, gap, pad, head, name: nameH, tokH, tg: tgap, font, small, line: lineH, band: bandH } = FLOW;
-  const unitPile = (u) => Math.max(unitCounts[u] || 0, 1);
-  const step = tokW + tgap;
-  const colsIn = (w) => Math.max(1, Math.floor((w - 2 * pad + tgap) / step));
-  const stackH = (rows) => rows * tokH + (rows - 1) * tgap;
-  const queueH = (n, w) => head + stackH(Math.ceil(Math.max(n, 1) / colsIn(w))) + pad;
-
-  const qW3 = (W - 2 * gap) / 3;
-  const qW4 = (W - 3 * gap) / 4;
-  // retire joins the top row when the four-way split leaves every queue at
-  // least as wide, in token columns, as the three-way split makes the busiest
-  // (the top row then stays the same height, and retire keeps up with the
-  // queues it feeds)
-  const grid = colsIn(qW4) >= colsIn(qW3) && pile.retire <= colsIn(qW4);
-  const qW = grid ? qW4 : qW3;
-  const h1 = Math.max(queueH(counts.dispatch, qW), queueH(counts.waiting, qW), queueH(counts.ready, qW));
-  const retireH = grid ? Math.max(queueH(counts.retire, qW), h1) : queueH(counts.retire, W);
-
-  const execY = h1 + gap;
-  const ug = 6;
-  const textW = (s, f) => Math.ceil(s.length * CH * f);
-  const cols = modelUnits.map((n, u) => {
-    const kind = n.cluster === 'other' || /div/i.test(n.name) ? 'slow' : n.cluster in KIND ? n.cluster : 'int';
-    const lines = n.role ? n.role.split(' / ') : [KIND[kind]];
-    const w = Math.min(W - 4 * pad, Math.max(textW(n.name, font), ...lines.map((l) => textW(l, small)), tokW) + 2 * pad);
-    return { u, n, kind, lines, w, cols: colsIn(w), band: kind === 'vec' || kind === 'mem' ? kind : 'int' };
-  });
-  const rank = { int: 0, vec: 0, mem: 0, branch: 1, slow: 2 };
-  let y = execY + head;
-  for (const band of ['int', 'vec', 'mem']) {
-    const list = cols
-      .filter((c) => c.band === band)
-      .sort((a, b) => rank[a.kind] - rank[b.kind] || (a.n.port != null && b.n.port != null ? a.n.port - b.n.port : 0) || a.n.name.localeCompare(b.n.name, 'en', { numeric: true }));
-    if (!list.length) continue;
-    y += bandH;
-    let row = [];
-    const flush = () => {
-      if (!row.length) return;
-      const rows = Math.max(...row.map((c) => Math.ceil(unitPile(c.u) / c.cols)));
-      y += nameH + Math.max(...row.map((c) => c.lines.length)) * lineH + stackH(rows) + pad + ug;
-      row = [];
-    };
-    for (const c of list) {
-      const used = row.reduce((s, r) => s + r.w + ug, 2 * pad);
-      // a full row, or the first slow unit, starts a new row
-      if (row.length && (used + c.w > W - 2 * pad || (c.kind === 'slow' && row.at(-1).kind !== 'slow'))) flush();
-      row.push(c);
-    }
-    flush();
-  }
-  if (counts.noUnit) y += stackH(Math.ceil(counts.noUnit / colsIn(W))) + ug;
-  const execH = y - ug + pad - execY;
-  const retireY = grid ? 0 : execY + execH + gap;
-  return retireY + retireH + 1;
-}
-
 function maxOccupancy(model) {
   const pile = { dispatch: 1, waiting: 1, ready: 1, execute: 1, retire: 1, noUnit: 0 };
   const byUnit = new Map();
   const { maxCycle } = model.cycleIndex;
   const len = Math.max(...model.rows.map((r) => instanceLabel(model, r.iter, r.instr).length));
   const tokW = Math.ceil(len * CH * FLOW.font) + 8;
-  let height = 0;
   for (let c = 0; c <= maxCycle; c++) {
     const counts = { dispatch: 0, waiting: 0, ready: 0, execute: 0, retire: 0, noUnit: 0 };
     const unitCounts = {};
-    let any = false;
     for (const t of tokenPositionsAt(model, c)) {
       counts[t.stage]++;
-      any = true;
       // a token in the execute block parks somewhere: on every held unit,
       // or on its last unit when only latency remains
       const spots = t.units.length ? t.units : t.lastUnits;
       for (const u of spots) unitCounts[u] = (unitCounts[u] || 0) + 1;
       if (t.stage === 'execute' && spots.length === 0) counts.noUnit++;
     }
-    if (!any) continue;
     for (const k in counts) pile[k] = Math.max(pile[k], counts[k]);
     for (const u in unitCounts) byUnit.set(+u, Math.max(byUnit.get(+u) || 1, unitCounts[u]));
-    // the SVG keeps the tallest cycle's height: boxes may still resize inside
-    height = Math.max(height, flowHeight(counts, unitCounts, model.units, pile, tokW));
   }
-  return { pile, byUnit, tokW, height };
+  return { pile, byUnit, tokW };
 }
 
 function renderFlow(model) {
@@ -813,8 +745,9 @@ function renderFlow(model) {
   slider.max = flowCycleMax;
   slider.value = 0;
   sliderValue.textContent = `cycle 0 of ${flowCycleMax}`;
-  flowShape = maxOccupancy(model);
+  flowShape = { ...maxOccupancy(model), sched: schedulerSlots(model) };
   currentFlowModel = model;
+  drawFlowBlocks(model);
   // Pin the cycle bar to the tallest status of the run, so status wraps in a
   // fixed height and the panels below never move while stepping.
   status.closest('.cycle-bar').style.minHeight = `${flowStatusHeight(model, status)}px`;
@@ -827,46 +760,25 @@ function renderFlow(model) {
   setFlowCycle(model, 0);
 }
 
-function drawFlowBlocks(model, cycle) {
+// The whole diagram except the tokens, drawn once per run (and on a theme
+// change): every box is sized from the run's peaks, so nothing moves while
+// the user steps. Top to bottom: dispatch and ready, the clusters (each
+// scheduler group a fixed grid of slots above the units it feeds, then one
+// box per unit), retire.
+function drawFlowBlocks(model) {
   const host = document.getElementById('flow');
   host.textContent = '';
   const { W, gap, pad, head, name: nameH, tokH, tg: tgap, font, title, small, line: lineH, band: bandH } = FLOW;
-  const { pile, tokW } = flowShape;
-  // This cycle's piles size the boxes, so a queue blocks off only the rows it
-  // is using right now; the max pile only picks the queue split. Token layout
-  // in setFlowCycle uses the same counts, so the boxes always fit this cycle.
-  const counts = { dispatch: 0, waiting: 0, ready: 0, retire: 0, noUnit: 0 };
-  const unitCounts = {};
-  for (const t of tokenPositionsAt(model, cycle)) {
-    if (t.stage in counts) counts[t.stage]++;
-    const spots = t.units.length ? t.units : t.lastUnits;
-    for (const u of spots) unitCounts[u] = (unitCounts[u] || 0) + 1;
-    if (t.stage === 'execute' && spots.length === 0) counts.noUnit++;
-  }
-  const unitPile = (u) => Math.max(unitCounts[u] || 0, 1);
+  const { pile, byUnit, tokW, sched } = flowShape;
   const step = tokW + tgap;
   const colsIn = (w) => Math.max(1, Math.floor((w - 2 * pad + tgap) / step));
   const stackH = (rows) => rows * tokH + (rows - 1) * tgap;
   const queueH = (n, w) => head + stackH(Math.ceil(Math.max(n, 1) / colsIn(w))) + pad;
   const box = (x, y, w, h) => ({ x, y, w, h, cols: colsIn(w) });
 
-  const qW3 = (W - 2 * gap) / 3;
-  const qW4 = (W - 3 * gap) / 4;
-  // retire joins the top row when the four-way split leaves every queue at
-  // least as wide, in token columns, as the three-way split makes the busiest
-  // (the top row then stays the same height, and retire keeps up with the
-  // queues it feeds)
-  const grid = colsIn(qW4) >= colsIn(qW3) && pile.retire <= colsIn(qW4);
-  const qW = grid ? qW4 : qW3;
-  const blocks = {
-    dispatch: box(0, 0, qW, queueH(counts.dispatch, qW)),
-    waiting: box(qW + gap, 0, qW, queueH(counts.waiting, qW)),
-    ready: box(2 * (qW + gap), 0, qW, queueH(counts.ready, qW)),
-  };
-  const h1 = Math.max(blocks.dispatch.h, blocks.waiting.h, blocks.ready.h);
-  // retire joins the top row at the row's height, so there's no sliver of dead
-  // space between the queues and its tokens wrap across its own columns
-  if (grid) blocks.retire = box(3 * (qW + gap), 0, qW, Math.max(queueH(counts.retire, qW), h1));
+  const qW = (W - gap) / 2;
+  const blocks = { dispatch: box(0, 0, qW, queueH(pile.dispatch, qW)), ready: box(qW + gap, 0, qW, queueH(pile.ready, qW)) };
+  const h1 = Math.max(blocks.dispatch.h, blocks.ready.h);
   // execution ports, as in vendor block diagrams: one column per unit with its
   // name and role lines on top, grouped into int, vec and mem bands. Branch is
   // int's last column; dividers and other slow units fold into int as a row
@@ -880,6 +792,14 @@ function drawFlowBlocks(model, cycle) {
     const w = Math.min(W - 4 * pad, Math.max(textW(n.name, font), ...lines.map((l) => textW(l, small)), tokW) + 2 * pad);
     return { u, n, kind, lines, w, cols: colsIn(w), band: kind === 'vec' || kind === 'mem' ? kind : 'int' };
   });
+  // each scheduler group sits in the band of the first unit it feeds
+  const groupList = [...sched.slots].map(([g, n]) => {
+    const fed = model.resources.flatMap((r, u) => (unitGroup(r) === g ? [u] : []));
+    return { g, n, fed, band: fed.length ? cols[fed[0]].band : 'int', label: `${fed.length ? fed.map((u) => model.units[u].name).join(' ') : g} scheduler, ${n} slots` };
+  });
+  const slotCols = colsIn(W - 2 * pad);
+  const badgeW = 30;
+  const groups = new Map();
   const rank = { int: 0, vec: 0, mem: 0, branch: 1, slow: 2 };
   const units = [];
   const bands = [];
@@ -888,22 +808,29 @@ function drawFlowBlocks(model, cycle) {
     const list = cols
       .filter((c) => c.band === band)
       .sort((a, b) => rank[a.kind] - rank[b.kind] || (a.n.port != null && b.n.port != null ? a.n.port - b.n.port : 0) || a.n.name.localeCompare(b.n.name, 'en', { numeric: true }));
-    if (!list.length) continue;
+    const gs = groupList.filter((gr) => gr.band === band);
+    if (!list.length && !gs.length) continue;
     bands.push({ band, y });
     y += bandH;
+    gs.forEach((gr, i) => {
+      // the band's first group shares the band's label line
+      const top = i ? y : y - bandH;
+      const slotY = top + bandH;
+      groups.set(gr.g, { ...gr, x: 2 * pad, y: slotY, cols: slotCols, top, badge: { x: W - 2 * pad - badgeW, y: top + 1, w: badgeW, h: bandH - 2 } });
+      y = slotY + stackH(Math.ceil(gr.n / slotCols)) + ug;
+    });
     let row = [];
     const flush = () => {
       if (!row.length) return;
       const hdr = nameH + Math.max(...row.map((c) => c.lines.length)) * lineH;
-      const rows = Math.max(...row.map((c) => Math.ceil(unitPile(c.u) / c.cols)));
-      const rowH = hdr + stackH(rows) + pad;
+      const rows = Math.max(...row.map((c) => Math.ceil((byUnit.get(c.u) || 1) / c.cols)));
       let x = 2 * pad;
       for (const c of row) {
-        // the row shares its header line, each box fits its own pile this cycle
-        units[c.u] = { x, y, w: c.w, h: hdr + stackH(Math.ceil(unitPile(c.u) / c.cols)) + pad, hdr, c };
+        // the row shares its header line, each box fits its own pile over the run
+        units[c.u] = { x, y, w: c.w, h: hdr + stackH(Math.ceil((byUnit.get(c.u) || 1) / c.cols)) + pad, hdr, c };
         x += c.w + ug;
       }
-      y += rowH + ug;
+      y += hdr + stackH(rows) + pad + ug;
       row = [];
     };
     for (const c of list) {
@@ -916,13 +843,10 @@ function drawFlowBlocks(model, cycle) {
   }
   // tokens executing on no unit (no resource use) wait in a strip under the ports
   const noUnit = { x: pad, y, cols: colsIn(W) };
-  if (counts.noUnit) y += stackH(Math.ceil(counts.noUnit / noUnit.cols)) + ug;
+  if (pile.noUnit) y += stackH(Math.ceil(pile.noUnit / noUnit.cols)) + ug;
   blocks.execute = box(0, execY, W, y - ug + pad - execY);
-  if (!grid) {
-    const retireY = execY + blocks.execute.h + gap;
-    blocks.retire = box(0, retireY, W, queueH(counts.retire, W));
-  }
-  flowLayout = { blocks, units, noUnit };
+  blocks.retire = box(0, execY + blocks.execute.h + gap, W, queueH(pile.retire, W));
+  flowLayout = { blocks, units, noUnit, groups };
   // the legend names each kind's units, so the colors read without the SVG
   for (const el of document.querySelectorAll('#flow-legend .flow-kind')) el.remove();
   for (const kind of Object.keys(KIND)) {
@@ -936,7 +860,7 @@ function drawFlowBlocks(model, cycle) {
     document.getElementById('flow-legend').append(item);
   }
 
-  const height = Math.max(blocks.retire.y + blocks.retire.h + 1, flowShape.height); // the run's tallest cycle: the content below never moves while stepping
+  const height = blocks.retire.y + blocks.retire.h + 1;
   const root = svg('svg', { width: W + 1, height, viewBox: `-0.5 -0.5 ${W + 1} ${height}`, 'aria-hidden': 'true' });
   const defs = svg('defs', {});
   const marker = svg('marker', { id: 'flow-arrow', viewBox: '0 0 8 8', refX: 8, refY: 4, markerWidth: 8, markerHeight: 8, orient: 'auto' });
@@ -945,15 +869,11 @@ function drawFlowBlocks(model, cycle) {
   root.appendChild(defs);
   const arrow = (x1, y1, x2, y2) =>
     root.appendChild(svg('line', { x1, y1, x2, y2, stroke: FLOW_COLORS.edge, 'stroke-width': 1.5, 'marker-end': 'url(#flow-arrow)' }));
-  const midY = Math.min(blocks.dispatch.h, blocks.waiting.h, blocks.ready.h) / 2;
-  arrow(qW + 2, midY, qW + gap - 2, midY);
-  arrow(2 * qW + gap + 2, midY, 2 * (qW + gap) - 2, midY);
-  arrow(2 * (qW + gap) + qW / 2, blocks.ready.h + 2, 2 * (qW + gap) + qW / 2, execY - 2);
-  if (grid) arrow(3 * qW + 2 * gap + 2, midY, 3 * (qW + gap) - 2, midY);
-  else arrow(W / 2, blocks.retire.y - gap + 2, W / 2, blocks.retire.y - 2);
+  for (const b of [blocks.dispatch, blocks.ready]) arrow(b.x + b.w / 2, b.h + 2, b.x + b.w / 2, execY - 2);
+  arrow(W / 2, blocks.retire.y - gap + 2, W / 2, blocks.retire.y - 2);
 
-  const names = { dispatch: 'Dispatch', waiting: 'Scheduler (waiting)', ready: 'Scheduler (ready)', execute: 'Execution units', retire: 'Retire' };
-  for (const cls of ['dispatch', 'waiting', 'ready', 'execute', 'retire']) {
+  const names = { dispatch: 'Dispatch', ready: 'Scheduler (ready)', execute: 'Schedulers and execution units', retire: 'Retire' };
+  for (const cls of ['dispatch', 'ready', 'execute', 'retire']) {
     const b = blocks[cls];
     const g = svg('g', { class: 'flow-block', 'data-block': cls });
     g.appendChild(svg('rect', { x: b.x, y: b.y, width: b.w, height: b.h, rx: 4, fill: FLOW_COLORS.block, stroke: FLOW_COLORS.edge }));
@@ -965,6 +885,18 @@ function drawFlowBlocks(model, cycle) {
         const t = svg('text', { class: 'flow-band', x: 2 * pad, y: bd.y + 13, 'font-size': small, 'font-weight': 600, fill: FLOW_COLORS[bd.band] });
         t.textContent = KIND[bd.band];
         g.appendChild(t);
+      }
+      for (const gr of groups.values()) {
+        // empty slots stay drawn, so the queue reads as full or empty at a glance
+        const gg = svg('g', { class: 'flow-group', 'data-group': gr.g });
+        gg.appendChild(svg('text', { x: gr.badge.x - 6, y: gr.top + 13, 'font-size': small, 'text-anchor': 'end', fill: FLOW_COLORS.muted })).textContent = gr.label;
+        gg.appendChild(svg('rect', { class: 'flow-badge-box', x: gr.badge.x, y: gr.badge.y, width: gr.badge.w, height: gr.badge.h, rx: gr.badge.h / 2, fill: FLOW_COLORS.token }));
+        for (let k = 0; k < gr.n; k++) {
+          const sx = gr.x + (k % gr.cols) * step;
+          const sy = gr.y + Math.floor(k / gr.cols) * (tokH + tgap);
+          gg.appendChild(svg('rect', { class: 'flow-slot', x: sx, y: sy, width: tokW, height: tokH, rx: 3, fill: 'none', stroke: FLOW_COLORS.muted, 'stroke-dasharray': '3 2' }));
+        }
+        g.appendChild(gg);
       }
       model.resources.forEach((name, u) => {
         const { x, y: uy, w, h, c } = units[u];
@@ -1023,12 +955,27 @@ function setFlowCycle(model, cycle) {
       requestAnimationFrame(unstick);
     } else unstick();
   }
-  drawFlowBlocks(model, cycle); // the boxes resize to this cycle's piles
   const tg = document.querySelector('#flow svg .flow-tokens');
+  tg.textContent = ''; // only tokens change per cycle; the boxes stay as drawFlowBlocks placed them
   const { pad, head, tokH, tg: tgap, font } = FLOW;
   const tokW = flowShape.tokW;
   const step = tokW + tgap;
-  const { blocks, units, noUnit } = flowLayout;
+  const { blocks, units, noUnit, groups } = flowLayout;
+  const waitingAt = flowShape.sched.waiting[cycle] ?? new Map();
+  const inGroup = {};
+  // each group's badge holds its waiting count; past the slot count the last
+  // slot shows +N instead of a token, so the box keeps its size
+  for (const [g, gr] of groups) {
+    const m = waitingAt.get(g)?.length ?? 0;
+    const b = svg('text', { class: 'flow-badge', 'data-group': g, x: gr.badge.x + gr.badge.w / 2, y: gr.badge.y + gr.badge.h / 2, 'font-size': font, 'font-weight': 600, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: FLOW_COLORS.tokenText });
+    b.textContent = m;
+    tg.appendChild(b);
+    if (m <= gr.n) continue;
+    const k = gr.n - 1;
+    const o = svg('text', { class: 'flow-overflow', 'data-group': g, 'data-n': m - k, x: gr.x + (k % gr.cols) * step + tokW / 2, y: gr.y + Math.floor(k / gr.cols) * (tokH + tgap) + tokH / 2, 'font-size': font, 'font-weight': 600, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: FLOW_COLORS.text });
+    o.textContent = `+${m - k}`;
+    tg.appendChild(o);
+  }
   // token slot k in a box of c columns: row-major, left to right, top to bottom
   const slot = (x0, y0, cols, k) => [x0 + (k % cols) * step, y0 + Math.floor(k / cols) * (tokH + tgap)];
   const unitSlot = (u, k) => slot(units[u].x + pad, units[u].y + units[u].hdr, units[u].c.cols, k);
@@ -1057,6 +1004,13 @@ function setFlowCycle(model, cycle) {
         x = noUnit.x + (k % noUnit.cols) * step;
         y = noUnit.y + Math.floor(k / noUnit.cols) * (tokH + tgap);
       }
+    } else if (block === 'waiting') {
+      const g = t.queue == null ? 'unassigned' : unitGroup(model.resources[t.queue]);
+      const gr = groups.get(g);
+      const k = (inGroup[g] = (inGroup[g] ?? -1) + 1);
+      if (k >= gr.n - (waitingAt.get(g).length > gr.n ? 1 : 0)) continue; // counted in the +N slot
+      x = gr.x + (k % gr.cols) * step;
+      y = gr.y + Math.floor(k / gr.cols) * (tokH + tgap);
     } else {
       const b = blocks[block];
       x = b.x + pad + (n % b.cols) * step;
@@ -1084,6 +1038,7 @@ function setFlowCycle(model, cycle) {
       'data-iter': t.iter,
       'data-block': block,
       'data-units': t.units.join(' '),
+      ...(block === 'waiting' && { 'data-group': t.queue == null ? 'unassigned' : unitGroup(model.resources[t.queue]) }),
     });
     if (inLatency) {
       g.setAttribute('data-latency', '1');

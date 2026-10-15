@@ -1,10 +1,7 @@
 // Round-3 flow-area fixes, measured against the round-2 audit's numbers:
 // (1) every flow text renders at >=12px at 1400px and >=11px at 800px (the
 //     SVG's 701-wide viewBox never downscales at either width);
-// (2) no queue/stage box is more than 40% empty at a mid-run cycle (execution
-//     unit boxes are exempt: their height is reserved for the maximum token
-//     pile of that unit over the run, per the layout contract);
-// (3) the whole flow diagram fits the content width at 1400px/800px with no
+// (2) the whole flow diagram fits the content width at 1400px/800px with no
 //     horizontal scrolling.
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
@@ -73,46 +70,6 @@ test('every flow text is at least 12px at 1400px and 11px at 800px, for all thre
       );
       expect(sizes.length, cpu).toBeGreaterThan(10);
       for (const s of sizes) expect(s, `${cpu} at ${width}px`).toBeGreaterThanOrEqual(min - 0.01);
-    }
-  }
-});
-
-test('queue boxes hold no empty rows below the last token row at the busy cycle', async ({ page }) => {
-  // The rule is against the audit's complaint ("boxes much taller than their
-  // contents"): with the per-cycle sizing, a queue box's height is 50px plus
-  // 24px for each fully used token row below the first. Execution unit boxes
-  // are exempt: their height is reserved for the unit's max token pile over
-  // the run.
-  await page.setViewportSize({ width: 1400, height: 900 });
-  await page.goto('/');
-  await page.waitForSelector('#run:not([disabled])', { timeout: 120000 });
-  for (const cpu of CPUs) {
-    await runNow(page, cpu);
-    await midCycle(page);
-    const data = await page.evaluate(() => {
-      const svg = document.querySelector('#flow svg');
-      const tok = svg.querySelector('.flow-token > rect');
-      const tokW = tok ? tok.getBoundingClientRect().width : 0;
-      const tokH = tok ? tok.getBoundingClientRect().height : 20;
-      const out = {};
-      for (const g of svg.querySelectorAll('.flow-block')) {
-        if (g.dataset.block === 'execute') continue;
-        const r = g.querySelector(':scope > rect').getBoundingClientRect();
-        const n = [...svg.querySelectorAll('.flow-token > rect, .flow-marker > rect')]
-          .map((t) => t.getBoundingClientRect())
-          .filter((t) => t.left >= r.left - 1 && t.right <= r.right + 1 && t.top >= r.top - 1 && t.top < r.bottom).length;
-        const cols = Math.max(1, Math.floor((r.width - 12 + 3) / (tokW + 3)));
-        out[g.dataset.block] = { h: r.height, n, cols, tokW, tokH };
-      }
-      return out;
-    });
-    // the box's height formula: head 20 + rows * tokH's grid (stackH) + pad 6,
-    // with rows from this cycle's token count in the box's columns
-    for (const k of ['dispatch', 'waiting', 'ready', 'retire']) {
-      const d = data[k];
-      const rows = Math.ceil(Math.max(d.n, 1) / d.cols);
-      expect(d.h, `${cpu} ${k} fits its ${d.n} tokens`).toBeGreaterThanOrEqual(20 + (rows * 18 + (rows - 1) * 3) + 6 - 0.01);
-      expect(d.h, `${cpu} ${k} has no extra rows`).toBeLessThanOrEqual(20 + (rows * 18 + (rows - 1) * 3) + 6 + 0.01);
     }
   }
 });

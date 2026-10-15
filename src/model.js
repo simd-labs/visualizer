@@ -223,5 +223,6 @@ export function schedulerSlots(model) {
     for (const [g, l] of at) peak.set(g, Math.max(peak.get(g) ?? 0, l.length));
     waiting.push(at);
   }
+  // shortcut: slot count is min(16, run peak), not the hardware buffer size; upgrade when the page reads -scheduler-stats
   return { slots: new Map([...peak].map(([g, p]) => [g, Math.min(SLOT_CAP, p)])), waiting };
 }
