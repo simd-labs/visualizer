@@ -38,7 +38,6 @@
         <textarea id="asm" rows="10" spellcheck="false" wrap="off" placeholder="loop:&#10;  movups (%rsi,%rax,4), %xmm0&#10;  mulps %xmm1, %xmm0&#10;  addq $4, %rax&#10;  jne loop"></textarea>
       </div>
       <p id="asm-caption" hidden></p>
-      <p id="asm-summary" hidden><span id="asm-summary-text"></span> <button id="asm-edit" class="btn" type="button" aria-expanded="false" aria-controls="asm-wrap">Edit</button></p>
     </div>
     <div class="controls">
       <label class="field cpu-field">CPU <select id="cpu"></select></label>
@@ -66,8 +65,8 @@
       <section class="panel" aria-labelledby="h-flow">
         <h2 id="h-flow">CPU flow</h2>
         <p id="flow-notice" hidden></p>
-        <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in, labelled iteration:mnemonic:line (iteration 0 is the first pass through the loop, line is 1-based in the editor)</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
         <div id="flow"></div>
+        <p id="flow-legend" class="legend"><span><i class="swatch-token"></i>token: an instruction in flight, in the block it is in, labelled iteration:mnemonic:line (iteration 0 is the first pass through the loop, line is 1-based in the editor)</span><span><i class="swatch-latency"></i>executing (latency): unit hold ended, result not ready yet</span><span><i class="swatch-shared"></i>shared hold: the token's tag on every other unit it holds this cycle</span></p>
       </section>
       <section class="panel" aria-labelledby="h-timeline">
         <div id="timeline-head">

@@ -1330,8 +1330,8 @@ test('flow diagram: the wheel over it scrolls the page', async ({ page }) => {
 });
 
 test('the timeline box scrolls sideways when its cycles are wider than the column', async ({ page }) => {
-  await page.setViewportSize({ width: 1400, height: 900 });
-  await open(page, 'drop', 'neoverse-v2.json'); // 30 ticks: wider than a 1400px box at the 12px floor
+  await page.setViewportSize({ width: 500, height: 900 });
+  await open(page, 'drop', 'neoverse-v2.json'); // 30 ticks: wider than a 500px box at the 12px floor
   await expect(page.locator('#out')).toBeVisible();
   const tl = page.locator('#timeline');
   const dims = await tl.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth, ox: getComputedStyle(el).overflowX }));

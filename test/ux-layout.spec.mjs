@@ -3,8 +3,8 @@ import { EXAMPLES } from '../src/examples.js';
 
 // UX round 1, flow and timeline layout: the flow column is bounded, the
 // timeline gets the rest, its pixels per cycle follow the box, the slider
-// keeps the chart cursor and itself on screen, and side-by-side starts only
-// when the timeline box keeps at least 700px.
+// keeps the chart cursor and itself on screen. From 1400px the editor takes
+// a left column; the flow sits above the timeline at every width.
 
 const HEADER = 48; // .header height
 const SIZES = [
@@ -52,6 +52,7 @@ const geom = () => {
     cell: g.length > 1 ? (+g.at(-1).getAttribute('x1') - +g[0].getAttribute('x1')) / (g.length - 1) / 5 : 14,
     sideBySide:
       Math.abs(flow.closest('.panel').getBoundingClientRect().top - tl.closest('.panel').getBoundingClientRect().top) < 5,
+    editorBeside: document.getElementById('run-form').getBoundingClientRect().right <= bar.getBoundingClientRect().left,
     minFlowText: Math.min(...[...flow.querySelectorAll('text')].map((t) => +t.getAttribute('font-size') || 99)),
   };
 };
@@ -63,15 +64,15 @@ for (const [w, h] of SIZES) {
       await runExample(page);
     });
 
-    // Breakpoint: side by side only from 1400px; the flow text stays >= 12px
-    // there (the bounded column is >= the 734px the diagram uses at 95%).
-    test('breakpoint and P2: the flow column is bounded, the timeline takes the rest', async ({ page }) => {
+    // Breakpoint: the editor column only from 1400px; the flow stays above
+    // the timeline and its text stays >= 12px there.
+    test('breakpoint and P2: the editor column from 1400px, the timeline below the flow', async ({ page }) => {
       const m = await page.evaluate(geom);
-      expect(m.sideBySide, `sideBySide at ${w}`).toBe(SIDE_BY_SIDE(w));
-      if (m.sideBySide) {
-        expect(m.flowPanelW, 'flow column').toBeLessThanOrEqual(736);
+      expect(m.sideBySide, `flow beside timeline at ${w}`).toBe(false);
+      expect(m.editorBeside, `editor column at ${w}`).toBe(SIDE_BY_SIDE(w));
+      if (m.editorBeside) {
         expect(m.tlClientW, 'timeline width').toBeGreaterThanOrEqual(700);
-        expect(m.minFlowText, 'flow text at 95% scale').toBeGreaterThanOrEqual(12);
+        expect(m.minFlowText, 'flow text').toBeGreaterThanOrEqual(12);
       } else {
         // stacked: the timeline is full width below the flow
         expect(m.tlClientW, 'stacked timeline width').toBeGreaterThanOrEqual(w - 90);

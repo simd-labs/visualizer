@@ -223,8 +223,6 @@ input[type="range"] { accent-color: var(--accent); }
 .asm-col { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
 .asm-col > label { font-size: 0.8rem; color: var(--text-secondary); }
 #asm-caption { font-size: 0.8rem; color: var(--text-secondary); }
-/* collapsed editor: one line naming the run, with the Edit control */
-#asm-summary { font-size: 0.85rem; color: var(--text-secondary); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .asm-wrap {
   display: flex;
   align-items: stretch;
@@ -234,7 +232,6 @@ input[type="range"] { accent-color: var(--accent); }
   box-shadow: var(--shadow-sm);
   min-width: 0;
 }
-.asm-wrap[hidden] { display: none; }
 .asm-wrap:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
@@ -273,30 +270,6 @@ input[type="range"] { accent-color: var(--accent); }
 #asm:focus { outline: none; }
 #asm::placeholder { color: var(--text-secondary); }
 .controls { display: flex; flex-direction: column; gap: 0.6rem; min-width: 14rem; }
-/* collapsed editor: the controls go inline so the whole input bar is one row */
-#run-form:has(#asm-wrap[hidden]) .controls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; min-width: 0; }
-#run-form:has(#asm-wrap[hidden]) .asm-col > label,
-#run-form:has(#asm-wrap[hidden]) #asm-caption { display: none; }
-/* the labels stack over their inputs; collapsed they sit beside them */
-#run-form:has(#asm-wrap[hidden]) .field { flex-direction: row; align-items: center; gap: 0.35rem; }
-/* The collapsed editor parks on a 1px invisible box, not display:none:
-   scripted fills (tests, integrations) require a visible textarea, and a
-   keystroke or fill still expands it. Tab order and the a11y tree hold the
-   summary and its Edit button instead (render.js sets tabIndex/aria-hidden). */
-#run-form { position: relative; }
-#run-form:has(#asm-wrap[hidden]) #asm-wrap {
-  display: block !important;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  overflow: hidden;
-  border: 0;
-  box-shadow: none;
-}
-#run-form:has(#asm-wrap[hidden]) #asm { height: 1px !important; min-height: 0 !important; }
 .field { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; color: var(--text-secondary); }
 .field select, .field input { font-size: 14px; }
 #cpu { font-family: var(--font-mono); }
@@ -323,12 +296,13 @@ input[type="range"] { accent-color: var(--accent); }
   font-family: var(--font-mono);
 }
 #out { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
-/* Wide screens put flow and timeline side by side, so the slider drives both
-   in view. 1400px: the flow panel holds the 701px diagram at ~11.2px text
-   (page.spec.mjs's floor) and the timeline box keeps >= 700px for its chart. */
+/* Wide screens: the editor and the run controls take a left column, the
+   results the rest. Narrower, the input bar sits above the results. */
 @media (min-width: 1400px) {
-  #out { grid-template-columns: fit-content(736px) minmax(0, 1fr); }
-  #out > .cycle-bar, #out > :nth-child(n + 4) { grid-column: 1 / -1; }
+  body { display: grid; grid-template-columns: clamp(360px, 22vw, 420px) minmax(0, 1fr); }
+  .header { grid-column: 1 / -1; }
+  .input-bar { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; align-content: start; border-bottom: 0; border-right: 1px solid var(--border); }
+  .controls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; min-width: 0; }
 }
 .cycle-bar {
   position: sticky;
@@ -422,11 +396,7 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
   pointer-events: none;
   background: linear-gradient(to left, var(--surface), transparent);
 }
-/* The flow diagram never scrolls: its viewBox shrinks to the column width. */
-/* The flow panel keeps its own height; blank space below Retire was defect 25/35. */
-@media (min-width: 1400px) {
-  #out > .panel:has(> #flow) { align-self: start; }
-}
+/* The flow diagram never scrolls: render.js draws it to the panel's width. */
 /* the timeline's head stays tight: the heading, note, details and legend flow
    inline with tight line boxes, so the chart box starts within 60px of the heading */
 #h-timeline { display: inline; margin-right: 0.6rem; vertical-align: baseline; line-height: 1.15; }
@@ -438,14 +408,13 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 #timeline { clear: both; }
 #flow svg { display: block; max-width: 100%; height: auto; }
 #flow svg text { font-family: var(--font-mono); }
-/* stacked (below the 1400px side-by-side breakpoint) the headings shrink to
-   inline so the head sits on one line; the legend stays a floated block */
-@media (max-width: 1399px) {
-  #h-flow, #h-timeline { display: inline; margin-right: 1rem; }
-}
+/* the headings shrink to inline so the head sits on one line; the legend stays a floated block */
+#h-flow, #h-timeline { display: inline; margin-right: 1rem; }
 .scroll svg { display: block; overflow: visible; }
 .scroll svg text:not([fill]), #flow svg text:not([fill]) { fill: var(--text); }
 .legend { display: flex; flex-wrap: wrap; gap: 0.2rem 1.25rem; font-size: 13px; color: var(--text-secondary); margin-bottom: 0.4rem; }
+/* the flow legend sits under the diagram, so the diagram starts right under its heading */
+#flow-legend { margin: 0.4rem 0 0; }
 .legend i { display: inline-block; width: 14px; height: 14px; margin-right: 0.3em; vertical-align: middle; }
 .legend i.swatch-token { background: var(--token); }
 .legend i.swatch-latency { background: var(--token-hollow); opacity: 0.6; border: 1px dashed var(--token-edge); }
