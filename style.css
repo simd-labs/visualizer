@@ -1,9 +1,8 @@
 /* Tokens copied from simdref-web/web/style.css; the --stage, --flow and chart
-   colors are this page's own. Every stage pair is >= 3:1 except wait-exec and
-   ready-done, which luminance alone cannot reach on a 4-slot ramp on one
-   surface; those pairs also differ by fill pattern (page.spec.mjs measures the
-   rendered SVG). Every other chart color pair is >= 3:1 and every text pair
-   >= 4.5:1 in both themes. */
+   colors are this page's own. Every stage pair is >= 3:1 except wait-done,
+   which never shares an edge, and wait-exec in dark mode, which also differs
+   by fill pattern (page.spec.mjs measures the rendered SVG). Every other
+   chart color pair is >= 3:1 and every text pair >= 4.5:1 in both themes. */
 :root {
   --bg: #f6f7fb;
   --bg-elevated: #eef1f7;
@@ -27,8 +26,7 @@
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --error-bg: #fee2e2;
   --error-text: #991b1b;
-  --stage-wait: #1a1a2e;
-  --stage-ready: #d55e00;
+  --stage-wait: #d55e00;
   --stage-exec: #0b3d36;
   --stage-done: #cc79a7;
   --chart-edge: #64748b;
@@ -66,8 +64,7 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --error-bg: #3b1219;
   --error-text: #fecaca;
-  --stage-wait: #c4622d;
-  --stage-ready: #f0e442;
+  --stage-wait: #f0e442;
   --stage-exec: #138d75;
   --stage-done: #b6f0e2;
   --chart-edge: #7b8aa5;
@@ -107,8 +104,7 @@
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
     --error-bg: #3b1219;
     --error-text: #fecaca;
-    --stage-wait: #c4622d;
-    --stage-ready: #f0e442;
+    --stage-wait: #f0e442;
     --stage-exec: #138d75;
     --stage-done: #b6f0e2;
     --chart-edge: #7b8aa5;
@@ -427,10 +423,21 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 .legend i.swatch-vec { border-color: var(--unit-vec); }
 .legend i.swatch-mem { border-color: var(--unit-mem); }
 .legend i.swatch-slow { border: 2px dashed var(--unit-slow); }
+/* the wait (cycles) column overlays the timeline box's right edge: it never
+   scrolls horizontally, and render.js translates it with the box's scrollTop */
+#wait-col { position: absolute; right: 0; top: 0; bottom: 0; width: 34px; overflow: hidden; font: 13px var(--font-mono); text-align: right; pointer-events: none; background: linear-gradient(to left, var(--surface) 60%, transparent); }
+#wait-col div { position: absolute; right: 2px; left: 0; }
+#wait-col .wait-head { color: var(--text-secondary); }
 .swatch-wait { background-color: var(--stage-wait); }
-.swatch-ready { background-color: var(--stage-ready); }
 .swatch-exec { background-color: var(--stage-exec); }
 .swatch-done { background-color: var(--stage-done); }
+/* the busy strip sits under the chart box: name, bar, percent, one row per unit */
+#busy { margin-top: 0.5rem; }
+.busy-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 2px; font: 12px var(--font-mono); }
+.busy-name { width: 12ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.busy-track { flex: 0 1 240px; height: 10px; border: 1px solid var(--border-strong); border-radius: 2px; overflow: hidden; }
+.busy-fill { display: block; height: 100%; background: var(--heat); }
+.busy-val { width: 6ch; }
 /* the timeline's hatch-wait/hatch-done pattern: 2px panel-colored stripes on an 8px diagonal tile */
 .swatch-wait, .swatch-done { background-image: repeating-linear-gradient(45deg, var(--surface) 0 2px, transparent 2px 5.66px); }
 details > summary { cursor: pointer; color: var(--text-secondary); font-size: 0.85rem; }

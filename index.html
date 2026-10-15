@@ -73,9 +73,11 @@
           <h2 id="h-timeline">Timeline</h2>
           <p id="notice" hidden></p>
           <details id="notice-more" hidden><summary>Why is it cut?</summary></details>
-          <p id="legend" class="legend"></p>
+          <!-- the swatch list comes first; render.js prepends it, then the run stats sit on the float's right -->
+          <p id="legend" class="legend"><span id="run-stats" hidden></span></p>
         </div>
-        <div class="scroll-wrap"><div id="timeline" class="scroll"></div><span class="scroll-hint" hidden>scroll</span></div>
+        <div class="scroll-wrap"><div id="timeline" class="scroll"></div><div id="wait-col" hidden></div><span class="scroll-hint" hidden>scroll</span></div>
+        <div id="busy" hidden></div>
       </section>
       <section class="panel" aria-labelledby="h-heatmap">
         <h2 id="h-heatmap">Resource pressure per iteration</h2>

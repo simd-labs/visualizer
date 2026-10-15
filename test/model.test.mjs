@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildModel, tokenPositionsAt, TimelineMappingError, schedulerSlots, unitGroup, SLOT_CAP } from '../src/model.js';
+import { buildModel, tokenPositionsAt, TimelineMappingError } from '../src/model.js';
 
 const load = (name) => JSON.parse(readFileSync(`test/fixtures/${name}.json`, 'utf8'));
 const text = (name) => readFileSync(`test/fixtures/${name}.txt`, 'utf8');
@@ -445,36 +445,10 @@ test('the cycle index keeps tokenPositionsAt fast on a long run', () => {
 const z4Ready = structuredClone(loadIssue('znver4'));
 z4Ready.CodeRegions[0].TimelineView.TimelineInfo[1].CycleReady = 7;
 
-for (const [label, json] of [['znver4', loadIssue('znver4')], ['znver4 with a ready span', z4Ready]]) {
-test(`schedulerSlots: the waiting tokens per group match the timeline rows on every cycle (${label})`, () => {
-  const model = buildModel(json);
-  const { waiting } = schedulerSlots(model);
-  const first = new Map(json.CodeRegions[0].IssueEventView.IssueEvents.map((e) => [`${e.iteration},${e.instruction}`, e.units[0].name]));
-  assert.equal(waiting.length, model.cycleIndex.maxCycle + 1);
-  let seen = 0;
-  waiting.forEach((at, c) => {
-    const want = new Map();
-    for (const r of model.rows) {
-      if (c <= r.dispatched || c >= r.ready) continue;
-      const name = first.get(`${r.iter},${r.instr}`);
-      const g = name == null ? 'unassigned' : unitGroup(name);
-      want.set(g, (want.get(g) ?? 0) + 1);
-    }
-    seen += [...want.values()].reduce((a, b) => a + b, 0);
-    assert.deepEqual(new Map([...at].map(([g, l]) => [g, l.length])), want, `cycle ${c}`);
-  });
-  assert.ok(seen > 0, 'no instance waits in this run');
-});
-}
-
-test('schedulerSlots: each group keeps one slot count for the whole run', () => {
-  // znver4-i100 has no issue events, so its 20-deep wait lands in 'unassigned' and hits the cap
-  for (const json of [loadIssue('znver4'), load('znver4-i100')]) {
-    const { slots, waiting } = schedulerSlots(buildModel(json));
-    for (const [g, n] of slots) {
-      const peak = Math.max(...waiting.map((at) => at.get(g)?.length ?? 0));
-      assert.equal(n, Math.min(SLOT_CAP, peak), g);
-    }
-  }
-  assert.equal(schedulerSlots(buildModel(load('znver4-i100'))).slots.get('unassigned'), SLOT_CAP);
+test('ready spans: a ready-but-not-issued instance reports stage ready', () => {
+  const model = buildModel(z4Ready);
+  const at = (c) => tokenPositionsAt(model, c).find((t) => t.iter === 0 && t.instr === 1)?.stage;
+  assert.equal(at(7), 'ready');
+  assert.equal(at(8), 'ready');
+  assert.equal(at(9), 'execute');
 });

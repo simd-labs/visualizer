@@ -11,7 +11,7 @@ const LEFT = 200;
 const TOP = 16;
 const HEAD = 90;
 const SCALE_ROW = 12; // heatmap space for the pressure scale
-const STAGES = ['wait', 'ready', 'exec', 'done'];
+const STAGES = ['wait', 'exec', 'done']; // wait spans dispatch to issue; no ready stage since the flow-simplify round
 
 const fixture = (name) => JSON.parse(readFileSync(`test/fixtures/${name}.json`, 'utf8'));
 const label = (s) => s.replace(/[\u0000-\u001f]/g, (c) => c.charCodeAt(0));
@@ -33,7 +33,7 @@ function expectedRows(j) {
   return r.TimelineView.TimelineInfo.map((e, i) => ({ iter: Math.floor(i / n), instr: i % n, e }));
 }
 
-// Rects in render order: row by row, then wait, ready, exec, done when non-empty.
+// Rects in render order: row by row, then wait, exec, done when non-empty.
 // `lines` (1-based editor lines per instruction, or null) picks the label form.
 function expectedRects(j, lines = null) {
   const rects = [];
@@ -41,8 +41,7 @@ function expectedRects(j, lines = null) {
   for (const { iter, instr, e } of expectedRows(j)) {
     const y = TOP + (iter * asm.length + instr) * CELL;
     const spans = [
-      [e.CycleDispatched, e.CycleReady],
-      [e.CycleReady, e.CycleIssued],
+      [e.CycleDispatched, e.CycleIssued],
       [e.CycleIssued, e.CycleExecuted],
       [e.CycleExecuted, e.CycleRetired],
     ];
@@ -215,7 +214,7 @@ for (const via of ['drop', 'picker']) {
       await open(page, via, `${name}.json`);
       await expect(page.locator('#out')).toBeVisible();
 
-      // the legend names all four stages in order (a fifth span names the row
+      // the legend names all three stages in order (a fourth span names the row
       // label format; it has no swatch), each with the color its cells use
       const legend = await page.locator('#legend span').evaluateAll((els) =>
         els.filter((s) => s.querySelector('i')).map((s) => [s.textContent, getComputedStyle(s.querySelector('i')).backgroundColor])
@@ -551,9 +550,9 @@ test('flow diagram: tokens land on their events units at cycle 2, slider moves t
   await page.locator('#run').click();
   await expect(page.locator('#out')).toBeVisible({ timeout: 60000 });
 
-  // blocks: dispatch, the ready queue, scheduler slots and one box per execution unit, retire
+  // blocks: dispatch, the shared waiting area, one box per execution unit, retire
   const blocks = await page.locator('#flow svg .flow-block').evaluateAll((els) => els.map((g) => g.dataset.block));
-  expect(blocks).toEqual(['dispatch', 'ready', 'execute', 'retire']);
+  expect(blocks).toEqual(['dispatch', 'waiting', 'execute', 'retire']);
   const nUnits = fixture('znver4').TargetInfo.Resources.length;
   await expect(page.locator('#flow svg .flow-unit')).toHaveCount(nUnits);
   // unit names must be legible (7px was not) and fit inside their box
@@ -847,7 +846,7 @@ test('flow tokens stay inside their blocks for a 100-iteration run', async ({ pa
       const out = [];
       for (const g of document.querySelectorAll('#flow svg .flow-token')) {
         const t = g.querySelector('rect').getBoundingClientRect();
-        const b = blocks[g.dataset.block === 'waiting' ? 'execute' : g.dataset.block]; // scheduler slots sit in the execute block
+        const b = blocks[g.dataset.block];
         if (t.left < b.left - 1 || t.right > b.right + 1 || t.top < b.top - 1 || t.bottom > b.bottom + 1) {
           out.push(g.dataset.instr + ':' + g.dataset.iter);
         }
@@ -1077,10 +1076,12 @@ test('both themes: every stage pair is >= 3:1, or is told apart by its fill patt
   await page.goto('/');
   await page.locator('#example').click();
   await expect(page.locator('#flow svg')).toHaveCount(1, { timeout: 60000 });
-  // the pairs luminance alone separates nowhere on a 4-slot ramp; they differ
-  // by pattern (wait and done are striped over the panel color) instead
-  const order = ['wait', 'ready', 'exec', 'done'];
-  const patterned = new Set(['exec|wait', 'done|ready']);
+  // the pairs luminance alone separates nowhere on a 3-slot ramp; they differ
+  // by pattern (wait and done are hatched over the panel color) instead.
+  // wait|done never share an edge (exec sits between), so no check binds them.
+  const order = ['wait', 'exec', 'done'];
+  const patterned = new Set(['exec|wait', 'done|exec']);
+  const adjacentOnly = new Set(['done|wait']);
   const key = (a, b) => [a, b].sort().join('|');
   const mins = {};
   for (const theme of ['light', 'dark']) {
@@ -1105,6 +1106,7 @@ test('both themes: every stage pair is >= 3:1, or is told apart by its fill patt
     }
     for (let i = 0; i < order.length; i++) {
       for (let j = i + 1; j < order.length; j++) {
+        if (adjacentOnly.has(key(order[i], order[j]))) continue;
         const r = contrast(c.stage[order[i]], c.stage[order[j]]);
         mins[`${theme} ${key(order[i], order[j])}`] = r;
         if (patterned.has(key(order[i], order[j]))) {
@@ -1163,7 +1165,7 @@ test('dark mode: rendered flow element colors meet their contrast ratios', async
     };
   });
   expect(c.panel).toBe('rgb(19, 28, 48)'); // the dark --surface, so this is really dark mode
-  const order = ['wait', 'ready', 'exec', 'done'];
+  const order = ['wait', 'exec', 'done'];
   for (const [k, s] of order.entries()) {
     expect(c.stage[s], `${s} rendered`).toBeTruthy();
     expect(contrast(c.stage[s], c.panel), `${s} against the panel`).toBeGreaterThanOrEqual(3);
@@ -1427,7 +1429,7 @@ test('the wait and done legend swatches show the timeline hatch', async ({ page 
       return { cls: i.className, image: getComputedStyle(i).backgroundImage, w: r.width, h: r.height };
     })
   );
-  expect(sw.map((s) => s.cls)).toEqual(['swatch-wait', 'swatch-ready', 'swatch-exec', 'swatch-done']);
+  expect(sw.map((s) => s.cls)).toEqual(['swatch-wait', 'swatch-exec', 'swatch-done']);
   for (const s of sw) {
     expect(s.w, `${s.cls} width`).toBeGreaterThanOrEqual(12);
     expect(s.h, `${s.cls} height`).toBeGreaterThanOrEqual(12);
@@ -1572,8 +1574,7 @@ test('(e) a change to a CPU of the same architecture keeps the example, which ru
 });
 
 // Each queue and unit box fits its own largest token pile over the run: the
-// lowest token it ever holds ends one pad (6) above its bottom edge, and a box
-// that never holds a token is one token row tall.
+// lowest token it ever holds ends one pad (6) above its bottom edge.
 for (const cpu of ['znver4', 'neoverse-v2']) {
   test(`${cpu}: flow boxes shrink to their content`, async ({ page }) => {
     await page.goto('/');
@@ -1606,13 +1607,10 @@ for (const cpu of ['znver4', 'neoverse-v2']) {
       }
       return boxes.map((x) => ({ name: x.name, h: x.b.height, gap: x.low === null ? null : x.b.bottom - x.low }));
     });
-    const tokH = 18;
     const pad = 6;
     for (const x of slack) {
       // a unit's hollow marker is inset 1px in its slot, hence the 1px slack
       if (x.gap !== null) expect(x.gap, `${x.name} space under its lowest token`).toBeLessThanOrEqual(pad + 1.5);
     }
-    // the znver4 and neoverse-v2 examples never fill the ready queue: it stays one row tall
-    expect(slack.find((x) => x.name === 'ready').h).toBeLessThanOrEqual(20 + tokH + pad + 1); // head + one row
   });
 }

@@ -1,9 +1,11 @@
 // M2: the flow diagram has a fixed geometry per run. Stepping through the
-// cycles moves tokens between scheduler slots; no box, slot or panel moves.
+// cycles moves tokens between blocks; no box or panel moves. Waiting tokens
+// (dispatched, not yet issued) share one area, sized from the run's peak;
+// past the peak a single +N carries the rest.
 import { test, expect } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { run } from '../wasm/run.mjs';
-import { buildModel, tokenPositionsAt, unitGroup } from '../src/model.js';
+import { buildModel, notIssuedAt } from '../src/model.js';
 import { exampleFor } from '../src/examples.js';
 
 const CPUs = ['znver4', 'neoverse-v2', 'sifive-u74'];
@@ -55,48 +57,23 @@ for (const cpu of CPUs) {
     records.forEach((r, c) => expect(r, `cycle ${c}`).toEqual(records[0]));
   });
 
-  test(`${cpu}: each scheduler group's tokens, +N and badge match the model's waiting count`, async ({ page }) => {
+  test(`${cpu}: waiting tokens plus the +N badge equal the model's dispatched-not-issued count`, async ({ page }) => {
     await runNow(page, cpu);
     const triple = tripleOf(cpu);
     const iters = await page.inputValue('#iterations');
     const { stdout } = run(exampleFor(triple), [`-mtriple=${triple}`, `-mcpu=${cpu}`, `-iterations=${iters}`, '-timeline', '-json', '-issue-events']);
     const model = buildModel(JSON.parse(stdout));
     const want = [];
-    for (let c = 0; c <= model.cycleIndex.maxCycle; c++) {
-      const at = {};
-      for (const t of tokenPositionsAt(model, c)) {
-        if (t.stage !== 'waiting') continue;
-        const g = t.queue == null ? 'unassigned' : unitGroup(model.resources[t.queue]);
-        at[g] = (at[g] ?? 0) + 1;
-      }
-      want.push(at);
-    }
+    for (let c = 0; c <= model.cycleIndex.maxCycle; c++) want.push(notIssuedAt(model, c));
     const got = await eachCycle(
       page,
-      `const out = {};
-       for (const g of document.querySelectorAll('#flow svg .flow-group')) {
-         const id = g.dataset.group;
-         const tokens = document.querySelectorAll('#flow svg .flow-token[data-group="' + id + '"]').length;
-         const over = document.querySelector('#flow svg .flow-overflow[data-group="' + id + '"]');
-         const badge = document.querySelector('#flow svg .flow-badge[data-group="' + id + '"]');
-         out[id] = { inSlots: tokens + (over ? +over.dataset.n : 0), badge: badge ? +badge.textContent : null };
-       }
-       out.stray = document.querySelectorAll('#flow svg .flow-token[data-block="waiting"]:not([data-group])').length;
-       return out;`
+      `const tokens = document.querySelectorAll('#flow svg .flow-token[data-block="waiting"]').length;
+       const over = document.querySelector('#flow svg .flow-overflow');
+       return tokens + (over ? +over.dataset.n : 0);`
     );
     expect(got.length).toBe(want.length);
-    let seen = 0;
-    got.forEach((at, c) => {
-      expect(at.stray, `cycle ${c}: waiting tokens outside a group`).toBe(0);
-      for (const g of Object.keys(at).filter((k) => k !== 'stray')) {
-        const n = want[c][g] ?? 0;
-        seen += n;
-        expect(at[g].inSlots, `cycle ${c} ${g}: tokens in slots`).toBe(n);
-        expect(at[g].badge, `cycle ${c} ${g}: badge`).toBe(n);
-      }
-      for (const g of Object.keys(want[c])) expect(at[g], `cycle ${c}: group ${g} is drawn`).toBeTruthy();
-    });
-    if (cpu !== 'sifive-u74') expect(seen, 'no instance waits in this run').toBeGreaterThan(0);
+    got.forEach((n, c) => expect(n, `cycle ${c}: waiting tokens + badge`).toBe(want[c]));
+    if (cpu !== 'sifive-u74') expect(got.reduce((a, b) => a + b, 0), 'no instance waits in this run').toBeGreaterThan(0);
   });
 }
 

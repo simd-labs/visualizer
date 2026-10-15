@@ -1,4 +1,4 @@
-import { buildModel, tokenPositionsAt, instanceLabel, attachSourceLines, schedulerSlots, unitGroup } from './model.js';
+import { buildModel, tokenPositionsAt, instanceLabel, attachSourceLines, notIssuedAt, unitBusy } from './model.js';
 import { initMca, runMca } from './mca.js';
 import { lookup } from './unit-names.js';
 import { EXAMPLES, exampleFor } from './examples.js';
@@ -306,10 +306,10 @@ const UNIT_COL = 100; // heatmap gutter for the instr N and total/iter row label
 const SCALE_ROW = 12; // heatmap space above the columns for the pressure scale
 
 // Chart colors live in style.css as custom properties, one set per theme.
-// Stage pairs are >= 3:1 except wait-exec and ready-done, which also differ by
-// fill pattern (stripes painted with the panel color; page.spec.mjs measures
-// the rendered rects in both themes).
-const STAGES = { wait: '', ready: '', exec: '', done: '' };
+// Stage pairs are >= 3:1 except wait-done, which never shares an edge, and
+// wait-exec, which also differs by fill pattern (wait and done are hatched
+// over the panel color; page.spec.mjs measures the rendered rects).
+const STAGES = { wait: '', exec: '', done: '' };
 const FLOW_COLORS = {};
 const FLOW_VARS = {
   text: '--text', surface: '--surface', block: '--code-bg', edge: '--chart-edge', heat: '--heat',
@@ -406,8 +406,14 @@ const rowName = (model, i) => (i === model.instructions.length ? 'total/iter' : 
 
 function renderTimeline(model, host) {
   host.textContent = '';
+  const stats = document.getElementById('run-stats');
+  stats.hidden = false;
+  // short on purpose: it shares the heading's line down to 800px
+  stats.textContent = `${(model.summary.TotalCycles / model.summary.Iterations).toFixed(2)} c/iter, IPC ${model.summary.IPC.toFixed(2)}`;
   if (model.rows.length === 0) {
     host.textContent = 'No instruction retired within the cycle cap, so there is no timeline to draw. Raise the cycle limit when producing the JSON.';
+    renderBusy(model);
+    renderWaitCol(model, 0);
     return;
   }
   const maxCycle = Math.max(...model.rows.map((r) => r.retired));
@@ -431,11 +437,11 @@ function renderTimeline(model, host) {
   const h = model.rows.length * cellH;
   // one cell past the last tick: a bar retiring at the cap ends its cell there
   const root = svg('svg', { width: LEFT + w + 2 * cell, height: TOP + h + 4, 'aria-hidden': 'true' });
-  // wait-exec and ready-done cannot each reach 3:1 of luminance on one surface;
-  // they also differ by fill pattern: stripes on wait and done, solid fills on
-  // ready and exec, with the stripe painted in the panel's surface color. The
-  // defs live in the timeline itself so a JSON drop without issue events (no
-  // flow SVG) still shows the cue; the tests scope to the svg's direct rects.
+  // wait and exec cannot each reach 3:1 of luminance on one surface; they
+  // also differ by fill pattern: hatches on wait and done, a solid fill on
+  // exec, with the hatch painted in the panel's surface color. The defs live
+  // in the timeline itself so a JSON drop without issue events (no flow SVG)
+  // still shows the cue; the tests scope to the svg's direct rects.
   const defs = svg('defs', {});
   for (const stage of ['wait', 'done']) {
     const p = svg('pattern', { id: `hatch-${stage}`, width: 8, height: 8, patternUnits: 'userSpaceOnUse' });
@@ -457,11 +463,12 @@ function renderTimeline(model, host) {
     root.appendChild(t);
   }
 
+  // waiting merges dispatch-to-issue into one hatched span: the cycle count
+  // in the right column matches the hatched cells of the same row
   for (const r of model.rows) {
     const y = TOP + (r.iter * model.instructions.length + r.instr) * cellH;
     const spans = [
-      [r.dispatched, r.ready, 'wait'],
-      [r.ready, r.issued, 'ready'],
+      [r.dispatched, r.issued, 'wait'],
       [r.issued, r.executed, 'exec'],
       [r.executed, r.retired, 'done'],
     ];
@@ -483,6 +490,8 @@ function renderTimeline(model, host) {
   }
   timelineCell = cell;
   host.appendChild(root);
+  renderWaitCol(model, cellH);
+  renderBusy(model);
   updateScrollCue(host);
   // rows past the box's height need a scroll; the note names the range in view
   if (host.scrollHeight > host.clientHeight + 1 && model.rows.length) {
@@ -495,6 +504,70 @@ function renderTimeline(model, host) {
     if (firstIdx >= 0 && lastIdx >= firstIdx) {
       notice.textContent = noticeBase + ` Box shows ${Math.floor(firstIdx / instrs)}-${Math.floor(lastIdx / instrs)}.`;
     }
+  }
+}
+
+// The wait (cycles) column: one number per row, pinned at the chart box's
+// right edge so it stays visible while the box scrolls horizontally; it
+// scrolls vertically with the rows. The longest wait is bold, unless it is 0.
+function renderWaitCol(model, cellH) {
+  const col = document.getElementById('wait-col');
+  const box = document.getElementById('timeline');
+  col.textContent = '';
+  col.hidden = model.rows.length === 0;
+  if (model.rows.length === 0) return;
+  col.style.fontSize = `${Math.min(FONT, cellH)}px`;
+  const head = document.createElement('div');
+  head.className = 'wait-head';
+  head.style.top = '0px';
+  head.textContent = 'wait';
+  col.appendChild(head);
+  const longest = Math.max(...model.rows.map((r) => r.issued - r.dispatched));
+  model.rows.forEach((r, i) => {
+    const d = document.createElement('div');
+    d.className = 'wait-val';
+    // row i's band in the svg: TOP + i * cellH high cellH, the number centered
+    d.style.top = `${TOP + i * cellH}px`;
+    d.style.height = `${cellH}px`;
+    d.style.lineHeight = `${cellH}px`;
+    d.textContent = r.issued - r.dispatched;
+    if (longest > 0 && r.issued - r.dispatched === longest) d.style.fontWeight = 'bold';
+    col.appendChild(d);
+  });
+  // keep the column aligned with the rows: translate on the box's scrolls
+  const sync = () => (col.style.transform = `translateY(${-box.scrollTop}px)`);
+  box.addEventListener('scroll', sync);
+  sync();
+}
+
+// One busy bar per unit under the timeline: the share of the run the unit
+// was busy, from the issue events' pipe-hold cycles over the timeline's
+// cycles. No events (a JSON drop from stock llvm-mca): no bars.
+function renderBusy(model) {
+  const host = document.getElementById('busy');
+  host.textContent = '';
+  const busy = unitBusy(model);
+  host.hidden = !busy;
+  if (!busy) return;
+  for (const { unit, pct } of busy) {
+    const row = document.createElement('div');
+    row.className = 'busy-row';
+    row.dataset.unit = unit;
+    const name = document.createElement('span');
+    name.className = 'busy-name';
+    name.textContent = unitName(model, unit);
+    name.title = `${unitRef(model, unit)}: busy ${pct.toFixed(1)}% of the run's cycles`;
+    const track = document.createElement('span');
+    track.className = 'busy-track';
+    const fill = document.createElement('span');
+    fill.className = 'busy-fill';
+    fill.style.width = `${Math.min(100, pct)}%`;
+    track.appendChild(fill);
+    const val = document.createElement('span');
+    val.className = 'busy-val';
+    val.textContent = `${pct.toFixed(1)}%`;
+    row.append(name, track, val);
+    host.appendChild(row);
   }
 }
 
@@ -608,37 +681,37 @@ function renderHeatmap(model, host) {
 }
 
 // Flow diagram, laid out like a CPU block diagram (WikiChip, the vendor
-// optimization guides): the dispatch and scheduler queues (and, when many
-// columns would shrink the text past 11px at 800px, the retire queue) across
-// the top, the execution ports side by side, retire at the bottom or top
-// right. The diagram is drawn to the panel's width, at least W: wider panels
-// get fewer unit rows and a shorter diagram, and the text stays at full size.
+// optimization guides): dispatch and the shared waiting area across the top,
+// one box per execution unit, retire at the bottom. The diagram is drawn to
+// the panel's width, at least W: wider panels get fewer unit rows and a
+// shorter diagram, and the text stays at full size.
 const FLOW = { W: 700, gap: 24, pad: 6, head: 20, name: 18, tokH: 18, tg: 3, font: 12, title: 14, small: 12, line: 13, band: 16 };
 // unit kinds: the band word for units without a role line, and the legend's words
 const KIND = { int: 'integer', branch: 'branch', slow: 'slow (divider)', vec: 'FP/vector', mem: 'memory' };
 const CH = 0.62; // monospace advance per em; shortcut: estimates label widths, measure them if a font is wider
 let flowCycleMax = 0;
 let currentFlowModel = null;
-// Maximum token pile and per-unit pile over the whole run, plus the
-// scheduler slots: the boxes are sized from them once per run.
-let flowShape = { pile: {}, byUnit: new Map(), tokW: 30, sched: null };
+// Maximum token pile per block and per unit over the whole run: the boxes
+// are sized from them once per run.
+let flowShape = { pile: {}, byUnit: new Map(), tokW: 30 };
 let flowLayout = null; // block and unit boxes from drawFlowBlocks, read by setFlowCycle
 
 // Mirror of the status text setFlowCycle writes; walking the run with this
 // finds the tallest line #flow-status must hold (see flowStatusHeight).
 function statusText(model, cycle, tokens) {
-  const counts = { dispatch: 0, waiting: 0, ready: 0, execute: 0, retire: 0 };
+  const counts = { dispatch: 0, waiting: 0, execute: 0, retire: 0 };
   const busy = {};
   const inFlight = {};
   for (const t of tokens) {
-    counts[t.stage]++;
+    // waiting and ready are both dispatched but not yet issued: one count
+    counts[t.stage === 'ready' ? 'waiting' : t.stage]++;
     for (const u of t.units) busy[u] = true;
     if (t.stage === 'execute' && t.units.length === 0 && t.lastUnits.length > 0) inFlight[t.lastUnits[0]] = true;
   }
   const busyNames = Object.keys(busy).map(Number).sort((a, b) => a - b).map((u) => unitName(model, u));
   const inFlightNames = Object.keys(inFlight).map(Number).sort((a, b) => a - b).map((u) => unitName(model, u));
   return (
-    `Cycle ${cycle}. Dispatch ${counts.dispatch}, waiting ${counts.waiting}, ready ${counts.ready}, ` +
+    `Cycle ${cycle}. Dispatch ${counts.dispatch}, waiting ${counts.waiting}, ` +
     `executing on ${busyNames.length ? busyNames.join(', ') : 'no units'}, retire ${counts.retire}.` +
     inFlightNames.map((u) => ` Executing (latency), last on ${u}.`).join('')
   );
@@ -662,16 +735,17 @@ function flowStatusHeight(model, statusEl) {
 }
 
 function maxOccupancy(model) {
-  const pile = { dispatch: 1, waiting: 1, ready: 1, execute: 1, retire: 1, noUnit: 0 };
+  const pile = { dispatch: 1, waiting: 1, execute: 1, retire: 1, noUnit: 0 };
   const byUnit = new Map();
   const { maxCycle } = model.cycleIndex;
   const len = Math.max(...model.rows.map((r) => instanceLabel(model, r.iter, r.instr).length));
   const tokW = Math.ceil(len * CH * FLOW.font) + 8;
   for (let c = 0; c <= maxCycle; c++) {
-    const counts = { dispatch: 0, waiting: 0, ready: 0, execute: 0, retire: 0, noUnit: 0 };
+    const counts = { dispatch: 0, waiting: 0, execute: 0, retire: 0, noUnit: 0 };
     const unitCounts = {};
     for (const t of tokenPositionsAt(model, c)) {
-      counts[t.stage]++;
+      // dispatched but not yet issued: waiting and ready share one area
+      counts[t.stage === 'ready' ? 'waiting' : t.stage]++;
       // a token in the execute block parks somewhere: on every held unit,
       // or on its last unit when only latency remains
       const spots = t.units.length ? t.units : t.lastUnits;
@@ -721,7 +795,7 @@ function renderFlow(model) {
   slider.max = flowCycleMax;
   slider.value = 0;
   sliderValue.textContent = `cycle 0 of ${flowCycleMax}`;
-  flowShape = { ...maxOccupancy(model), sched: schedulerSlots(model) };
+  flowShape = maxOccupancy(model);
   currentFlowModel = model;
   drawFlowBlocks(model);
   // Pin the cycle bar to the tallest status of the run, so status wraps in a
@@ -738,16 +812,16 @@ function renderFlow(model) {
 
 // The whole diagram except the tokens, drawn once per run (and on a theme
 // change): every box is sized from the run's peaks, so nothing moves while
-// the user steps. Top to bottom: dispatch and ready, the clusters (each
-// scheduler group a fixed grid of slots above the units it feeds, then one
-// box per unit), retire.
+// the user steps. Top to bottom: dispatch and the waiting area, the unit
+// boxes (one per unit the CPU file lists, grouped into int, vec and mem
+// bands), retire.
 function drawFlowBlocks(model) {
   const host = document.getElementById('flow');
   host.textContent = '';
   // 1px under the width: the viewBox is W + 1 wide and must not downscale
   const W = Math.max(FLOW.W, host.clientWidth - 1);
   const { gap, pad, head, name: nameH, tokH, tg: tgap, font, title, small, line: lineH, band: bandH } = FLOW;
-  const { pile, byUnit, tokW, sched } = flowShape;
+  const { pile, byUnit, tokW } = flowShape;
   const step = tokW + tgap;
   const colsIn = (w) => Math.max(1, Math.floor((w - 2 * pad + tgap) / step));
   const stackH = (rows) => rows * tokH + (rows - 1) * tgap;
@@ -755,8 +829,8 @@ function drawFlowBlocks(model) {
   const box = (x, y, w, h) => ({ x, y, w, h, cols: colsIn(w) });
 
   const qW = (W - gap) / 2;
-  const blocks = { dispatch: box(0, 0, qW, queueH(pile.dispatch, qW)), ready: box(qW + gap, 0, qW, queueH(pile.ready, qW)) };
-  const h1 = Math.max(blocks.dispatch.h, blocks.ready.h);
+  const blocks = { dispatch: box(0, 0, qW, queueH(pile.dispatch, qW)), waiting: box(qW + gap, 0, qW, queueH(pile.waiting, qW)) };
+  const h1 = Math.max(blocks.dispatch.h, blocks.waiting.h);
   // execution ports, as in vendor block diagrams: one column per unit with its
   // name and role lines on top, grouped into int, vec and mem bands. Branch is
   // int's last column; dividers and other slow units fold into int as a row
@@ -770,14 +844,6 @@ function drawFlowBlocks(model) {
     const w = Math.min(W - 4 * pad, Math.max(textW(n.name, font), ...lines.map((l) => textW(l, small)), tokW) + 2 * pad);
     return { u, n, kind, lines, w, cols: colsIn(w), band: kind === 'vec' || kind === 'mem' ? kind : 'int' };
   });
-  // each scheduler group sits in the band of the first unit it feeds
-  const groupList = [...sched.slots].map(([g, n]) => {
-    const fed = model.resources.flatMap((r, u) => (unitGroup(r) === g ? [u] : []));
-    return { g, n, fed, band: fed.length ? cols[fed[0]].band : 'int', label: `${fed.length ? fed.map((u) => model.units[u].name).join(' ') : g} scheduler, ${n} slots` };
-  });
-  const slotCols = colsIn(W - 2 * pad);
-  const badgeW = 30;
-  const groups = new Map();
   const rank = { int: 0, vec: 0, mem: 0, branch: 1, slow: 2 };
   const units = [];
   const bands = [];
@@ -786,17 +852,9 @@ function drawFlowBlocks(model) {
     const list = cols
       .filter((c) => c.band === band)
       .sort((a, b) => rank[a.kind] - rank[b.kind] || (a.n.port != null && b.n.port != null ? a.n.port - b.n.port : 0) || a.n.name.localeCompare(b.n.name, 'en', { numeric: true }));
-    const gs = groupList.filter((gr) => gr.band === band);
-    if (!list.length && !gs.length) continue;
+    if (!list.length) continue;
     bands.push({ band, y });
     y += bandH;
-    gs.forEach((gr, i) => {
-      // the band's first group shares the band's label line
-      const top = i ? y : y - bandH;
-      const slotY = top + bandH;
-      groups.set(gr.g, { ...gr, x: 2 * pad, y: slotY, cols: slotCols, top, badge: { x: W - 2 * pad - badgeW, y: top + 1, w: badgeW, h: bandH - 2 } });
-      y = slotY + stackH(Math.ceil(gr.n / slotCols)) + ug;
-    });
     let row = [];
     const flush = () => {
       if (!row.length) return;
@@ -824,7 +882,7 @@ function drawFlowBlocks(model) {
   if (pile.noUnit) y += stackH(Math.ceil(pile.noUnit / noUnit.cols)) + ug;
   blocks.execute = box(0, execY, W, y - ug + pad - execY);
   blocks.retire = box(0, execY + blocks.execute.h + gap, W, queueH(pile.retire, W));
-  flowLayout = { W, blocks, units, noUnit, groups };
+  flowLayout = { W, blocks, units, noUnit };
   // the legend names each kind's units, so the colors read without the SVG
   for (const el of document.querySelectorAll('#flow-legend .flow-kind')) el.remove();
   for (const kind of Object.keys(KIND)) {
@@ -847,11 +905,11 @@ function drawFlowBlocks(model) {
   root.appendChild(defs);
   const arrow = (x1, y1, x2, y2) =>
     root.appendChild(svg('line', { x1, y1, x2, y2, stroke: FLOW_COLORS.edge, 'stroke-width': 1.5, 'marker-end': 'url(#flow-arrow)' }));
-  for (const b of [blocks.dispatch, blocks.ready]) arrow(b.x + b.w / 2, b.h + 2, b.x + b.w / 2, execY - 2);
+  for (const b of [blocks.dispatch, blocks.waiting]) arrow(b.x + b.w / 2, b.h + 2, b.x + b.w / 2, execY - 2);
   arrow(W / 2, blocks.retire.y - gap + 2, W / 2, blocks.retire.y - 2);
 
-  const names = { dispatch: 'Dispatch', ready: 'Scheduler (ready)', execute: 'Schedulers and execution units', retire: 'Retire' };
-  for (const cls of ['dispatch', 'ready', 'execute', 'retire']) {
+  const names = { dispatch: 'Dispatch', waiting: 'Waiting (dispatched, not yet issued)', execute: 'Execution units', retire: 'Retire' };
+  for (const cls of ['dispatch', 'waiting', 'execute', 'retire']) {
     const b = blocks[cls];
     const g = svg('g', { class: 'flow-block', 'data-block': cls });
     g.appendChild(svg('rect', { x: b.x, y: b.y, width: b.w, height: b.h, rx: 4, fill: FLOW_COLORS.block, stroke: FLOW_COLORS.edge }));
@@ -863,18 +921,6 @@ function drawFlowBlocks(model) {
         const t = svg('text', { class: 'flow-band', x: 2 * pad, y: bd.y + 13, 'font-size': small, 'font-weight': 600, fill: FLOW_COLORS[bd.band] });
         t.textContent = KIND[bd.band];
         g.appendChild(t);
-      }
-      for (const gr of groups.values()) {
-        // empty slots stay drawn, so the queue reads as full or empty at a glance
-        const gg = svg('g', { class: 'flow-group', 'data-group': gr.g });
-        gg.appendChild(svg('text', { x: gr.badge.x - 6, y: gr.top + 13, 'font-size': small, 'text-anchor': 'end', fill: FLOW_COLORS.muted })).textContent = gr.label;
-        gg.appendChild(svg('rect', { class: 'flow-badge-box', x: gr.badge.x, y: gr.badge.y, width: gr.badge.w, height: gr.badge.h, rx: gr.badge.h / 2, fill: FLOW_COLORS.token }));
-        for (let k = 0; k < gr.n; k++) {
-          const sx = gr.x + (k % gr.cols) * step;
-          const sy = gr.y + Math.floor(k / gr.cols) * (tokH + tgap);
-          gg.appendChild(svg('rect', { class: 'flow-slot', x: sx, y: sy, width: tokW, height: tokH, rx: 3, fill: 'none', stroke: FLOW_COLORS.muted, 'stroke-dasharray': '3 2' }));
-        }
-        g.appendChild(gg);
       }
       model.resources.forEach((name, u) => {
         const { x, y: uy, w, h, c } = units[u];
@@ -938,38 +984,22 @@ function setFlowCycle(model, cycle) {
   const { pad, head, tokH, tg: tgap, font } = FLOW;
   const tokW = flowShape.tokW;
   const step = tokW + tgap;
-  const { blocks, units, noUnit, groups } = flowLayout;
-  const waitingAt = flowShape.sched.waiting[cycle] ?? new Map();
-  const inGroup = {};
-  // each group's badge holds its waiting count; past the slot count the last
-  // slot shows +N instead of a token, so the box keeps its size
-  for (const [g, gr] of groups) {
-    const m = waitingAt.get(g)?.length ?? 0;
-    const b = svg('text', { class: 'flow-badge', 'data-group': g, x: gr.badge.x + gr.badge.w / 2, y: gr.badge.y + gr.badge.h / 2, 'font-size': font, 'font-weight': 600, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: FLOW_COLORS.tokenText });
-    b.textContent = m;
-    tg.appendChild(b);
-    if (m <= gr.n) continue;
-    const k = gr.n - 1;
-    const o = svg('text', { class: 'flow-overflow', 'data-group': g, 'data-n': m - k, x: gr.x + (k % gr.cols) * step + tokW / 2, y: gr.y + Math.floor(k / gr.cols) * (tokH + tgap) + tokH / 2, 'font-size': font, 'font-weight': 600, 'text-anchor': 'middle', 'dominant-baseline': 'central', fill: FLOW_COLORS.text });
-    o.textContent = `+${m - k}`;
-    tg.appendChild(o);
-  }
+  const { blocks, units, noUnit } = flowLayout;
   // token slot k in a box of c columns: row-major, left to right, top to bottom
   const slot = (x0, y0, cols, k) => [x0 + (k % cols) * step, y0 + Math.floor(k / cols) * (tokH + tgap)];
   const unitSlot = (u, k) => slot(units[u].x + pad, units[u].y + units[u].hdr, units[u].c.cols, k);
   const tokens = tokenPositionsAt(model, cycle);
-  const busy = {};
   const onUnitCount = {};
-  const counts = { dispatch: 0, waiting: 0, ready: 0, execute: 0, retire: 0 };
+  const counts = { dispatch: 0, waiting: 0, execute: 0, retire: 0 };
   let noUnitCount = 0;
   const inFlight = {};
   for (const t of tokens) {
-    const block = t.stage;
+    // waiting and ready are both not yet issued: one shared area, one count
+    const block = t.stage === 'ready' ? 'waiting' : t.stage;
     // Its hold ended but not yet executed: executing latency. Keep it in the
     // execution block on the last unit it used, drawn dashed and dimmed.
     const inLatency = block === 'execute' && t.units.length === 0 && t.lastUnits.length > 0;
     const n = counts[block]++;
-    for (const u of t.units) busy[u] = true;
     let x, y;
     if (block === 'execute') {
       const onUnit = inLatency ? t.lastUnits[0] : t.units[0];
@@ -982,13 +1012,6 @@ function setFlowCycle(model, cycle) {
         x = noUnit.x + (k % noUnit.cols) * step;
         y = noUnit.y + Math.floor(k / noUnit.cols) * (tokH + tgap);
       }
-    } else if (block === 'waiting') {
-      const g = t.queue == null ? 'unassigned' : unitGroup(model.resources[t.queue]);
-      const gr = groups.get(g);
-      const k = (inGroup[g] = (inGroup[g] ?? -1) + 1);
-      if (k >= gr.n - (waitingAt.get(g).length > gr.n ? 1 : 0)) continue; // counted in the +N slot
-      x = gr.x + (k % gr.cols) * step;
-      y = gr.y + Math.floor(k / gr.cols) * (tokH + tgap);
     } else {
       const b = blocks[block];
       x = b.x + pad + (n % b.cols) * step;
@@ -1016,7 +1039,6 @@ function setFlowCycle(model, cycle) {
       'data-iter': t.iter,
       'data-block': block,
       'data-units': t.units.join(' '),
-      ...(block === 'waiting' && { 'data-group': t.queue == null ? 'unassigned' : unitGroup(model.resources[t.queue]) }),
     });
     if (inLatency) {
       g.setAttribute('data-latency', '1');
@@ -1039,6 +1061,16 @@ function setFlowCycle(model, cycle) {
     g.addEventListener('mouseenter', () => highlightLine(model.lines?.[t.instr]));
     g.addEventListener('mouseleave', () => highlightLine(null));
     tg.appendChild(g);
+  }
+  // The waiting area keeps the size of the run's peak; a peak cycle's extra
+  // tokens show as one +N instead of moving the box.
+  const over = counts.waiting - Math.min(counts.waiting, flowShape.pile.waiting);
+  if (over > 0) {
+    const wb = blocks.waiting;
+    const [ox, oy] = slot(wb.x + pad, wb.y + head, wb.cols, Math.min(counts.waiting, flowShape.pile.waiting));
+    const o = svg('text', { class: 'flow-overflow', 'data-n': over, x: ox, y: oy + tokH - 3, 'font-size': font, 'font-weight': 600, fill: FLOW_COLORS.text });
+    o.textContent = `+${over}`;
+    tg.appendChild(o);
   }
   document.getElementById('flow-status').textContent = statusText(model, cycle, tokens);
   // the SVG is aria-hidden; this list is the text equivalent, one line per token
