@@ -36,7 +36,8 @@ for (const [width, height] of [[1920, 1080], [1600, 900], [1366, 768], [960, 108
     });
     expect(r.collapsed).toBe(true);
     expect(r.detailsHasCap).toBe(true);
-    expect(r.gap).toBeLessThanOrEqual(60);
+    // whole px: runner fonts shift the line height by a fraction of a pixel
+    expect(Math.round(r.gap)).toBeLessThanOrEqual(60);
   });
 }
 
