@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/model.test.mjs && playwright test"
+    "test": "node --test test/model.test.mjs && playwright test",
+    "test:mc": "node --test test/mc.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0"

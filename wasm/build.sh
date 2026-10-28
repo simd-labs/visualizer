@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build llvm-mca 23.1.4 (X86, AArch64, RISCV) to WASM with Emscripten.
+# Build llvm-mca and llvm-mc 23.1.4 (X86, AArch64, RISCV) to WASM with Emscripten.
 # Flags verified in the spike (memory/visualizer/spike/notes.md): output is
 # byte-identical to native llvm-mca-23 for znver4 and neoverse-v2.
 # Source and build trees live in $WORK (default: cache dir, outside the repo);
@@ -67,9 +67,9 @@ emcmake cmake -G Ninja -S ../llvm-project/llvm \
   -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_LIBXML2=OFF \
   -DLLVM_NATIVE_TOOL_DIR="$NATIVE_TOOL_DIR" \
   -DCMAKE_EXE_LINKER_FLAGS="-sMODULARIZE -sEXPORT_ES6 -sALLOW_MEMORY_GROWTH -sFORCE_FILESYSTEM -sEXPORTED_RUNTIME_METHODS=FS,callMain -sENVIRONMENT=node,web"
-ninja llvm-mca
+ninja llvm-mca llvm-mc
 
 mkdir -p "$DIST"
-cp bin/llvm-mca.js bin/llvm-mca.wasm ../llvm-project/LICENSE.TXT "$DIST/"
+cp bin/llvm-mca.js bin/llvm-mca.wasm bin/llvm-mc.js bin/llvm-mc.wasm ../llvm-project/LICENSE.TXT "$DIST/"
 ls -l "$DIST"
 echo "test with: node $ROOT/wasm/test.mjs"
