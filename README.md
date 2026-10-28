@@ -54,7 +54,7 @@ quotes only, no copied text or images. Each rule's `source` field records
 its URL.
 
 To generate the same JSON by hand (fixtures are pinned to LLVM 23, because
-the browser WASM build of llvm-mca tracks llvmorg-23.1.3 and the tests
+the browser WASM build of llvm-mca tracks llvmorg-23.1.4 and the tests
 compare its output against these fixtures):
 
 ```
@@ -81,7 +81,7 @@ python3 -m http.server
 
 ## Building the WASM
 
-Run `bash wasm/build.sh` to build llvm-mca 23.1.3 (X86, AArch64, RISCV) with Emscripten
+Run `bash wasm/build.sh` to build llvm-mca 23.1.4 (X86, AArch64, RISCV) with Emscripten
 6.0.12 into `wasm/dist/` (llvm-mca.js, llvm-mca.wasm, LLVM's LICENSE.TXT).
 It applies every `wasm/patches/*.patch` to the pinned checkout before
 configuring (skips patches already in the tree, fails when one no longer

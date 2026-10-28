@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build llvm-mca 23.1.3 (X86, AArch64, RISCV) to WASM with Emscripten.
+# Build llvm-mca 23.1.4 (X86, AArch64, RISCV) to WASM with Emscripten.
 # Flags verified in the spike (memory/visualizer/spike/notes.md): output is
 # byte-identical to native llvm-mca-23 for znver4 and neoverse-v2.
 # Source and build trees live in $WORK (default: cache dir, outside the repo);
 # the emcc artifacts land in wasm/dist/ (gitignored).
 set -eu
 
-LLVM_TAG=llvmorg-23.1.3
+LLVM_TAG=llvmorg-23.1.4
 EMSDK_VER=6.0.12
 NATIVE_TOOL_DIR=${NATIVE_TOOL_DIR:-/usr/lib/llvm-23/bin}
 WORK=${WORK:-${XDG_CACHE_HOME:-$HOME/.cache}/visualizer-wasm}

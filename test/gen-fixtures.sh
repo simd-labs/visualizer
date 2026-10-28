@@ -6,7 +6,7 @@ set -eu
 cd "$(dirname "$0")"
 
 # Fixtures are pinned to LLVM 23: the browser WASM build of llvm-mca is
-# pinned to llvmorg-23.1.3 and v1 compares its output against these files.
+# pinned to llvmorg-23.1.4 and v1 compares its output against these files.
 MCA=/usr/bin/llvm-mca-23
 BASE="-timeline -iterations=3"
 $MCA -mcpu=znver4   $BASE -json fixtures/loop.s > fixtures/znver4.json
