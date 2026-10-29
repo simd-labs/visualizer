@@ -81,8 +81,11 @@ python3 -m http.server
 
 ## Building the WASM
 
-Run `bash wasm/build.sh` to build llvm-mca 23.1.4 (X86, AArch64, RISCV) with Emscripten
-6.0.12 into `wasm/dist/` (llvm-mca.js, llvm-mca.wasm, LLVM's LICENSE.TXT).
+Run `bash wasm/build.sh` to build the WASM tools into `wasm/dist/`.
+The build makes llvm-mca and llvm-mc 23.1.4 (X86, AArch64, RISCV) with
+Emscripten 6.0.12, and the XED decoder. The output is: llvm-mca.js,
+llvm-mca.wasm, llvm-mc.js, llvm-mc.wasm, xedform.cjs, xedform.wasm,
+LLVM's LICENSE.TXT and XED's XED-LICENSE.
 It applies every `wasm/patches/*.patch` to the pinned checkout before
 configuring (skips patches already in the tree, fails when one no longer
 applies); `wasm/patches/issue-view.patch` adds llvm-mca's JSON-only

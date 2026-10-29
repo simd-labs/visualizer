@@ -34,10 +34,13 @@ jobs:
       - name: Build WASM tools
         run: bash wasm/build.sh
 
+      - name: Test WASM tools
+        run: node --test test/mc.test.mjs test/xedform.test.mjs
+
       - name: Generate SHA256SUMS
         run: |
           cd wasm/dist
-          sha256sum llvm-mca.wasm llvm-mc.wasm llvm-mca.js llvm-mc.js xedform.wasm xedform.cjs LICENSE.TXT > SHA256SUMS
+          sha256sum llvm-mca.wasm llvm-mc.wasm llvm-mca.js llvm-mc.js xedform.wasm xedform.cjs LICENSE.TXT XED-LICENSE > SHA256SUMS
           cat SHA256SUMS
 
       - name: Create Release
@@ -52,4 +55,5 @@ jobs:
             wasm/dist/llvm-mc.js
             wasm/dist/xedform.cjs
             wasm/dist/LICENSE.TXT
+            wasm/dist/XED-LICENSE
             wasm/dist/SHA256SUMS

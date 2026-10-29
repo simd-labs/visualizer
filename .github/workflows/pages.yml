@@ -65,6 +65,9 @@ jobs:
       - name: WASM llvm-mca tests
         run: node wasm/test.mjs
 
+      - name: WASM llvm-mc and xedform tests
+        run: node --test test/mc.test.mjs test/xedform.test.mjs
+
       - name: playwright tests
         run: npx playwright test
 

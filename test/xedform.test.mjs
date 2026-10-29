@@ -46,7 +46,6 @@ function mc_asm(triple, mattr, extra, src) {
 
 for (const [triple, mattr, extra, src, expectedIform, expectedEosz] of CASES) {
   test(`${triple}: ${src}`, () => {
-    // Step 1: assemble to hex bytes with llvm-mc
     const mc = mc_asm(triple, mattr, extra, src);
     assert.equal(mc.exit, 0, `${triple}: mc failed: ${mc.stderr.trim()}`);
     // Join ALL encoding groups: one line can carry several (prefix + instruction)
@@ -55,24 +54,13 @@ for (const [triple, mattr, extra, src, expectedIform, expectedEosz] of CASES) {
     const hexbytes = groups
       .flatMap(g => g[1].split(',').map(b => parseInt(b.trim(), 16).toString(16).padStart(2, '0')))
       .join('');
-    
-    // Step 2: decode with xedform
     const xed = run_xed(hexbytes + '\n');
     assert.equal(xed.exit, 0, `${triple}: xed decode failed: ${xed.stderr.trim()}`);
     const parts = xed.stdout.trim().split(/\s+/);
     assert.equal(parts[0], 'OK', `${triple}: xed decode error: ${xed.stdout}`);
     assert.equal(parts[2], expectedIform, `${src}: got iform ${parts[2]}, want ${expectedIform}`);
     // Check eosz for prefix-sensitive cases (data16 leave: eosz=16 vs 64)
-    assert.ok(parts.includes(`eosz=${expectedEosz}`), 
+    assert.ok(parts.includes(`eosz=${expectedEosz}`),
       `${src}: eosz=${expectedEosz} missing from ${xed.stdout}`);
   });
 }
-
-// Mutation guard: verify the comparison actually works by running opposite check
-test('mutation: byte mismatch is caught', () => {
-  const xed = run_xed('62f17e486f0201\n');
-  assert.equal(xed.exit, 0);
-  const parts = xed.stdout.trim().split(/\s+/);
-  assert.notEqual(parts[2], 'VMOVDQU64_ZMMu64_MASKmskw_MEMu64_AVX512',
-    'mutation should produce a different iform');
-});

@@ -2,7 +2,6 @@
 # Build llvm-mca, llvm-mc 23.1.4 (X86, AArch64, RISCV) and Intel XED decoder to WASM.
 # Flags verified in the spike (memory/visualizer/spike/notes.md): output is
 # byte-identical to native llvm-mca-23 for znver4 and neoverse-v2.
-# XED pins match simdref-llvm-mc/xed-version.txt.
 # Source and build trees live in $WORK (default: cache dir, outside the repo);
 # the emcc artifacts land in wasm/dist/ (gitignored).
 set -eu
@@ -85,8 +84,6 @@ XED_WORK=$WORK/xed
 XED_CACHE=$WORK/xed-cache
 mkdir -p "$XED_WORK" "$XED_CACHE"
 
-XED_SOURCES=$ROOT/wasm/sources/xedform.c
-
 fetch_xed() {
   local f=$XED_CACHE/$1
   if [ ! -f "$f" ]; then curl -fL -o "$f" "$2"; fi
@@ -124,9 +121,10 @@ PYTHONPATH=$PWD/mbuild python3 mfile.py --static --opt=2 --no-encoder \
 KIT=$XED_WORK/xed-src/obj/wkit
 test -f "$KIT/lib/libxed.a" || { echo "FATAL: no $KIT/lib/libxed.a" >&2; exit 1; }
 
-# Build xedform.wasm from the vendored xedform.c
 emcc -O2 -sSTACK_SIZE=2MB -sALLOW_MEMORY_GROWTH \
-  -I"$KIT/include" "$XED_SOURCES" "$KIT/lib/libxed.a" -o "$DIST/xedform.cjs"
+  -I"$KIT/include" "$ROOT/wasm/sources/xedform.c" "$KIT/lib/libxed.a" -o "$DIST/xedform.cjs"
+# XED is Apache-2.0 and statically linked into xedform.cjs; ship its license.
+cp "$XED_WORK/xed-src/LICENSE" "$DIST/XED-LICENSE"
 
 ls -l "$DIST"
 echo "test with: node $ROOT/wasm/test.mjs"

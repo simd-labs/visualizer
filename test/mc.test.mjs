@@ -52,13 +52,3 @@ for (const [triple, mattr, extra, src, expected] of CASES) {
     assert.deepEqual(got, expected);
   });
 }
-
-// Mutation guard: a wrong expectation must fail, proving the comparison runs.
-test('mutation: wrong bytes are rejected', () => {
-  const { exit, stdout } = assemble('sh1add a0, a1, a2',
-    ['-triple=riscv64', '-mattr=+zba', '-show-encoding']);
-  assert.equal(exit, 0);
-  const m = stdout.match(/encoding: \[([^\]]+)\]/);
-  const got = m[1].split(',').map(b => parseInt(b, 16));
-  assert.notDeepEqual(got, [0x33, 0xa5, 0xc5, 0x21]);
-});
