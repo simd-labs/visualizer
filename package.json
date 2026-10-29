@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/model.test.mjs && playwright test",
-    "test:mc": "node --test test/mc.test.mjs"
+    "test:mc": "node --test test/mc.test.mjs",
+    "test:xed": "node --test test/xedform.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0"

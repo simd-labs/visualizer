@@ -1,0 +1,55 @@
+name: WASM Release
+
+on:
+  push:
+    tags:
+      - 'wasm-v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wasm-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-24.04
+    env:
+      WORK: ${{ github.workspace }}/.wasm-work
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+
+      - name: Install llvm-mca 23
+        run: |
+          wget -q https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 23
+          rm llvm.sh
+
+      - name: Build WASM tools
+        run: bash wasm/build.sh
+
+      - name: Generate SHA256SUMS
+        run: |
+          cd wasm/dist
+          sha256sum llvm-mca.wasm llvm-mc.wasm llvm-mca.js llvm-mc.js xedform.wasm xedform.cjs LICENSE.TXT > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: WASM Release ${{ github.ref_name }}
+          files: |
+            wasm/dist/llvm-mca.wasm
+            wasm/dist/llvm-mc.wasm
+            wasm/dist/xedform.wasm
+            wasm/dist/llvm-mca.js
+            wasm/dist/llvm-mc.js
+            wasm/dist/xedform.cjs
+            wasm/dist/LICENSE.TXT
+            wasm/dist/SHA256SUMS

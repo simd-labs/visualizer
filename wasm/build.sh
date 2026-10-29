@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Build llvm-mca and llvm-mc 23.1.4 (X86, AArch64, RISCV) to WASM with Emscripten.
+# Build llvm-mca, llvm-mc 23.1.4 (X86, AArch64, RISCV) and Intel XED decoder to WASM.
 # Flags verified in the spike (memory/visualizer/spike/notes.md): output is
 # byte-identical to native llvm-mca-23 for znver4 and neoverse-v2.
+# XED pins match simdref-llvm-mc/xed-version.txt.
 # Source and build trees live in $WORK (default: cache dir, outside the repo);
 # the emcc artifacts land in wasm/dist/ (gitignored).
 set -eu
@@ -12,6 +13,12 @@ NATIVE_TOOL_DIR=${NATIVE_TOOL_DIR:-/usr/lib/llvm-23/bin}
 WORK=${WORK:-${XDG_CACHE_HOME:-$HOME/.cache}/visualizer-wasm}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 DIST=$ROOT/wasm/dist
+
+# XED decoder-only build pins (from simdref-llvm-mc/xed-version.txt).
+XED_TAG=v2025.06.08
+XED_SHA256=ef1d8662519d1d65051f933a849e9701b7f4a1d869cfdbc46eefa2d44a8c98de
+MBUILD_TAG=v2024.11.04
+MBUILD_SHA256=866d17a3aa3b3f4d8d7157d747d54b13b4300c9fd5bf15ad9289b1b3309e0b71
 
 test -x "$NATIVE_TOOL_DIR/llvm-tblgen" || {
   echo "need llvm-tblgen in NATIVE_TOOL_DIR=$NATIVE_TOOL_DIR" >&2; exit 1; }
@@ -71,5 +78,55 @@ ninja llvm-mca llvm-mc
 
 mkdir -p "$DIST"
 cp bin/llvm-mca.js bin/llvm-mca.wasm bin/llvm-mc.js bin/llvm-mc.wasm ../llvm-project/LICENSE.TXT "$DIST/"
+
+# XED decoder-only WASM build
+# Reuse the emsdk activation from above; emcc is already on PATH.
+XED_WORK=$WORK/xed
+XED_CACHE=$WORK/xed-cache
+mkdir -p "$XED_WORK" "$XED_CACHE"
+
+XED_SOURCES=$ROOT/wasm/sources/xedform.c
+
+fetch_xed() {
+  local f=$XED_CACHE/$1
+  if [ ! -f "$f" ]; then curl -fL -o "$f" "$2"; fi
+  echo "$3  $f" | sha256sum -c -
+}
+
+fetch_xed xed-$XED_TAG.tar.gz \
+  "https://github.com/intelxed/xed/archive/refs/tags/$XED_TAG.tar.gz" "$XED_SHA256"
+fetch_xed mbuild-$MBUILD_TAG.tar.gz \
+  "https://github.com/intelxed/mbuild/archive/refs/tags/$MBUILD_TAG.tar.gz" "$MBUILD_SHA256"
+
+if [ ! -d "$XED_WORK/xed-src" ]; then
+  mkdir -p "$XED_WORK/xed-src"
+  tar -xzf "$XED_CACHE/xed-$XED_TAG.tar.gz" --strip-components=1 -C "$XED_WORK/xed-src"
+fi
+if [ ! -d "$XED_WORK/xed-src/mbuild" ]; then
+  mkdir -p "$XED_WORK/xed-src/mbuild"
+  tar -xzf "$XED_CACHE/mbuild-$MBUILD_TAG.tar.gz" --strip-components=1 \
+    -C "$XED_WORK/xed-src/mbuild"
+fi
+
+cd "$XED_WORK/xed-src"
+rm -rf obj
+# XED decoder-only static library through XED's own mfile.py, driven at the
+# emcc tools. Same knobs as the wheel's CMake XED step plus the tool override.
+# shortcut: --host-cpu=aarch64; mbuild normalizes every x86 name to x86-64 and
+# then adds -m64, which emcc builds as wasm64 and wasm-ld refuses to link with
+# wasm32 xedform.o. No wasm64 output wanted here, and XED code is host-agnostic.
+PYTHONPATH=$PWD/mbuild python3 mfile.py --static --opt=2 --no-encoder \
+  --compiler=gnu --no-werror --host-cpu=aarch64 \
+  --cc="$(command -v emcc)" --cxx="$(command -v em++)" \
+  --ar="$(command -v emar)" --linker="$(command -v emcc)" \
+  --as="$(command -v emcc)" --jobs="$(nproc)"
+
+KIT=$XED_WORK/xed-src/obj/wkit
+test -f "$KIT/lib/libxed.a" || { echo "FATAL: no $KIT/lib/libxed.a" >&2; exit 1; }
+
+# Build xedform.wasm from the vendored xedform.c
+emcc -O2 -sSTACK_SIZE=2MB -sALLOW_MEMORY_GROWTH \
+  -I"$KIT/include" "$XED_SOURCES" "$KIT/lib/libxed.a" -o "$DIST/xedform.cjs"
+
 ls -l "$DIST"
 echo "test with: node $ROOT/wasm/test.mjs"
