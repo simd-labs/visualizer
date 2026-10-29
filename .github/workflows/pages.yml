@@ -71,13 +71,6 @@ jobs:
       - name: playwright tests
         run: npx playwright test
 
-      # Debug access on a CI failure; same setup as a flaky playwright run.
-      - name: Setup tmate session on failure
-        if: failure()
-        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3
-        with:
-          limit-access-to-actor: true
-
       - name: Stage Pages site
         # The page needs only the static files plus the WASM; node_modules,
         # test/ and the build trees stay out of the artifact.
