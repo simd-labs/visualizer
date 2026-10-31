@@ -103,6 +103,9 @@ test('16acc drives the FP pipes higher than 1acc on znver4', async ({ page }) =>
     await expect(page.locator('#run')).toBeEnabled({ timeout: 120000 });
     await page.locator('#cpu').selectOption(FIXED);
     await page.locator('#file').setInputFiles(file);
+    // a file pick queues the run: #run still reads 'Run' until it starts, so
+    // text alone passes on the previous state; the result panel is the signal
+    await expect(page.locator('#out')).toBeVisible({ timeout: 120000 });
     await expect(page.locator('#run')).toHaveText('Run', { timeout: 120000 });
     return page.locator('#busy .busy-row').evaluateAll((els) =>
       Object.fromEntries(els.map((r) => [+r.dataset.unit, +r.querySelector('.busy-val').textContent.replace('%', '')]))

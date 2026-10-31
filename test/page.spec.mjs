@@ -1335,14 +1335,17 @@ test('the timeline box scrolls sideways when its cycles are wider than the colum
   await page.setViewportSize({ width: 500, height: 900 });
   await open(page, 'drop', 'neoverse-v2.json'); // 30 ticks: wider than a 500px box at the 12px floor
   await expect(page.locator('#out')).toBeVisible();
+  await expect(page.locator('#timeline svg')).toHaveCount(1); // the dropped run is drawn
   const tl = page.locator('#timeline');
   const dims = await tl.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth, ox: getComputedStyle(el).overflowX }));
   expect(dims.sw).toBeGreaterThan(dims.cw);
-  // a real wheel scroll over the box moves it
+  // a real wheel scroll over the box moves it; re-wheel in the poll, one wheel can be swallowed under load
   const b = await tl.boundingBox();
   await page.mouse.move(b.x + b.width / 2, b.y + 30);
-  await page.mouse.wheel(400, 0);
-  await expect.poll(() => tl.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  await expect.poll(async () => {
+    await page.mouse.wheel(400, 0);
+    return tl.evaluate((el) => el.scrollLeft);
+  }).toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 });
 
