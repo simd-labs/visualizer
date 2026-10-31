@@ -57,3 +57,11 @@ jobs:
             wasm/dist/LICENSE.TXT
             wasm/dist/XED-LICENSE
             wasm/dist/SHA256SUMS
+
+      - name: Check the uploaded assets match SHA256SUMS
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" --json assets --jq '.assets[].name' | sort > uploaded
+          { awk '{print $2}' wasm/dist/SHA256SUMS; echo SHA256SUMS; } | sort > wanted
+          diff -u wanted uploaded
