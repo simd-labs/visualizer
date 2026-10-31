@@ -1337,10 +1337,19 @@ test('the timeline box scrolls sideways when its cycles are wider than the colum
   await expect(page.locator('#out')).toBeVisible();
   const tl = page.locator('#timeline');
   const dims = await tl.evaluate((el) => ({ sw: el.scrollWidth, cw: el.clientWidth, ox: getComputedStyle(el).overflowX }));
+  expect(dims.ox).toBe('auto');
   expect(dims.sw).toBeGreaterThan(dims.cw);
-  // a real wheel scroll over the box moves it
+  // the box moves its content sideways: deterministic, no input event involved
+  await tl.evaluate((el) => el.scrollBy(200, 0));
+  expect(await tl.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+  await tl.evaluate((el) => el.scrollTo(0, 0));
+  // a real wheel scroll over the box moves it. Center the box first: at
+  // 500x900 its top sits within 50px of the fold, so a wheel point near the
+  // top lands off-page when the text above wraps taller (CI fonts differ),
+  // and an off-page wheel event scrolls nothing.
+  await tl.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   const b = await tl.boundingBox();
-  await page.mouse.move(b.x + b.width / 2, b.y + 30);
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
   await page.mouse.wheel(400, 0);
   await expect.poll(() => tl.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
