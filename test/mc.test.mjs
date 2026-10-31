@@ -9,7 +9,7 @@ import { dirname, join, resolve } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const WORKER = resolve(root, 'wasm/run-worker.mjs');
-const MODULE = process.env.MC_WASM || resolve(root, 'wasm/dist/llvm-mc.js');
+const MODULE = resolve(root, 'wasm/dist/llvm-mc.js');
 
 // (triple, mattr, extra args, source line, expected encoding bytes)
 const CASES = [
