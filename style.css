@@ -152,6 +152,14 @@ a { color: var(--accent); }
   background: linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%);
   box-shadow: var(--shadow-sm);
 }
+.local-notice {
+  grid-column: 1 / -1; /* wide screens: span both columns like the header, above it */
+  padding: 0.3rem 1.1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
 .header-right { display: flex; align-items: center; gap: 0.6rem; }
 .logo {
   font-family: var(--font-mono);
