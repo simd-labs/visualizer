@@ -2,6 +2,7 @@ import { buildModel, tokenPositionsAt, instanceLabel, attachSourceLines, notIssu
 import { initMca, runMca } from './mca.js';
 import { lookup } from './unit-names.js';
 import { EXAMPLES, exampleFor } from './examples.js';
+import { loadRuntime, resolveKeys, loadRecords, buildAnnotations, coreKeyFor, archOf } from './simdref.js';
 
 const file = document.getElementById('file');
 const err = document.getElementById('error');
@@ -114,16 +115,17 @@ async function loadText(text) {
   const gen = ++loadGen;
   pendingAsmRun = false;
   try {
-    const model = modelOf(JSON.parse(text));
+    const json = JSON.parse(text);
+    const model = modelOf(json);
     if (gen !== loadGen) return;
-    show(model);
+    show(model, json);
   } catch (e) {
     if (gen !== loadGen) return;
     showError(e);
   }
 }
 
-function show(model) {
+function show(model, json) {
   notice.hidden = model.complete;
   noticeMore.hidden = model.complete;
   if (!model.complete) {
@@ -150,6 +152,7 @@ function show(model) {
   renderHeatmap(model, document.getElementById('heatmap'));
   renderFlow(model);
   renderTables(model);
+  renderSimdref(model, json);
 }
 
 async function runAsm() {
@@ -178,7 +181,8 @@ async function runAsm() {
     const r = await runMca(asm.value, args);
     if (gen !== loadGen) return;
     if (r.exit !== 0 || r.stdout === '') throw new Error(r.stderr.trim() || `llvm-mca exited with ${r.exit}`);
-    show(modelOf(JSON.parse(r.stdout), asm.value));
+    const json = JSON.parse(r.stdout);
+    show(modelOf(json, asm.value), json);
   } catch (e) {
     if (gen !== loadGen) return;
     showError(e);
@@ -404,6 +408,9 @@ const unitName = (model, u) => model.units[u].name;
 const unitRef = (model, u) => `${model.units[u].name} (${label(model.resources[u])})`;
 const rowName = (model, i) => (i === model.instructions.length ? 'total/iter' : model.instructions[i]);
 
+// Row height of the last timeline draw; the simdref column aligns to it.
+let timelineCellH = 0;
+
 function renderTimeline(model, host) {
   host.textContent = '';
   const stats = document.getElementById('run-stats');
@@ -413,6 +420,7 @@ function renderTimeline(model, host) {
   if (model.rows.length === 0) {
     host.textContent = 'No instruction retired within the cycle cap, so there is no timeline to draw. Raise the cycle limit when producing the JSON.';
     renderBusy(model);
+    timelineCellH = 0;
     renderWaitCol(model, 0);
     return;
   }
@@ -490,6 +498,7 @@ function renderTimeline(model, host) {
   }
   timelineCell = cell;
   host.appendChild(root);
+  timelineCellH = cellH;
   renderWaitCol(model, cellH);
   renderBusy(model);
   updateScrollCue(host);
@@ -535,6 +544,36 @@ function renderWaitCol(model, cellH) {
     col.appendChild(d);
   });
   // keep the column aligned with the rows: translate on the box's scrolls
+  const sync = () => (col.style.transform = `translateY(${-box.scrollTop}px)`);
+  box.addEventListener('scroll', sync);
+  sync();
+}
+
+// The simdref column, beside the wait column: one cell per timeline row,
+// the simdref row of the selected CPU for that instruction. A cell shows
+// latency, throughput, uops, ports, source and measured or modeled.
+function renderSimdrefCol(model, cellH, cells) {
+  const col = document.getElementById('simdref-col');
+  const box = document.getElementById('timeline');
+  col.textContent = '';
+  col.hidden = model.rows.length === 0;
+  if (model.rows.length === 0) return;
+  col.style.fontSize = `${Math.min(FONT, cellH)}px`;
+  const head = document.createElement('div');
+  head.className = 'simdref-head';
+  head.style.top = '0px';
+  head.textContent = 'simdref';
+  col.appendChild(head);
+  model.rows.forEach((r, i) => {
+    const d = document.createElement('div');
+    d.className = 'simdref-val';
+    // row i's band in the svg: TOP + i * cellH high cellH, the text centered
+    d.style.top = `${TOP + i * cellH}px`;
+    d.style.height = `${cellH}px`;
+    d.style.lineHeight = `${cellH}px`;
+    d.textContent = cells[r.instr];
+    col.appendChild(d);
+  });
   const sync = () => (col.style.transform = `translateY(${-box.scrollTop}px)`);
   box.addEventListener('scroll', sync);
   sync();
@@ -1155,4 +1194,99 @@ function renderTables(model) {
     ['Instruction', ...model.resources.map((_r, u) => unitRef(model, u))],
     model.matrix.map((row, i) => [rowName(model, i), ...row.map((v) => v.toFixed(2))])
   );
+}
+
+// A table value: the platform's own form, or "unknown" when absent.
+function showVal(v) {
+  return v === null || v === undefined || v === '' || v === '-' ? 'unknown' : String(v);
+}
+
+// A difference cell: llvm-mca minus simdref, rounded for display.
+function diffVal(d) {
+  return d === null ? 'unknown' : String(Math.round(d * 1000) / 1000);
+}
+
+// The validation view: llvm-mca's latency, throughput and uops beside the
+// simdref value and the difference, plus the loop summary. undefined is
+// the loading state, null means the data is unavailable.
+function renderValidation(ann) {
+  const summary = document.getElementById('validation-summary');
+  const host = document.getElementById('validation-table');
+  if (ann === undefined) {
+    summary.textContent = 'Loading simdref rows…';
+    host.textContent = '';
+    return;
+  }
+  if (ann === null) {
+    summary.textContent = 'simdref data unavailable';
+    host.textContent = '';
+    return;
+  }
+  const s = ann.summary;
+  const word = (n) => (n === 1 ? 'line' : 'lines');
+  summary.textContent =
+    `${s.within1} ${word(s.within1)} within 1 cycle, ${s.noMeasured} ${word(s.noMeasured)} with no measured row, ` +
+    `of ${s.total} instruction lines. Differences are llvm-mca minus simdref.`;
+  table(
+    host,
+    [
+      'Instruction',
+      'llvm-mca latency',
+      'simdref latency',
+      'Δ latency',
+      'llvm-mca throughput',
+      'simdref throughput',
+      'Δ throughput',
+      'llvm-mca uops',
+      'simdref uops',
+      'Δ uops',
+      'ports',
+      'source',
+      'kind',
+    ],
+    ann.rows.map((r) => [
+      r.instruction,
+      showVal(r.mca.latency),
+      r.ref ? showVal(r.ref.latency) : 'unknown',
+      diffVal(r.diff.latency),
+      showVal(r.mca.rthroughput),
+      r.ref ? showVal(r.ref.rthroughput) : 'unknown',
+      diffVal(r.diff.rthroughput),
+      showVal(r.mca.uops),
+      r.ref ? showVal(r.ref.uops) : 'unknown',
+      diffVal(r.diff.uops),
+      r.ref ? showVal(r.ref.ports) : 'unknown',
+      r.ref ? showVal(r.ref.source) : 'unknown',
+      r.ref ? r.ref.kind : 'unknown',
+    ])
+  );
+}
+
+// Resolve the simdref rows for the run, then fill the column and the
+// validation view. A lookup failure shows "simdref data unavailable" and
+// the page keeps working.
+let simdrefGen = 0;
+function renderSimdref(model, json) {
+  const gen = ++simdrefGen;
+  const fill = (cells) => renderSimdrefCol(model, timelineCellH, cells);
+  fill(new Array(model.instructions.length).fill('…'));
+  renderValidation(undefined);
+  (async () => {
+    const rt = await loadRuntime();
+    if (gen !== simdrefGen) return;
+    if (!rt.ok) throw new Error(rt.reason);
+    const coreKey = coreKeyFor(rt.cores, json?.TargetInfo?.CPUName);
+    const triple = json?.SimulationParameters?.['-mtriple'] ?? cpu.selectedOptions[0]?.dataset.triple;
+    const keys = await resolveKeys(model.instructions, archOf(triple));
+    if (!keys) throw new Error('simdref lookup failed');
+    const records = await loadRecords(rt.data, keys);
+    if (gen !== simdrefGen) return;
+    const ann = buildAnnotations(model, json, keys, records, coreKey);
+    fill(ann.cells);
+    renderValidation(ann);
+  })().catch(() => {
+    if (gen !== simdrefGen) return;
+    fill(new Array(model.instructions.length).fill('unknown'));
+    renderValidation(null);
+  });
 }

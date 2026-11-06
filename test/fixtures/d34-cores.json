@@ -1,0 +1,605 @@
+{
+ "ADL-E": {
+  "aliases": [
+   "ADL-E",
+   "adl-e",
+   "alderlake-e",
+   "gracemont"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "gracemont"
+ },
+ "ADL-P": {
+  "aliases": [
+   "ADL-P",
+   "adl-p",
+   "alderlake",
+   "alderlake-p",
+   "raptorlake-p"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "alderlake"
+ },
+ "AMT": {
+  "aliases": [
+   "AMT",
+   "airmont",
+   "amt"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "airmont"
+ },
+ "ARL-E": {
+  "aliases": [
+   "ARL-E",
+   "arl-e",
+   "arrowlake-e",
+   "skymont"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "skymont"
+ },
+ "ARL-P": {
+  "aliases": [
+   "ARL-P",
+   "arl-p",
+   "arrowlake",
+   "arrowlake-p",
+   "lioncove"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "arrowlake"
+ },
+ "BDW": {
+  "aliases": [
+   "BDW",
+   "bdw",
+   "broadwell"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "broadwell"
+ },
+ "BNL": {
+  "aliases": [
+   "BNL",
+   "bnl",
+   "bonnell"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "bonnell"
+ },
+ "CFL": {
+  "aliases": [
+   "CFL",
+   "cfl",
+   "coffeelake"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "coffeelake"
+ },
+ "CLX": {
+  "aliases": [
+   "CLX",
+   "cascade-lake",
+   "cascadelake",
+   "clx"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "cascadelake"
+ },
+ "CNL": {
+  "aliases": [
+   "CNL",
+   "cannonlake",
+   "cnl"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "cannonlake"
+ },
+ "CON": {
+  "aliases": [
+   "CON",
+   "con",
+   "conroe",
+   "core2"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "core2"
+ },
+ "EMR": {
+  "aliases": [
+   "EMR",
+   "SPR",
+   "emerald-rapids",
+   "emeraldrapids",
+   "sapphire-rapids",
+   "sapphirerapids"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "sapphirerapids"
+ },
+ "GLM": {
+  "aliases": [
+   "GLM",
+   "glm",
+   "goldmont"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "goldmont"
+ },
+ "GLP": {
+  "aliases": [
+   "GLP",
+   "glp",
+   "goldmont-plus"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "goldmont-plus"
+ },
+ "GNR": {
+  "aliases": [
+   "GNR",
+   "gnr",
+   "granite-rapids",
+   "graniterapids"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "graniterapids"
+ },
+ "HSW": {
+  "aliases": [
+   "HSW",
+   "haswell",
+   "hsw"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "haswell"
+ },
+ "ICL": {
+  "aliases": [
+   "ICL",
+   "icelake",
+   "icelake-client",
+   "icl"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "icelake-client"
+ },
+ "ICX": {
+  "aliases": [
+   "ICX",
+   "icelake-server",
+   "icelake-xeon"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "icelake-server"
+ },
+ "IVB": {
+  "aliases": [
+   "IVB",
+   "ivb",
+   "ivybridge"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "ivybridge"
+ },
+ "KBL": {
+  "aliases": [
+   "KBL",
+   "kabylake",
+   "kbl"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "kabylake"
+ },
+ "LNL-E": {
+  "aliases": [
+   "LNL-E",
+   "lnl-e",
+   "lunarlake-e"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "skymont"
+ },
+ "LNL-P": {
+  "aliases": [
+   "LNL-P",
+   "lnl-p",
+   "lunarlake",
+   "lunarlake-p"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "lioncove"
+ },
+ "MTL-E": {
+  "aliases": [
+   "MTL-E",
+   "crestmont",
+   "meteorlake-e",
+   "mtl-e"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "crestmont"
+ },
+ "MTL-P": {
+  "aliases": [
+   "MTL-P",
+   "meteorlake",
+   "meteorlake-p",
+   "mtl-p",
+   "redwoodcove"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "meteorlake"
+ },
+ "NHM": {
+  "aliases": [
+   "NHM",
+   "nehalem",
+   "nhm"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "nehalem"
+ },
+ "RKL": {
+  "aliases": [
+   "RKL",
+   "rkl",
+   "rocketlake"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "rocketlake"
+ },
+ "RPL": {
+  "aliases": [
+   "RPL",
+   "raptor-lake",
+   "raptorlake",
+   "rpl"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "raptorlake"
+ },
+ "SKL": {
+  "aliases": [
+   "SKL",
+   "skl",
+   "skylake"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "skylake"
+ },
+ "SKX": {
+  "aliases": [
+   "SKX",
+   "skx",
+   "skylake-avx512",
+   "skylake-x"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "skylake-avx512"
+ },
+ "SLM": {
+  "aliases": [
+   "SLM",
+   "silvermont"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "silvermont"
+ },
+ "SNB": {
+  "aliases": [
+   "SNB",
+   "sandybridge",
+   "snb"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "sandybridge"
+ },
+ "SRF": {
+  "aliases": [
+   "SRF",
+   "sierra-forest",
+   "sierraforest",
+   "srf"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "sierraforest"
+ },
+ "TGL": {
+  "aliases": [
+   "TGL",
+   "tgl",
+   "tigerlake"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "tigerlake"
+ },
+ "TRM": {
+  "aliases": [
+   "TRM",
+   "tremont",
+   "trm"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "tremont"
+ },
+ "WOL": {
+  "aliases": [
+   "WOL",
+   "wol",
+   "wolfdale"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "wolfdale"
+ },
+ "WSM": {
+  "aliases": [
+   "WSM",
+   "westmere",
+   "wsm"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "westmere"
+ },
+ "ZEN+": {
+  "aliases": [
+   "ZEN+",
+   "zen+",
+   "zen-plus",
+   "zenplus"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "znver1"
+ },
+ "ZEN1": {
+  "aliases": [
+   "ZEN1",
+   "zen",
+   "zen1"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "znver1"
+ },
+ "ZEN2": {
+  "aliases": [
+   "ZEN2",
+   "zen2",
+   "znver2"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "znver2"
+ },
+ "ZEN3": {
+  "aliases": [
+   "ZEN3",
+   "zen3",
+   "znver3"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "znver3"
+ },
+ "ZEN4": {
+  "aliases": [
+   "ZEN4",
+   "zen4",
+   "znver4"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "znver4"
+ },
+ "ZEN5": {
+  "aliases": [
+   "ZEN5",
+   "zen5",
+   "znver5"
+  ],
+  "isa": "x86",
+  "llvm_cpu": "znver5"
+ },
+ "a64fx": {
+  "aliases": [
+   "A64FX",
+   "a64fx"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "a64fx"
+ },
+ "apple-m1": {
+  "aliases": [
+   "M1",
+   "apple-m1"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "apple-m1"
+ },
+ "apple-m2": {
+  "aliases": [
+   "M2",
+   "apple-m2"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "apple-m2"
+ },
+ "c908": {
+  "aliases": [
+   "C908",
+   "c908"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "xiangshan-nanhu"
+ },
+ "c910": {
+  "aliases": [
+   "C910",
+   "c910"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "xiangshan-nanhu"
+ },
+ "cortex-a72": {
+  "aliases": [
+   "A72",
+   "cortex-a72"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "cortex-a72"
+ },
+ "cortex-a76": {
+  "aliases": [
+   "A76",
+   "cortex-a76"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "cortex-a76"
+ },
+ "cortex-a78": {
+  "aliases": [
+   "A78",
+   "cortex-a78"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "cortex-a78"
+ },
+ "cortex-x1": {
+  "aliases": [
+   "X1",
+   "cortex-x1"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "cortex-x1"
+ },
+ "cortex-x2": {
+  "aliases": [
+   "X2",
+   "cortex-x2"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "cortex-x2"
+ },
+ "neoverse-e1": {
+  "aliases": [
+   "E1",
+   "Neoverse-E1",
+   "neoverse-e1"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-e1"
+ },
+ "neoverse-n1": {
+  "aliases": [
+   "N1",
+   "Neoverse-N1",
+   "neoverse-n1"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-n1"
+ },
+ "neoverse-n2": {
+  "aliases": [
+   "N2",
+   "Neoverse-N2",
+   "neoverse-n2"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-n2"
+ },
+ "neoverse-n3": {
+  "aliases": [
+   "N3",
+   "Neoverse-N3",
+   "neoverse-n3"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-n3"
+ },
+ "neoverse-v1": {
+  "aliases": [
+   "Neoverse-V1",
+   "V1",
+   "neoverse-v1"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-v1"
+ },
+ "neoverse-v2": {
+  "aliases": [
+   "Neoverse-V2",
+   "V2",
+   "neoverse-v2"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-v2"
+ },
+ "neoverse-v3": {
+  "aliases": [
+   "Neoverse-V3",
+   "V3",
+   "neoverse-v3"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-v3"
+ },
+ "neoverse-v3ae": {
+  "aliases": [
+   "Neoverse-V3AE",
+   "V3AE",
+   "neoverse-v3ae"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "neoverse-v3ae"
+ },
+ "sifive-p400": {
+  "aliases": [
+   "P400",
+   "P450",
+   "sifive-p400",
+   "sifive-p450"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "sifive-p450"
+ },
+ "sifive-p600": {
+  "aliases": [
+   "P600",
+   "P670",
+   "sifive-p600",
+   "sifive-p670"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "sifive-p670"
+ },
+ "sifive-u74": {
+  "aliases": [
+   "U74",
+   "sifive-u74"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "sifive-u74"
+ },
+ "sifive-x280": {
+  "aliases": [
+   "X280",
+   "sifive-x280"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "sifive-x280"
+ },
+ "thunderx2t99": {
+  "aliases": [
+   "ThunderX2",
+   "thunderx2t99"
+  ],
+  "isa": "aarch64",
+  "llvm_cpu": "thunderx2t99"
+ },
+ "x60": {
+  "aliases": [
+   "Spacemit-X60",
+   "X60",
+   "x60"
+  ],
+  "isa": "riscv",
+  "llvm_cpu": "sifive-x280"
+ }
+}

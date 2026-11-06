@@ -1,0 +1,195 @@
+{
+ "x86:vpermd (ymm, ymm, ymm)": {
+  "mnemonic": "VPERMD",
+  "form": "VPERMD (YMM, YMM, YMM)",
+  "measurements": [
+   {
+    "family": "AMD",
+    "latency": "4",
+    "latencyPairs": [
+     {
+      "start": "ymm1",
+      "target": "ymm0",
+      "value": "4"
+     },
+     {
+      "start": "ymm2",
+      "target": "ymm0",
+      "value": "4"
+     }
+    ],
+    "ports": "1*FP12",
+    "source": "uops.info",
+    "sourceKind": "measured",
+    "tpLoop": "0.50",
+    "tpPorts": "0.50",
+    "tpUnrolled": "0.50",
+    "uarch": "ZEN4",
+    "uops": "1"
+   },
+   {
+    "citationUrl": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html",
+    "family": "Intel Client",
+    "latency": "3",
+    "latencyPairs": [
+     {
+      "start": "",
+      "target": "",
+      "value": "3"
+     }
+    ],
+    "ports": "-",
+    "source": "intel-guide",
+    "sourceKind": "modeled",
+    "sourceVersion": "3.6.9",
+    "tpLoop": "1",
+    "tpPorts": "-",
+    "tpUnrolled": "-",
+    "uarch": "ICX",
+    "uops": "-"
+   }
+  ]
+ },
+ "x86:vbroadcastss (ymm, xmm)": {
+  "mnemonic": "VBROADCASTSS",
+  "form": "VBROADCASTSS (YMM, XMM)",
+  "measurements": [
+   {
+    "family": "AMD",
+    "latency": "1",
+    "latencyPairs": [
+     {
+      "start": "xmm1",
+      "target": "ymm0",
+      "value": "1"
+     }
+    ],
+    "ports": "1*FP12",
+    "source": "uops.info",
+    "sourceKind": "measured",
+    "tpLoop": "0.50",
+    "tpPorts": "0.50",
+    "tpUnrolled": "0.50",
+    "uarch": "ZEN4",
+    "uops": "1"
+   },
+   {
+    "citationUrl": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html",
+    "family": "Intel Client",
+    "latency": "6",
+    "latencyPairs": [
+     {
+      "start": "",
+      "target": "",
+      "value": "6"
+     }
+    ],
+    "ports": "-",
+    "source": "intel-guide",
+    "sourceKind": "modeled",
+    "sourceVersion": "3.6.9",
+    "tpLoop": "0.54",
+    "tpPorts": "-",
+    "tpUnrolled": "-",
+    "uarch": "ICX",
+    "uops": "-"
+   }
+  ]
+ },
+ "x86:movbe (r32, m32)": {
+  "mnemonic": "MOVBE",
+  "form": "MOVBE (R32, M32)",
+  "measurements": [
+   {
+    "family": "AMD",
+    "latency": "7",
+    "latencyPairs": [
+     {
+      "start": "mem",
+      "target": "r320",
+      "value": "<=7"
+     }
+    ],
+    "ports": "-",
+    "source": "uops.info",
+    "sourceKind": "measured",
+    "tpLoop": "0.33",
+    "tpPorts": "-",
+    "tpUnrolled": "0.33",
+    "uarch": "ZEN4",
+    "uops": "1"
+   },
+   {
+    "citationUrl": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html",
+    "family": "Intel Client",
+    "latency": "6",
+    "latencyPairs": [
+     {
+      "start": "",
+      "target": "",
+      "value": "6"
+     }
+    ],
+    "ports": "-",
+    "source": "intel-guide",
+    "sourceKind": "modeled",
+    "sourceVersion": "3.6.9",
+    "tpLoop": "0.57",
+    "tpPorts": "-",
+    "tpUnrolled": "-",
+    "uarch": "ICX",
+    "uops": "-"
+   }
+  ]
+ },
+ "x86:adcx (r64, r64)": {
+  "mnemonic": "ADCX",
+  "form": "ADCX (R64, R64)",
+  "measurements": [
+   {
+    "family": "AMD",
+    "latency": "1",
+    "latencyPairs": [
+     {
+      "start": "mm0",
+      "target": "mm0",
+      "value": "1"
+     },
+     {
+      "start": "mm0",
+      "target": "flags",
+      "value": "1"
+     },
+     {
+      "start": "mm1",
+      "target": "mm0",
+      "value": "1"
+     },
+     {
+      "start": "mm1",
+      "target": "flags",
+      "value": "1"
+     },
+     {
+      "start": "flags",
+      "target": "mm0",
+      "value": "1"
+     },
+     {
+      "start": "flags",
+      "target": "flags",
+      "value": "1"
+     }
+    ],
+    "ports": "-",
+    "source": "uops.info",
+    "sourceKind": "measured",
+    "tpLoop": "0.38",
+    "tpPorts": "-",
+    "tpUnrolled": "0.40",
+    "uarch": "ZEN4",
+    "uops": "1"
+   }
+  ]
+ }
+}

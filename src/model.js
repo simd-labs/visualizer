@@ -8,7 +8,7 @@ export class TimelineMappingError extends Error {
 import { sourceLines } from './source-lines.js';
 
 // The label for instruction instr: its mnemonic, lowercase as llvm-mca prints it.
-function mnemonicOf(instruction) {
+export function mnemonicOf(instruction) {
   return instruction.trim().split(/\s+/)[0].toLowerCase();
 }
 

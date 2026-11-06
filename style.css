@@ -436,6 +436,11 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
 #wait-col { position: absolute; right: 0; top: 0; bottom: 0; width: 34px; overflow: hidden; font: 13px var(--font-mono); text-align: right; pointer-events: none; background: linear-gradient(to left, var(--surface) 60%, transparent); }
 #wait-col div { position: absolute; right: 2px; left: 0; }
 #wait-col .wait-head { color: var(--text-secondary); }
+/* the simdref column rides left of the wait column; long cells clip, the
+   validation table below carries every field */
+#simdref-col { position: absolute; right: 34px; top: 0; bottom: 0; width: min(300px, calc(100% - 40px)); overflow: hidden; font: 11px var(--font-mono); text-align: right; pointer-events: none; background: linear-gradient(to left, var(--surface) 60%, transparent); }
+#simdref-col div { position: absolute; right: 2px; left: 0; white-space: nowrap; }
+#simdref-col .simdref-head { color: var(--text-secondary); }
 .swatch-wait { background-color: var(--stage-wait); }
 .swatch-exec { background-color: var(--stage-exec); }
 .swatch-done { background-color: var(--stage-done); }
