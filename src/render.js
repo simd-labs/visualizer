@@ -579,6 +579,19 @@ function renderSimdrefCol(model, cellH, cells) {
   const sync = () => (col.style.transform = `translateY(${-box.scrollTop}px)`);
   box.addEventListener('scroll', sync);
   sync();
+  // the cells are hit-testable so their title reads on hover; a wheel over a
+  // cell must still scroll the timeline below, not the column
+  if (!col.dataset.wheel) {
+    col.dataset.wheel = '1';
+    col.addEventListener(
+      'wheel',
+      (e) => {
+        box.scrollBy(e.deltaX, e.deltaY);
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+  }
 }
 
 // One busy bar per unit under the timeline: the share of the run the unit

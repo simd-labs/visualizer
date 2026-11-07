@@ -444,6 +444,9 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
    table below carries every field */
 #simdref-col { position: absolute; right: 34px; top: 0; bottom: 0; width: min(300px, calc(100% - 40px)); overflow: hidden; font: 11px var(--font-mono); text-align: right; pointer-events: none; background: linear-gradient(to left, var(--surface) 60%, transparent); }
 #simdref-col div { position: absolute; right: 2px; left: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the column stays click-through so the timeline below keeps its events;
+   the cells take pointer events back so a cut-off value reads on hover */
+#simdref-col .simdref-val { pointer-events: auto; }
 #simdref-col .simdref-head { color: var(--text-secondary); }
 .swatch-wait { background-color: var(--stage-wait); }
 .swatch-exec { background-color: var(--stage-exec); }
