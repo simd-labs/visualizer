@@ -411,6 +411,9 @@ h3 { font-size: 0.85rem; margin: 0.75rem 0 0.3rem; }
    line instead of adding one */
 #legend { float: right; margin-bottom: 0.15rem; line-height: 1.19; padding-top: 2px; text-align: right; }
 #timeline { clear: both; }
+/* the legend floats out of the head's inline line: clear it, so the columns
+   start below the legend, not at the heading line */
+#timeline-head::after { content: ''; display: block; clear: both; }
 #flow svg { display: block; max-width: 100%; height: auto; }
 #flow svg text { font-family: var(--font-mono); }
 /* the headings shrink to inline so the head sits on one line; the legend stays a floated block */
@@ -464,4 +467,6 @@ footer { color: var(--text-secondary); font-size: 0.8rem; }
   .input-bar { grid-template-columns: minmax(0, 1fr); }
   .controls { flex-direction: row; flex-wrap: wrap; align-items: flex-end; min-width: 0; }
   .header { padding: 0 0.6rem; }
+  /* the stuck bar covers a third of a phone viewport: in flow it never covers a row */
+  .cycle-bar { position: static; }
 }
