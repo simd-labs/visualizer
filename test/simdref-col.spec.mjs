@@ -58,11 +58,14 @@ test('hovering a cut-off simdref cell exposes its full value', async ({ page }) 
       { timeout: 120000 }
     )
     .toBe(true);
+  // Whether a value overflows the 300px column depends on the test host's
+  // monospace font, so narrow the column to cut a long value off for sure.
+  await page.addStyleTag({ content: '#simdref-col { width: 60px !important; }' });
   const idx = await page.evaluate(() => {
     const vals = [...document.querySelectorAll('#simdref-col .simdref-val')];
     return vals.findIndex((c) => c.scrollWidth > c.clientWidth);
   });
-  expect(idx, 'the aarch64 view has a cut-off cell').toBeGreaterThanOrEqual(0);
+  expect(idx, 'a long value is cut off in the narrow column').toBeGreaterThanOrEqual(0);
   const cell = page.locator('#simdref-col .simdref-val').nth(idx);
   await cell.hover();
   const hit = await page.evaluate((i) => {
