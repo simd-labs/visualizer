@@ -572,6 +572,8 @@ function renderSimdrefCol(model, cellH, cells) {
     d.style.height = `${cellH}px`;
     d.style.lineHeight = `${cellH}px`;
     d.textContent = cells[r.instr];
+    // a cut-off cell ellipsizes; the title keeps the full value readable
+    d.title = cells[r.instr];
     col.appendChild(d);
   });
   const sync = () => (col.style.transform = `translateY(${-box.scrollTop}px)`);
